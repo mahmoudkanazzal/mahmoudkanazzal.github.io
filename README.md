@@ -1,2 +1,2 @@
-# mahmoudnazzal.github.io
+# mahmoudkanazzal.github.io
 Personal website repository
