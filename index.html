@@ -3,38 +3,144 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coming Soon - Mahmoud Nazzal</title>
+    <meta name="description" content="Mahmoud Nazzal - CV and Portfolio">
+    <title>Mahmoud Nazzal | AI Security & Applications</title>
+    <link rel="stylesheet" href="styles.css"> <!-- Link to external CSS file -->
     <style>
         body {
             font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+            line-height: 1.6;
             margin: 0;
+            padding: 0;
             background-color: #f4f4f4;
         }
-        h1 {
-            font-size: 2.5rem;
+        header {
+            background: #333;
+            color: #fff;
+            padding: 10px 0;
+            text-align: center;
+        }
+        .container {
+            width: 80%;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
             color: #333;
         }
-        p {
-            font-size: 1.2rem;
-            color: #555;
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        ul li {
+            margin: 10px 0;
+        }
+        section {
+            margin-bottom: 40px;
         }
         footer {
-            position: absolute;
-            bottom: 10px;
-            font-size: 0.9rem;
-            color: #777;
+            background: #333;
+            color: #fff;
+            text-align: center;
+            padding: 10px;
+            position: relative;
+            bottom: 0;
+            width: 100%;
         }
     </style>
 </head>
 <body>
-    <div>
-        <h1>Website Coming Soon!</h1>
-        <p>Stay tuned for updates.</p>
-        <footer>Mahmoud Nazzal | nm69@njit.edu</footer>
+    <header>
+        <h1>Mahmoud Nazzal</h1>
+        <p>Ph.D. Candidate in Computer Engineering | AI Security & Applications</p>
+        <nav>
+            <a href="https://mahmoudnazzal.github.io" style="color:white">Home</a> | 
+            <a href="#research" style="color:white">Research</a> | 
+            <a href="#experience" style="color:white">Experience</a> | 
+            <a href="#education" style="color:white">Education</a> | 
+            <a href="#skills" style="color:white">Skills</a> | 
+            <a href="#publications" style="color:white">Publications</a> | 
+            <a href="#awards" style="color:white">Awards</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <section id="about">
+            <h2>About Me</h2>
+            <p>I am a Ph.D. candidate in Computer Engineering at the New Jersey Institute of Technology, specializing in AI Security and Applications, with a focus on Graph Neural Networks (GNNs) and Large Language Models (LLMs).</p>
+        </section>
+
+        <section id="research">
+            <h2>Research Interests</h2>
+            <ul>
+                <li>Security, robustness, and applicability of Graph Neural Networks (GNNs) and Large Language Models (LLMs)</li>
+                <li>Adversarial robustness of GNNs and LLMs in novel areas</li>
+                <li>Prompt optimization and engineering</li>
+                <li>Real-world applications of LLMs and GNNs in:
+                    <ul>
+                        <li>Secure and functional source code generation</li>
+                        <li>Hardware design automation</li>
+                        <li>Internet security</li>
+                        <li>Predictive modeling in transportation systems</li>
+                    </ul>
+                </li>
+            </ul>
+        </section>
+
+        <section id="experience">
+            <h2>Professional Experience</h2>
+            <ul>
+                <li>Teaching Assistant, NJIT, Newark, NJ (2021 - Present)</li>
+                <li>Lecturer, Abu Dhabi Vocational Education and Training Institute, Abu Dhabi, UAE (2019 - 2021)</li>
+                <li>Researcher, Istanbul Medipol University, Istanbul, Turkey (2017 - 2019)</li>
+                <li>Lecturer, Izmir University of Economics, Izmir, Turkey (2016 - 2017)</li>
+            </ul>
+        </section>
+
+        <section id="education">
+            <h2>Education</h2>
+            <ul>
+                <li>Ph.D. in Computer Engineering, NJIT, Newark, NJ, USA (2025) - GPA: 4.00</li>
+                <li>M.Sc. in Electrical and Electronic Engineering, Eastern Mediterranean University, Cyprus (2010) - GPA: 3.77</li>
+                <li>B.Sc. in Electrical Engineering, Birzeit University, West Bank (2009)</li>
+            </ul>
+        </section>
+
+        <section id="skills">
+            <h2>Technical Skills</h2>
+            <ul>
+                <li>AI Programming: Pytorch, TensorFlow, scikit-learn</li>
+                <li>LLM-Related Skills: RAG, Vector Databases, Semantic Search</li>
+                <li>Programming: MATLAB, Python, C/C++, Java</li>
+                <li>Embedded Systems: Microcontrollers, Arduino</li>
+                <li>Cluster Computing: HPC with Slurm, Hadoop, Spark</li>
+            </ul>
+        </section>
+
+        <section id="publications">
+            <h2>Selected Publications</h2>
+            <ul>
+                <li>Nazzal, M., Khalil, I., Khreishah, A., Phan, N.H. (2024). Prompt Optimization for Secure Generation of Functional Source Code with LLMs. ACM CCS.</li>
+                <li>Nazzal, M., Phan, N.H., Khalil, I. (2024). Multi-Instance Adversarial Attack on GNN-Based Malicious Domain Detection. IEEE S&P.</li>
+                <!-- Add more publications as needed -->
+            </ul>
+        </section>
+
+        <section id="awards">
+            <h2>Awards and Honors</h2>
+            <ul>
+                <li>ACM CCS 2024 Student Travel Grant</li>
+                <li>Best Paper Award, Great Lakes Symposium on VLSI 2023</li>
+                <li>Ross Fellowship, NJIT (2021 - 2022)</li>
+            </ul>
+        </section>
     </div>
+
+    <footer>
+        <p>© 2024 Mahmoud Nazzal | <a href="mailto:nm69@njit.edu" style="color:white">Email Me</a> | <a href="https://github.com/mahmoudnazzal" style="color:white">GitHub</a> | <a href="https://www.linkedin.com/in/mahmoud-nazzal" style="color:white">LinkedIn</a></p>
+    </footer>
 </body>
 </html>
