@@ -13,6 +13,7 @@
             color: #ffffff;
             margin: 0;
             padding: 20px;
+            font-size: 0.85rem; /* Reduced font size */
         }
         .container {
             max-width: 900px;
@@ -23,7 +24,7 @@
             box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
         }
         h1 {
-            font-size: 2rem;
+            font-size: 1.8rem; /* Reduced font size */
             color: #3a71c1;
             text-align: center;
             margin-bottom: 20px;
@@ -39,9 +40,16 @@
             border: 1px solid #3a71c1;
         }
         .teaching-item h2 {
-            font-size: 1.5rem;
+            font-size: 1.3rem; /* Reduced font size */
             margin: 0;
             color: #3a71c1;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .teaching-item img {
+            height: 25px;
+            vertical-align: middle;
         }
         .teaching-item p {
             margin: 5px 0;
@@ -58,22 +66,38 @@
         <h1>Teaching Experience</h1>
         <div class="teaching-list">
             <div class="teaching-item">
-                <h2>Introduction to AI Security</h2>
+                <h2>
+                    <img src="images/njit-logo.png" alt="NJIT Logo">
+                    Introduction to AI Security
+                    <img src="images/usa-flag.png" alt="USA Flag">
+                </h2>
                 <p class="term">Term: Fall 2023</p>
                 <p>Description: Designed and taught this course focusing on the principles of artificial intelligence security, covering topics such as adversarial attacks, robustness, and ethical considerations in AI systems. The course included hands-on lab sessions and a final project where students developed secure AI models.</p>
             </div>
             <div class="teaching-item">
-                <h2>Advanced Graph Neural Networks</h2>
+                <h2>
+                    <img src="images/njit-logo.png" alt="NJIT Logo">
+                    Advanced Graph Neural Networks
+                    <img src="images/usa-flag.png" alt="USA Flag">
+                </h2>
                 <p class="term">Term: Spring 2024</p>
                 <p>Description: Led a graduate-level course on Graph Neural Networks (GNNs), emphasizing their applications in network security and data analysis. Students explored GNN architectures, adversarial robustness, and implemented GNNs for various cybersecurity challenges. The course culminated in a research-oriented project.</p>
             </div>
             <div class="teaching-item">
-                <h2>Machine Learning for Communication Systems</h2>
+                <h2>
+                    <img src="images/emu-logo.png" alt="EMU Logo">
+                    Machine Learning for Communication Systems
+                    <img src="images/cyprus-flag.png" alt="Cyprus Flag">
+                </h2>
                 <p class="term">Term: Fall 2022</p>
                 <p>Description: Co-taught this course with a focus on applying machine learning techniques to optimize communication systems. Topics covered included deep learning-based channel estimation, spectrum management, and predictive analysis for 5G networks. The course also involved case studies and real-world applications.</p>
             </div>
             <div class="teaching-item">
-                <h2>Secure Coding and Software Development</h2>
+                <h2>
+                    <img src="images/njit-logo.png" alt="NJIT Logo">
+                    Secure Coding and Software Development
+                    <img src="images/usa-flag.png" alt="USA Flag">
+                </h2>
                 <p class="term">Term: Spring 2023</p>
                 <p>Description: Developed a curriculum aimed at teaching secure software development practices. Topics included secure coding principles, common vulnerabilities, and the use of automated tools for code analysis. Students participated in code review sessions and worked on a final project to develop a secure application.</p>
             </div>
