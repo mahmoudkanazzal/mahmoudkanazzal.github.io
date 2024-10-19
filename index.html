@@ -9,20 +9,21 @@
     <style>
         body {
             font-family: 'Roboto', sans-serif;
-            background-color: #2C2C2C;
-            color: #F4F4F4;
+            background-color: #2C2F33;
+            color: #E8E9EB;
             margin: 0;
             padding: 0;
         }
         header {
-            background: #1A1A1A;
-            padding: 20px;
+            background: #23272A;
+            padding: 15px;
             text-align: center;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
         }
         header h1 {
             margin: 0;
-            font-size: 2rem;
+            font-size: 1.5rem;
+            color: #FFFFFF;
         }
         header nav a {
             color: #BBB;
@@ -34,60 +35,75 @@
             color: #fff;
         }
         .container {
-            max-width: 1000px;
-            margin: 0 auto;
+            max-width: 1100px;
+            margin: 60px auto;
             padding: 20px;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
         }
         .profile {
+            flex: 1 1 300px;
             text-align: center;
-            margin-bottom: 40px;
         }
         .profile img {
-            width: 150px;
-            height: 150px;
+            width: 200px;
+            height: 200px;
             border-radius: 50%;
             object-fit: cover;
-            border: 3px solid #555;
+            border: 3px solid #444;
+            margin-bottom: 20px;
         }
         .profile h2 {
-            margin: 10px 0 5px;
+            margin: 10px 0;
             font-size: 1.8rem;
+            color: #FFFFFF;
         }
         .profile p {
             margin: 5px 0;
-            font-size: 1rem;
-            color: #CCC;
+            color: #BBB;
         }
         .profile .cv-download {
             display: inline-block;
             margin-top: 10px;
             padding: 10px 20px;
-            background: #0056b3;
+            background: #7289DA;
             color: #fff;
             text-decoration: none;
             border-radius: 5px;
             transition: background 0.3s ease;
         }
         .profile .cv-download:hover {
-            background: #003d82;
+            background: #5a73b8;
         }
-        .section {
-            margin-bottom: 40px;
+        .biography {
+            flex: 2 1 500px;
         }
-        .section h2 {
+        .biography h2 {
+            font-size: 1.6rem;
             border-bottom: 2px solid #444;
             padding-bottom: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
-        .card {
-            background: #1A1A1A;
+        .biography p {
+            line-height: 1.6;
+        }
+        .two-column {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .column {
+            flex: 1 1 300px;
+            background: #23272A;
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-            margin-bottom: 20px;
         }
-        .card h3 {
+        .column h3 {
             margin-top: 0;
+            margin-bottom: 10px;
+            color: #FFF;
         }
         .social-icons {
             text-align: center;
@@ -100,17 +116,17 @@
             text-decoration: none;
         }
         .social-icons a:hover {
-            color: #fff;
+            color: #FFFFFF;
         }
         footer {
-            background: #1A1A1A;
+            background: #23272A;
             color: #BBB;
             text-align: center;
-            padding: 20px;
+            padding: 15px;
             margin-top: 40px;
         }
         footer a {
-            color: #0056b3;
+            color: #7289DA;
             text-decoration: none;
         }
         footer a:hover {
@@ -122,10 +138,9 @@
     <header>
         <h1>Mahmoud Nazzal</h1>
         <nav>
-            <a href="#about">About</a>
+            <a href="#biography">Biography</a>
             <a href="#interests">Interests</a>
             <a href="#education">Education</a>
-            <a href="#publications">Publications</a>
             <a href="#contact">Contact</a>
         </nav>
     </header>
@@ -134,73 +149,48 @@
         <div class="profile">
             <img src="your-profile.jpg" alt="Mahmoud Nazzal">
             <h2>Mahmoud Nazzal</h2>
-            <p>Ph.D. Candidate in Computer Engineering | AI Security & Applications</p>
-            <p>New Jersey Institute of Technology (NJIT)</p>
+            <p>Ph.D. Candidate in Computer Engineering | NJIT</p>
             <a href="M_Nazzal_CV_Oct_2024_published.pdf" target="_blank" class="cv-download">
                 <i class="fas fa-download"></i> Download CV
             </a>
         </div>
 
-        <section id="about" class="section">
+        <div class="biography">
             <h2>Biography</h2>
-            <p>I am a Ph.D. candidate in Computer Engineering at the New Jersey Institute of Technology, specializing in AI Security and Applications...</p>
-        </section>
-
-        <section id="interests" class="section">
-            <h2>Interests</h2>
-            <div class="card">
-                <h3>Cybersecurity</h3>
-                <p>Focus on security, robustness, and applicability of Graph Neural Networks (GNNs) and Large Language Models (LLMs).</p>
-            </div>
-            <div class="card">
-                <h3>Generative AI</h3>
-                <p>Exploring prompt optimization and real-world applications of LLMs.</p>
-            </div>
-            <div class="card">
-                <h3>Machine Learning for Communications</h3>
-                <p>Experience in physical layer security, channel estimation, and spectrum sensing.</p>
-            </div>
-        </section>
-
-        <section id="education" class="section">
-            <h2>Education</h2>
-            <div class="card">
-                <h3>Ph.D. in Computer Engineering (2021 - 2025)</h3>
-                <p>New Jersey Institute of Technology, Newark, NJ</p>
-                <p>GPA: 4.00</p>
-            </div>
-            <div class="card">
-                <h3>M.Sc. in Electrical and Electronic Engineering (2010)</h3>
-                <p>Eastern Mediterranean University, Cyprus</p>
-                <p>GPA: 3.77</p>
-            </div>
-            <div class="card">
-                <h3>B.Sc. in Electrical Engineering (2009)</h3>
-                <p>Birzeit University, West Bank</p>
-            </div>
-        </section>
-
-        <section id="publications" class="section">
-            <h2>Publications</h2>
-            <div class="card">
-                <h3>Notable Publications</h3>
-                <ul>
-                    <li>[C20] <strong>M. Nazzal</strong>, I. Khalil, ... "PromSec: Prompt Optimization..." in ACM CCS 2024.</li>
-                    <!-- Add other publications here -->
-                </ul>
-            </div>
-        </section>
-
-        <section id="contact" class="section">
-            <h2>Contact</h2>
-            <div class="social-icons">
-                <a href="mailto:nm69@njit.edu"><i class="fas fa-envelope"></i></a>
-                <a href="https://www.linkedin.com/in/mahmoud-nazzal" target="_blank"><i class="fab fa-linkedin"></i></a>
-                <a href="https://github.com/mahmoudnazzal" target="_blank"><i class="fab fa-github"></i></a>
-                <a href="https://scholar.google.com/citations?user=ygjUJnYAAAAJ&hl=en&authuser=2" target="_blank"><i class="fas fa-graduation-cap"></i></a>
-            </div>
-        </section>
+            <p>I am a Ph.D. candidate in Computer Engineering at the New Jersey Institute of Technology, specializing in AI Security and Applications. My research focuses on the security, robustness, and applicability of Graph Neural Networks (GNNs) and Large Language Models (LLMs).</p>
+            <p>My goal is to develop resilient defenses for AI systems, ensuring their security in real-world applications. I am currently on the job market for the 2024-2025 cycle, and I am open to opportunities in academia and industry.</p>
+        </div>
     </div>
+
+    <div class="container two-column">
+        <div class="column">
+            <h3>Interests</h3>
+            <ul>
+                <li>Cybersecurity</li>
+                <li>Generative AI</li>
+                <li>Machine Learning for Communications</li>
+            </ul>
+        </div>
+        <div class="column">
+            <h3>Education</h3>
+            <p><strong>Ph.D. in Computer Engineering</strong><br>
+            New Jersey Institute of Technology, 2021 - 2025</p>
+            <p><strong>M.Sc. in Electrical and Electronic Engineering</strong><br>
+            Eastern Mediterranean University, 2010</p>
+            <p><strong>B.Sc. in Electrical Engineering</strong><br>
+            Birzeit University, 2009</p>
+        </div>
+    </div>
+
+    <section id="contact" class="container">
+        <h2>Contact</h2>
+        <div class="social-icons">
+            <a href="mailto:nm69@njit.edu"><i class="fas fa-envelope"></i></a>
+            <a href="https://www.linkedin.com/in/mahmoud-nazzal" target="_blank"><i class="fab fa-linkedin"></i></a>
+            <a href="https://github.com/mahmoudnazzal" target="_blank"><i class="fab fa-github"></i></a>
+            <a href="https://scholar.google.com/citations?user=ygjUJnYAAAAJ&hl=en&authuser=2" target="_blank"><i class="fas fa-graduation-cap"></i></a>
+        </div>
+    </section>
 
     <footer>
         <p>© 2024 Mahmoud Nazzal | <a href="mailto:nm69@njit.edu">Email Me</a> | <a href="https://github.com/mahmoudnazzal">GitHub</a> | <a href="https://www.linkedin.com/in/mahmoud-nazzal">LinkedIn</a></p>
