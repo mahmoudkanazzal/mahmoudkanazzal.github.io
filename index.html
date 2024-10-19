@@ -8,190 +8,197 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
         body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
+            font-family: 'Roboto', sans-serif;
+            background-color: #2C2C2C;
+            color: #F4F4F4;
             margin: 0;
             padding: 0;
-            background-color: #f4f4f4;
         }
         header {
-            position: fixed;
-            top: 0;
-            width: 100%;
-            background: #333;
-            color: #fff;
-            z-index: 1000;
+            background: #1A1A1A;
             padding: 20px;
             text-align: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        header h1 {
+            margin: 0;
+            font-size: 2rem;
         }
         header nav a {
-            color: white;
+            color: #BBB;
             margin: 0 15px;
             text-decoration: none;
+            font-size: 1rem;
         }
         header nav a:hover {
-            text-decoration: underline;
+            color: #fff;
         }
         .container {
-            max-width: 900px;
-            margin: 120px auto 20px;
-            background-color: #fff;
-            padding: 40px;
-            border-radius: 10px;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
         }
-        h1, h2 {
-            color: #333;
-            margin-top: 0;
-        }
-        ul {
-            list-style-type: none;
-            padding: 0;
-        }
-        ul li {
-            margin: 10px 0;
-        }
-        section {
+        .profile {
+            text-align: center;
             margin-bottom: 40px;
         }
-        .about-section {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-        .about-section img {
+        .profile img {
             width: 150px;
             height: 150px;
             border-radius: 50%;
             object-fit: cover;
+            border: 3px solid #555;
+        }
+        .profile h2 {
+            margin: 10px 0 5px;
+            font-size: 1.8rem;
+        }
+        .profile p {
+            margin: 5px 0;
+            font-size: 1rem;
+            color: #CCC;
+        }
+        .profile .cv-download {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 10px 20px;
+            background: #0056b3;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background 0.3s ease;
+        }
+        .profile .cv-download:hover {
+            background: #003d82;
+        }
+        .section {
+            margin-bottom: 40px;
+        }
+        .section h2 {
+            border-bottom: 2px solid #444;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .card {
+            background: #1A1A1A;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            margin-bottom: 20px;
+        }
+        .card h3 {
+            margin-top: 0;
+        }
+        .social-icons {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .social-icons a {
+            color: #BBB;
+            margin: 0 10px;
+            font-size: 1.5rem;
+            text-decoration: none;
+        }
+        .social-icons a:hover {
+            color: #fff;
         }
         footer {
-            background: #333;
-            color: #fff;
+            background: #1A1A1A;
+            color: #BBB;
             text-align: center;
             padding: 20px;
-            position: fixed;
-            bottom: 0;
-            width: 100%;
+            margin-top: 40px;
         }
         footer a {
-            color: white;
+            color: #0056b3;
             text-decoration: none;
         }
         footer a:hover {
             text-decoration: underline;
-        }
-        .scrollable-list {
-            max-height: 400px;
-            overflow-y: auto;
-            padding: 0;
-        }
-        html {
-            scroll-behavior: smooth;
         }
     </style>
 </head>
 <body>
     <header>
         <h1>Mahmoud Nazzal</h1>
-        <p>Ph.D. Candidate in Computer Engineering | AI Security & Applications</p>
         <nav>
             <a href="#about">About</a>
-            <a href="#research">Research</a>
-            <a href="#experience">Experience</a>
+            <a href="#interests">Interests</a>
             <a href="#education">Education</a>
-            <a href="#skills">Skills</a>
             <a href="#publications">Publications</a>
-            <a href="#awards">Awards</a>
             <a href="#contact">Contact</a>
         </nav>
     </header>
 
     <div class="container">
-        <section id="about" class="about-section">
+        <div class="profile">
             <img src="your-profile.jpg" alt="Mahmoud Nazzal">
-            <div>
-                <h2>About Me</h2>
-                <p>I am a Ph.D. candidate in Computer Engineering at the New Jersey Institute of Technology, specializing in AI Security and Applications. My research focuses on the security, robustness, and applicability of Graph Neural Networks (GNNs) and Large Language Models (LLMs).</p>
-                <p>With several years of experience in academia and industry, I have worked on diverse projects involving adversarial robustness, machine learning for communications, and secure source code generation using advanced AI models. I am passionate about developing innovative solutions that bridge the gap between theory and real-world applications.</p>
-                <p>Outside of my academic pursuits, I am also actively involved in mentoring students, organizing research symposiums, and contributing to the academic community through publications and conferences.</p>
-                <p>My ultimate goal is to advance AI security technologies that enhance trust and reliability in the systems we depend on today and in the future.</p>
+            <h2>Mahmoud Nazzal</h2>
+            <p>Ph.D. Candidate in Computer Engineering | AI Security & Applications</p>
+            <p>New Jersey Institute of Technology (NJIT)</p>
+            <a href="M_Nazzal_CV_Oct_2024_published.pdf" target="_blank" class="cv-download">
+                <i class="fas fa-download"></i> Download CV
+            </a>
+        </div>
+
+        <section id="about" class="section">
+            <h2>Biography</h2>
+            <p>I am a Ph.D. candidate in Computer Engineering at the New Jersey Institute of Technology, specializing in AI Security and Applications...</p>
+        </section>
+
+        <section id="interests" class="section">
+            <h2>Interests</h2>
+            <div class="card">
+                <h3>Cybersecurity</h3>
+                <p>Focus on security, robustness, and applicability of Graph Neural Networks (GNNs) and Large Language Models (LLMs).</p>
+            </div>
+            <div class="card">
+                <h3>Generative AI</h3>
+                <p>Exploring prompt optimization and real-world applications of LLMs.</p>
+            </div>
+            <div class="card">
+                <h3>Machine Learning for Communications</h3>
+                <p>Experience in physical layer security, channel estimation, and spectrum sensing.</p>
             </div>
         </section>
 
-        <section id="research">
-            <h2>Research Interests</h2>
-            <p><strong>Currently:</strong> Security, robustness, and applicability of Graph Neural Networks (GNNs) and Large Language Models (LLMs)</p>
-            <ul>
-                <li>Adversarial robustness of GNNs and LLMs in novel areas</li>
-                <li>Prompt optimization and engineering</li>
-                <li>Real-world applications of LLMs and GNNs in:</li>
-                <ul style="columns: 2;">
-                    <li>Secure and functional source code generation</li>
-                    <li>Hardware design automation</li>
-                    <li>Internet security</li>
-                    <li>Predictive modeling in transportation systems</li>
-                </ul>
-            </ul>
-            <p><strong>Past Interests:</strong> Machine learning (ML) for communications (Physical layer security, Channel estimation, and spectrum sensing)</p>
-        </section>
-
-        <section id="experience">
-            <h2>Professional Experience</h2>
-            <ul>
-                <li>Teaching Assistant, NJIT, Newark, NJ (2021 - Present)</li>
-                <li>Lecturer, Abu Dhabi Vocational Education and Training Institute, Abu Dhabi, UAE (2019 - 2021)</li>
-                <li>Researcher, Istanbul Medipol University, Istanbul, Turkey (2017 - 2019)</li>
-                <li>Lecturer, Izmir University of Economics, Izmir, Turkey (2016 - 2017)</li>
-            </ul>
-        </section>
-
-        <section id="education">
+        <section id="education" class="section">
             <h2>Education</h2>
-            <ul>
-                <li>Ph.D. in Computer Engineering, NJIT, Newark, NJ, USA (2025) - GPA: 4.00</li>
-                <li>M.Sc. in Electrical and Electronic Engineering, Eastern Mediterranean University, Cyprus (2010) - GPA: 3.77</li>
-                <li>B.Sc. in Electrical Engineering, Birzeit University, West Bank (2009)</li>
-            </ul>
+            <div class="card">
+                <h3>Ph.D. in Computer Engineering (2021 - 2025)</h3>
+                <p>New Jersey Institute of Technology, Newark, NJ</p>
+                <p>GPA: 4.00</p>
+            </div>
+            <div class="card">
+                <h3>M.Sc. in Electrical and Electronic Engineering (2010)</h3>
+                <p>Eastern Mediterranean University, Cyprus</p>
+                <p>GPA: 3.77</p>
+            </div>
+            <div class="card">
+                <h3>B.Sc. in Electrical Engineering (2009)</h3>
+                <p>Birzeit University, West Bank</p>
+            </div>
         </section>
 
-        <section id="skills">
-            <h2>Technical Skills</h2>
-            <ul>
-                <li><i class="fas fa-robot"></i> <strong>AI Programming Environments</strong>: Pytorch, TensorFlow, scikit-learn, PyG, DGL</li>
-                <li><i class="fas fa-brain"></i> <strong>LLM-Related Skills</strong>: Retrieval-Augmented Generation (RAG), Vector Databases, Semantic Search</li>
-                <li><i class="fas fa-code"></i> <strong>Programming Languages</strong>: MATLAB, Python, C/C++, Java</li>
-                <li><i class="fas fa-server"></i> <strong>Cluster Computing Infrastructure</strong>: High-performance computing (HPC), Slurm Wulver, Hadoop, Apache Spark</li>
-                <li><i class="fas fa-microchip"></i> <strong>Embedded Systems</strong>: Micro-controllers, Arduino</li>
-                <li><i class="fas fa-tools"></i> <strong>Technical Software</strong>: Simulink, OrCAD, AutoCAD, LabVIEW</li>
-                <li><i class="fas fa-book"></i> <strong>Scientific and Professional Skills</strong>: Reporting, Grant Proposal Writing, Class Management</li>
-                <li><i class="fas fa-desktop"></i> <strong>Computer Literacy</strong>: MS Windows, MS Office, Linux, \LaTeX</li>
-            </ul>
+        <section id="publications" class="section">
+            <h2>Publications</h2>
+            <div class="card">
+                <h3>Notable Publications</h3>
+                <ul>
+                    <li>[C20] <strong>M. Nazzal</strong>, I. Khalil, ... "PromSec: Prompt Optimization..." in ACM CCS 2024.</li>
+                    <!-- Add other publications here -->
+                </ul>
+            </div>
         </section>
 
-        <section id="publications">
-            <h2>Notable Publications</h2>
-            <ul class="scrollable-list">
-                <li>[C20] <strong>M. Nazzal</strong>, I. Khalil... “<em>PromSec: Prompt Optimization for Secure Generation...</em>,” <strong>CCS 2024</strong>.</li>
-                <!-- Add other publications here -->
-            </ul>
-        </section>
-
-        <section id="awards">
-            <h2>Awards and Honors</h2>
-            <ul>
-                <li><strong>Oct. 2024:</strong> ACM CCS 2024 - Student Travel Grant</li>
-                <li><strong>Jun. 2023:</strong> GLSVLSI 2023 - Best Paper Award (2nd place)</li>
-                <li><strong>Nov. 2022:</strong> NJIT ECE PhD Stories Contest - 3rd Prize</li>
-                <!-- Add other awards here -->
-            </ul>
-        </section>
-
-        <section id="contact">
+        <section id="contact" class="section">
             <h2>Contact</h2>
-            <p>Email: <a href="mailto:nm69@njit.edu">nm69@njit.edu</a></p>
-            <p>LinkedIn: <a href="https://www.linkedin.com/in/mahmoud-nazzal" target="_blank">linkedin.com/in/mahmoud-nazzal</a></p>
-            <p>GitHub: <a href="https://github.com/mahmoudnazzal" target="_blank">github.com/mahmoudnazzal</a></p>
+            <div class="social-icons">
+                <a href="mailto:nm69@njit.edu"><i class="fas fa-envelope"></i></a>
+                <a href="https://www.linkedin.com/in/mahmoud-nazzal" target="_blank"><i class="fab fa-linkedin"></i></a>
+                <a href="https://github.com/mahmoudnazzal" target="_blank"><i class="fab fa-github"></i></a>
+                <a href="https://scholar.google.com/citations?user=ygjUJnYAAAAJ&hl=en&authuser=2" target="_blank"><i class="fas fa-graduation-cap"></i></a>
+            </div>
         </section>
     </div>
 
