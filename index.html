@@ -16,7 +16,7 @@
         }
         header {
             background: #1e2124;
-            padding: 15px;
+            padding: 15px 50px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -32,9 +32,9 @@
             font-size: 1rem;
         }
         .container {
-            max-width: 1100px;
+            max-width: 1200px;
             margin: 40px auto;
-            padding: 20px;
+            padding: 0 20px;
             display: flex;
             gap: 40px;
         }
@@ -55,7 +55,7 @@
         }
         .profile p {
             margin: 5px 0;
-            color: #cccccc;
+            color: #a0a0a0;
         }
         .content {
             flex: 2;
@@ -67,11 +67,8 @@
         .download-cv {
             display: inline-block;
             margin-top: 20px;
-            padding: 10px 20px;
-            background: #3a71c1;
-            color: #ffffff;
+            color: #7289da;
             text-decoration: none;
-            border-radius: 5px;
         }
         .two-column {
             display: flex;
@@ -84,18 +81,24 @@
         .column h3 {
             font-size: 1.4rem;
             margin-bottom: 15px;
+            color: #7289da;
         }
         ul {
             padding-left: 20px;
+            list-style-type: none;
         }
         .social-icons {
             margin-top: 20px;
         }
         .social-icons a {
-            color: #3a71c1;
+            color: #7289da;
             margin-right: 15px;
             font-size: 1.5rem;
             text-decoration: none;
+        }
+        .university-logo {
+            max-width: 200px;
+            margin-top: 20px;
         }
     </style>
 </head>
@@ -103,13 +106,11 @@
     <header>
         <h1>Mahmoud Nazzal</h1>
         <nav>
-            <a href="#about">About</a>
-            <a href="#research">Research</a>
-            <a href="#experience">Experience</a>
-            <a href="#education">Education</a>
-            <a href="#skills">Skills</a>
+            <a href="#home">Home</a>
+            <a href="#news">News</a>
             <a href="#publications">Publications</a>
-            <a href="M_Nazzal_CV_Oct_2024_PUBLIC.pdf" target="_blank">CV</a>
+            <a href="#teaching">Teaching</a>
+            <a href="#contact">Contact</a>
         </nav>
     </header>
 
@@ -119,49 +120,45 @@
             <h2>Mahmoud Nazzal</h2>
             <p>Ph.D. Candidate in Computer Engineering</p>
             <p>New Jersey Institute of Technology</p>
+            <img src="njit-logo.png" alt="NJIT Logo" class="university-logo">
             <div class="social-icons">
                 <a href="https://scholar.google.com/citations?user=ygjUJnYAAAAJ&hl=en&authuser=2" target="_blank"><i class="fas fa-graduation-cap"></i></a>
                 <a href="https://www.linkedin.com/in/mahmoud-nazzal" target="_blank"><i class="fab fa-linkedin"></i></a>
                 <a href="mailto:nm69@njit.edu"><i class="fas fa-envelope"></i></a>
                 <a href="https://github.com/mahmoudnazzal" target="_blank"><i class="fab fa-github"></i></a>
+                <a href="https://twitter.com/YourTwitterHandle" target="_blank"><i class="fab fa-twitter"></i></a>
             </div>
-            <a href="M_Nazzal_CV_Oct_2024_PUBLIC.pdf" class="download-cv" target="_blank">
-                <i class="fas fa-download"></i> Download CV
-            </a>
         </div>
 
         <div class="content">
-            <h2>About Me</h2>
-            <p>I am a Ph.D. candidate in Computer Engineering at NJIT, specializing in AI Security and Applications. My research focuses on the security, robustness, and applicability of Graph Neural Networks (GNNs) and Large Language Models (LLMs).</p>
-            <p>With several years of experience in academia and industry, I have worked on projects related to adversarial robustness, secure source code generation, and machine learning for communications. I am passionate about developing innovative solutions that bridge the gap between theory and real-world applications.</p>
-            <p>Outside of my research, I actively mentor students, organize research symposiums, and contribute to the academic community through my publications and conference presentations.</p>
-            <p>My ultimate goal is to advance AI security technologies, ensuring trust and reliability in the systems we depend on.</p>
+            <h2>Biography</h2>
+            <p>Mahmoud Nazzal is a Ph.D. candidate in Computer Engineering at the New Jersey Institute of Technology, specializing in AI Security and Applications. His research focuses on the security, robustness, and applicability of Graph Neural Networks (GNNs) and Large Language Models (LLMs).</p>
+            <p>His goal is to develop resilient defenses for AI systems, ensuring their security in real-world applications across different domains like autonomous systems, medical imaging, and generative AI (GenAI) applications.</p>
+            <p>I am on the job market in the 2024-2025 cycle, please feel free to reach out!</p>
+            <a href="M_Nazzal_CV_Oct_2024_published.pdf" class="download-cv" target="_blank">
+                <i class="fas fa-download"></i> Download my Curriculum Vitae
+            </a>
 
             <div class="two-column">
                 <div class="column">
-                    <h3>Research Interests</h3>
+                    <h3>Interests</h3>
                     <ul>
-                        <li>Adversarial robustness of GNNs and LLMs</li>
-                        <li>Prompt optimization and engineering</li>
-                        <li>Secure and functional source code generation</li>
-                        <li>Machine learning for communications</li>
+                        <li>Cyber-Physical Security</li>
+                        <li>Generative AI</li>
+                        <li>Autonomous Systems</li>
                     </ul>
                 </div>
                 <div class="column">
                     <h3>Education</h3>
-                    <p><strong>Ph.D. in Computer Engineering</strong><br>
-                    NJIT, 2021 - 2025 (expected), GPA: 4.00</p>
-                    <p><strong>M.Sc. in Electrical and Electronic Engineering</strong><br>
-                    Eastern Mediterranean University, 2010, GPA: 3.77</p>
-                    <p><strong>B.Sc. in Electrical Engineering</strong><br>
-                    Birzeit University, 2009</p>
+                    <p><i class="fas fa-graduation-cap"></i> <strong>Ph.D. in Computer Engineering, 2021 - 2025</strong><br>
+                    New Jersey Institute of Technology</p>
+                    <p><i class="fas fa-graduation-cap"></i> <strong>M.Sc. in Electrical and Electronic Engineering, 2010</strong><br>
+                    Eastern Mediterranean University</p>
+                    <p><i class="fas fa-graduation-cap"></i> <strong>B.Sc. in Electrical Engineering, 2009</strong><br>
+                    Birzeit University</p>
                 </div>
             </div>
         </div>
     </div>
-
-    <footer>
-        <p>© 2024 Mahmoud Nazzal | <a href="mailto:nm69@njit.edu" style="color:white">Email Me</a> | <a href="https://github.com/mahmoudnazzal" style="color:white">GitHub</a> | <a href="https://www.linkedin.com/in/mahmoud-nazzal" style="color:white">LinkedIn</a></p>
-    </footer>
 </body>
 </html>
