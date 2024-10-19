@@ -24,12 +24,25 @@
         header h1 {
             margin: 0;
             font-size: 1.5rem;
-            display: flex;
-            align-items: center;
         }
-        header img {
-            height: 40px;
-            margin-right: 10px;
+        .logo-photo {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #333;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .logo-photo img {
+            width: 150px;
+            margin-bottom: 15px;
+            border-radius: 50%;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 20px auto;
+            display: flex;
+            gap: 40px;
         }
         nav a {
             color: #ffffff;
@@ -37,38 +50,28 @@
             text-decoration: none;
             font-size: 1rem;
         }
-        .container {
-            max-width: 1100px;
-            margin: 40px auto;
-            padding: 20px;
-            display: flex;
-            gap: 40px;
-        }
-        .profile {
-            flex: 1;
-            text-align: center;
-        }
-        .profile img {
-            width: 200px;
-            height: 200px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin-bottom: 20px;
-        }
-        .profile h2 {
-            margin: 10px 0;
-            font-size: 1.8rem;
-        }
-        .profile p {
-            margin: 5px 0;
-            color: #cccccc;
-        }
         .content {
             flex: 2;
+            background: #ffffff;
+            color: #333;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-        h2 {
-            font-size: 2.5rem;
+        .content h2 {
+            color: #1e2124;
+            font-size: 2rem;
             margin-bottom: 20px;
+        }
+        .social-icons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .social-icons a {
+            color: #3a71c1;
+            font-size: 1.5rem;
+            text-decoration: none;
         }
         .download-cv {
             display: inline-block;
@@ -79,38 +82,25 @@
             text-decoration: none;
             border-radius: 5px;
         }
-        .two-column {
-            display: flex;
-            gap: 40px;
-            margin-top: 40px;
-        }
-        .column {
-            flex: 1;
-        }
-        .column h3 {
-            font-size: 1.4rem;
-            margin-bottom: 15px;
-        }
         ul {
-            padding-left: 20px;
+            list-style-type: none;
+            padding: 0;
         }
-        .social-icons {
+        ul li {
+            margin-bottom: 10px;
+        }
+        footer {
+            background: #1e2124;
+            color: #ffffff;
+            text-align: center;
+            padding: 10px;
             margin-top: 20px;
-        }
-        .social-icons a {
-            color: #3a71c1;
-            margin-right: 15px;
-            font-size: 1.5rem;
-            text-decoration: none;
         }
     </style>
 </head>
 <body>
     <header>
-        <h1>
-            <img src="njit-logo.png" alt="NJIT Logo">
-            Mahmoud Nazzal
-        </h1>
+        <h1>Mahmoud Nazzal | AI Security & Applications</h1>
         <nav>
             <a href="#about">About</a>
             <a href="#research">Research</a>
@@ -123,11 +113,9 @@
     </header>
 
     <div class="container">
-        <div class="profile">
+        <div class="logo-photo">
+            <img src="njit-logo.png" alt="NJIT Logo">
             <img src="your-profile.jpg" alt="Mahmoud Nazzal">
-            <h2>Mahmoud Nazzal</h2>
-            <p>Ph.D. Candidate in Computer Engineering</p>
-            <p>New Jersey Institute of Technology</p>
             <div class="social-icons">
                 <a href="https://scholar.google.com/citations?user=ygjUJnYAAAAJ&hl=en&authuser=2" target="_blank" style="color: #4285F4;">
                     <i class="fas fa-graduation-cap"></i>
@@ -145,41 +133,67 @@
                     <i class="fab fa-twitter"></i>
                 </a>
                 <a href="M_Nazzal_CV_Oct_2024_PUBLIC.pdf" target="_blank" style="color: #3a71c1;">
-                    <i class="fas fa-file-pdf"></i> CV
+                    <i class="fas fa-file-pdf"></i>
                 </a>
             </div>
-            <a href="M_Nazzal_CV_Oct_2024_PUBLIC.pdf" class="download-cv" target="_blank">
-                <i class="fas fa-download"></i> Download CV
-            </a>
         </div>
 
         <div class="content">
-            <h2>About Me</h2>
-            <p>I am a Ph.D. candidate in Computer Engineering at NJIT, specializing in AI Security and Applications. My research focuses on the security, robustness, and applicability of Graph Neural Networks (GNNs) and Large Language Models (LLMs).</p>
-            <p>With several years of experience in academia and industry, I have worked on projects related to adversarial robustness, secure source code generation, and machine learning for communications. I am passionate about developing innovative solutions that bridge the gap between theory and real-world applications.</p>
-            <p>Outside of my research, I actively mentor students, organize research symposiums, and contribute to the academic community through my publications and conference presentations.</p>
-            <p>My ultimate goal is to advance AI security technologies, ensuring trust and reliability in the systems we depend on.</p>
+            <section id="about">
+                <h2>About Me</h2>
+                <p>I am a Ph.D. candidate in Computer Engineering at the New Jersey Institute of Technology, specializing in AI Security and Applications. My research focuses on the security, robustness, and applicability of Graph Neural Networks (GNNs) and Large Language Models (LLMs).</p>
+                <p>With several years of experience in academia and industry, I have worked on diverse projects involving adversarial robustness, machine learning for communications, and secure source code generation using advanced AI models. I am passionate about developing innovative solutions that bridge the gap between theory and real-world applications.</p>
+                <p>Outside of my academic pursuits, I am actively involved in mentoring students, organizing research symposiums, and contributing to the academic community through publications and conferences.</p>
+            </section>
 
-            <div class="two-column">
-                <div class="column">
-                    <h3>Research Interests</h3>
-                    <ul>
-                        <li>Adversarial robustness of GNNs and LLMs</li>
-                        <li>Prompt optimization and engineering</li>
-                        <li>Secure and functional source code generation</li>
-                        <li>Machine learning for communications</li>
-                    </ul>
-                </div>
-                <div class="column">
-                    <h3>Education</h3>
-                    <p><strong>Ph.D. in Computer Engineering</strong><br>
-                    NJIT, 2021 - 2025 (expected), GPA: 4.00</p>
-                    <p><strong>M.Sc. in Electrical and Electronic Engineering</strong><br>
-                    Eastern Mediterranean University, 2010, GPA: 3.77</p>
-                    <p><strong>B.Sc. in Electrical Engineering</strong><br>
-                    Birzeit University, 2009</p>
-                </div>
-            </div>
+            <section id="research">
+                <h2>Research Interests</h2>
+                <ul>
+                    <li>Adversarial robustness of GNNs and LLMs in novel areas</li>
+                    <li>Prompt optimization and engineering</li>
+                    <li>Secure and functional source code generation</li>
+                    <li>Hardware design automation</li>
+                    <li>Machine learning for communications (Physical layer security, channel estimation, and spectrum sensing)</li>
+                </ul>
+            </section>
+
+            <section id="experience">
+                <h2>Professional Experience</h2>
+                <ul>
+                    <li>Teaching Assistant, NJIT, Newark, NJ (2021 - Present)</li>
+                    <li>Lecturer, Abu Dhabi Vocational Education and Training Institute, Abu Dhabi, UAE (2019 - 2021)</li>
+                    <li>Researcher, Istanbul Medipol University, Istanbul, Turkey (2017 - 2019)</li>
+                    <li>Lecturer, Izmir University of Economics, Izmir, Turkey (2016 - 2017)</li>
+                </ul>
+            </section>
+
+            <section id="education">
+                <h2>Education</h2>
+                <ul>
+                    <li>Ph.D. in Computer Engineering, NJIT, Newark, NJ, USA (2025) - GPA: 4.00</li>
+                    <li>M.Sc. in Electrical and Electronic Engineering, Eastern Mediterranean University, Cyprus (2010) - GPA: 3.77</li>
+                    <li>B.Sc. in Electrical Engineering, Birzeit University, West Bank (2009)</li>
+                </ul>
+            </section>
+
+            <section id="skills">
+                <h2>Technical Skills</h2>
+                <ul>
+                    <li><strong>AI Programming Environments:</strong> Pytorch, TensorFlow, scikit-learn, PyG, DGL</li>
+                    <li><strong>Programming Languages:</strong> MATLAB, Python, C/C++, Java</li>
+                    <li><strong>LLM-Related Skills:</strong> Retrieval-Augmented Generation (RAG), Vector Databases, Semantic Search</li>
+                    <li><strong>Embedded Systems:</strong> Micro-controllers, Arduino</li>
+                    <li><strong>Cluster Computing:</strong> High-performance computing (HPC) with Slurm Wulver, Hadoop, Apache Spark</li>
+                    <li><strong>Scientific Reporting:</strong> Grant Proposal Writing, Class Management, \LaTeX</li>
+                </ul>
+            </section>
+
+            <section id="publications">
+                <h2>Notable Publications</h2>
+                <p>[C20] <strong>M. Nazzal</strong>, et al., “PromSec: Prompt Optimization for Secure Generation of Functional Source Code with LLMs,” CCS 2024.</p>
+                <p>[C19] <strong>M. Nazzal</strong>, et al., “Multi-Instance Adversarial Attack on GNN-Based Malicious Domain Detection,” IEEE S&P 2024.</p>
+                <!-- Add additional publications similarly -->
+            </section>
         </div>
     </div>
 
