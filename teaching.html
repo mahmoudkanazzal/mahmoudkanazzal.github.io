@@ -6,6 +6,7 @@
     <meta name="description" content="Mahmoud Nazzal - Teaching Experience">
     <title>Mahmoud Nazzal | Teaching Experience</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icons/6.7.0/css/flag-icons.min.css">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -38,18 +39,22 @@
             padding: 15px;
             border-radius: 5px;
             border: 1px solid #3a71c1;
-        }
-        .teaching-item h2 {
-            font-size: 1.3rem; /* Reduced font size */
-            margin: 0;
-            color: #3a71c1;
             display: flex;
-            align-items: center;
             gap: 10px;
+            align-items: center;
         }
         .teaching-item img {
-            height: 25px;
-            vertical-align: middle;
+            height: 50px; /* Adjust as needed */
+            width: auto;
+            border-radius: 5px;
+        }
+        .teaching-content {
+            flex: 1;
+        }
+        .teaching-item h2 {
+            font-size: 1.2rem; /* Reduced font size */
+            margin: 0;
+            color: #3a71c1;
         }
         .teaching-item p {
             margin: 5px 0;
@@ -59,6 +64,11 @@
             font-style: italic;
             color: #aaaaaa;
         }
+        .flag {
+            margin-right: 8px;
+            font-size: 1.5rem;
+            vertical-align: middle;
+        }
     </style>
 </head>
 <body>
@@ -66,40 +76,36 @@
         <h1>Teaching Experience</h1>
         <div class="teaching-list">
             <div class="teaching-item">
-                <h2>
-                    <img src="images/njit-logo.png" alt="NJIT Logo">
-                    Introduction to AI Security
-                    <img src="images/usa-flag.png" alt="USA Flag">
-                </h2>
-                <p class="term">Term: Fall 2023</p>
-                <p>Description: Designed and taught this course focusing on the principles of artificial intelligence security, covering topics such as adversarial attacks, robustness, and ethical considerations in AI systems. The course included hands-on lab sessions and a final project where students developed secure AI models.</p>
+                <span class="fi fi-us flag"></span>
+                <div class="teaching-content">
+                    <h2>Introduction to AI Security</h2>
+                    <p class="term">Term: Fall 2023 | Institution: NJIT</p>
+                    <p>Description: Designed and taught this course focusing on the principles of artificial intelligence security, covering topics such as adversarial attacks, robustness, and ethical considerations in AI systems. The course included hands-on lab sessions and a final project where students developed secure AI models.</p>
+                </div>
             </div>
             <div class="teaching-item">
-                <h2>
-                    <img src="images/njit-logo.png" alt="NJIT Logo">
-                    Advanced Graph Neural Networks
-                    <img src="images/usa-flag.png" alt="USA Flag">
-                </h2>
-                <p class="term">Term: Spring 2024</p>
-                <p>Description: Led a graduate-level course on Graph Neural Networks (GNNs), emphasizing their applications in network security and data analysis. Students explored GNN architectures, adversarial robustness, and implemented GNNs for various cybersecurity challenges. The course culminated in a research-oriented project.</p>
+                <span class="fi fi-us flag"></span>
+                <div class="teaching-content">
+                    <h2>Advanced Graph Neural Networks</h2>
+                    <p class="term">Term: Spring 2024 | Institution: NJIT</p>
+                    <p>Description: Led a graduate-level course on Graph Neural Networks (GNNs), emphasizing their applications in network security and data analysis. Students explored GNN architectures, adversarial robustness, and implemented GNNs for various cybersecurity challenges. The course culminated in a research-oriented project.</p>
+                </div>
             </div>
             <div class="teaching-item">
-                <h2>
-                    <img src="images/emu-logo.png" alt="EMU Logo">
-                    Machine Learning for Communication Systems
-                    <img src="images/cyprus-flag.png" alt="Cyprus Flag">
-                </h2>
-                <p class="term">Term: Fall 2022</p>
-                <p>Description: Co-taught this course with a focus on applying machine learning techniques to optimize communication systems. Topics covered included deep learning-based channel estimation, spectrum management, and predictive analysis for 5G networks. The course also involved case studies and real-world applications.</p>
+                <span class="fi fi-ae flag"></span>
+                <div class="teaching-content">
+                    <h2>Machine Learning for Communication Systems</h2>
+                    <p class="term">Term: Fall 2022 | Institution: Abu Dhabi Institute</p>
+                    <p>Description: Co-taught this course with a focus on applying machine learning techniques to optimize communication systems. Topics covered included deep learning-based channel estimation, spectrum management, and predictive analysis for 5G networks. The course also involved case studies and real-world applications.</p>
+                </div>
             </div>
             <div class="teaching-item">
-                <h2>
-                    <img src="images/njit-logo.png" alt="NJIT Logo">
-                    Secure Coding and Software Development
-                    <img src="images/usa-flag.png" alt="USA Flag">
-                </h2>
-                <p class="term">Term: Spring 2023</p>
-                <p>Description: Developed a curriculum aimed at teaching secure software development practices. Topics included secure coding principles, common vulnerabilities, and the use of automated tools for code analysis. Students participated in code review sessions and worked on a final project to develop a secure application.</p>
+                <span class="fi fi-ae flag"></span>
+                <div class="teaching-content">
+                    <h2>Secure Coding and Software Development</h2>
+                    <p class="term">Term: Spring 2023 | Institution: Abu Dhabi Institute</p>
+                    <p>Description: Developed a curriculum aimed at teaching secure software development practices. Topics included secure coding principles, common vulnerabilities, and the use of automated tools for code analysis. Students participated in code review sessions and worked on a final project to develop a secure application.</p>
+                </div>
             </div>
         </div>
     </div>
