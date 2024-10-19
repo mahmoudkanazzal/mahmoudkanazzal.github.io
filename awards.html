@@ -12,7 +12,8 @@
             background-color: #2b2d31;
             color: #ffffff;
             margin: 0;
-            padding: 20px;
+            padding: 0;
+            font-size: 0.9rem;
         }
         header {
             background: #1e2124;
@@ -33,9 +34,9 @@
         }
         .container {
             max-width: 900px;
-            margin: 0 auto;
-            background: #1e2124;
+            margin: 30px auto;
             padding: 20px;
+            background: #1e2124;
             border-radius: 8px;
             box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
         }
@@ -45,11 +46,10 @@
             text-align: center;
             margin-bottom: 20px;
         }
-        .awards-list {
-            margin: 20px 0;
+        .awards-list, .award-item {
+            margin-bottom: 20px;
         }
         .award-item {
-            margin-bottom: 20px;
             background: #2b2d31;
             padding: 15px;
             border-radius: 5px;
@@ -101,58 +101,41 @@
     <div class="container">
         <h1>Awards and Honors</h1>
         <div class="awards-list">
-            <div class="award-item">
-                <h2>ACM Conference on Computer and Communications Security (CCS 2024), Salt Lake City, Utah</h2>
-                <p class="term">Oct. 2024</p>
-                <p><strong>Student Travel Grant</strong> to attend the conference.</p>
-            </div>
-            <div class="award-item">
-                <h2>33rd Great Lakes Symposium on VLSI (GLSVLSI), Knoxville, TN</h2>
-                <p class="term">Jun. 2023</p>
-                <p><strong>Best Paper Award (2nd place)</strong>. <a href="https://www.acm.org/conferences/best-paper-awards" target="_blank" style="color: #3a71c1;">See award details here</a>.</p>
-            </div>
-            <div class="award-item">
-                <h2>ECE PhD Stories Contest, NJIT, Newark, NJ</h2>
-                <p class="term">Nov. 2022</p>
-                <p><strong>3rd Prize</strong>.</p>
-            </div>
-            <div class="award-item">
-                <h2>New Jersey Institute of Technology, Newark, NJ</h2>
-                <p class="term">2021 - 2022</p>
-                <p><strong>Ross Fellowship</strong>.</p>
-            </div>
-            <div class="award-item">
-                <h2>New Jersey Institute of Technology, Newark, NJ</h2>
-                <p class="term">2022 - 2024</p>
-                <p><strong>Teaching Assistantship and Research Assistantship</strong>.</p>
-            </div>
-            <div class="award-item">
-                <h2>Signal Processing and Communications Applications Conference (SIU 2021), Istanbul</h2>
-                <p class="term">Jun. 2021</p>
-                <p><strong>Best Paper Award (3rd place)</strong>. <a href="https://siu2021.bau.edu.tr/tr/SIU-2021-ODULLERI.html" target="_blank" style="color: #3a71c1;">See award details here</a>.</p>
-            </div>
-            <div class="award-item">
-                <h2>Turkish Patent and Trademark Office, Ankara</h2>
-                <p class="term">Oct. 2020</p>
-                <p><strong>5th Place</strong>, <em>Second University Patent Competition</em>.</p>
-            </div>
-            <div class="award-item">
-                <h2>The Scientific and Technological Research Council of Turkey (TUBITAK), Ankara</h2>
-                <p class="term">2017 - 2019</p>
-                <p><a href="https://www.tubitak.gov.tr/en/funds/academy/international-researchers-fellowship-programmes/content-2221-fellowships-for-visiting-scientists-and-scientists-on-sabbatical-leave" target="_blank" style="color: #3a71c1;"><strong>TUBITAK 2221 Fellowship</strong></a>.</p>
-            </div>
-            <div class="award-item">
-                <h2>Eastern Mediterranean University, Famagusta</h2>
-                <p class="term">2009-2010</p>
-                <p><strong>Research Assistantship</strong>.</p>
-            </div>
-            <div class="award-item">
-                <h2>Jerusalem District Electricity Company (JDECO), Ramallah</h2>
-                <p class="term">2008 - 2009</p>
-                <p><strong>B.Sc. Graduation Project Fund</strong>.</p>
-            </div>
+            <!-- Awards Content Here -->
         </div>
         <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Back to Homepage</a>
     </div>
+
+    <footer id="contact" style="background-color: #1e2124; padding: 20px; text-align: center; color: #ffffff; margin-top: 40px;">
+        <h2>Contact Me</h2>
+        <div style="margin: 10px 0;">
+            <i class="fas fa-envelope"></i>
+            <a href="mailto:mn69@njit.edu" style="color: #3a71c1; text-decoration: none;">mn69@njit.edu</a>
+        </div>
+        <div style="margin: 10px 0;">
+            <i class="fas fa-map-marker-alt"></i>
+            <span>New Jersey Institute of Technology, Newark, NJ, USA</span>
+        </div>
+        <div style="margin: 10px 0;">
+            <i class="fab fa-linkedin"></i>
+            <a href="https://www.linkedin.com/in/mahmoud-nazzal" target="_blank" style="color: #3a71c1; text-decoration: none;">LinkedIn</a>
+        </div>
+        <div style="margin: 10px 0;">
+            <i class="fab fa-github"></i>
+            <a href="https://github.com/mahmoudkanazzal" target="_blank" style="color: #3a71c1; text-decoration: none;">GitHub</a>
+        </div>
+        <div style="margin: 10px 0;">
+            <i class="fas fa-graduation-cap"></i>
+            <a href="https://scholar.google.com/citations?user=ygjUJnYAAAAJ&hl=en&authuser=2" target="_blank" style="color: #3a71c1; text-decoration: none;">Google Scholar</a>
+        </div>
+        <div style="margin: 10px 0;">
+            <i class="fab fa-orcid"></i>
+            <a href="https://orcid.org/0000-0003-3375-0310" target="_blank" style="color: #3a71c1; text-decoration: none;">ORCID</a>
+        </div>
+        <p style="margin-top: 20px; font-size: 0.9rem;">© 2024 Mahmoud Nazzal</p>
+        <a href="#home" class="back-link" style="display: block; margin-top: 15px; color: #3a71c1; text-decoration: none;">
+            <i class="fas fa-arrow-up"></i> Back to Homepage
+        </a>
+    </footer>
 </body>
 </html>
