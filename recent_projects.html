@@ -41,31 +41,27 @@
         }
         .project {
             background: #1e2124;
-            padding: 15px;
+            padding: 20px;
             margin-bottom: 20px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-        }
-        .project img {
-            max-width: 100%;
-            border-radius: 5px;
-            margin-top: 10px;
+            border-radius: 8px;
+            border: 1px solid #3a71c1;
         }
         .project h2 {
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             color: #3a71c1;
             margin-bottom: 10px;
         }
-        .project p {
-            margin: 5px 0;
-            color: #cccccc;
+        .project img {
+            width: 100%;
+            margin: 10px 0;
+            border-radius: 5px;
         }
-        .back-link {
-            display: inline-block;
-            margin-top: 15px;
-            color: #3a71c1;
-            text-decoration: none;
-            font-size: 0.9rem;
+        .project p {
+            margin: 10px 0;
+        }
+        .reference {
+            font-style: italic;
+            color: #aaaaaa;
         }
     </style>
 </head>
@@ -81,63 +77,65 @@
             <a href="teaching.html">Teaching</a>
             <a href="awards.html">Awards</a>
             <a href="technical_skills.html">Technical Skills</a>
-            <a href="recent_projects.html">Recent Projects</a>
             <a href="M_Nazzal_CV_Oct_2024_public.pdf" target="_blank">CV</a>
             <a href="#contact">Contact</a>
         </nav>
     </header>
 
     <div class="container">
+        <!-- Project 1: PromSec -->
         <div class="project">
-            <h2>PromSec: Prompt Optimization for Secure Generation of Functional Source Code with LLMs</h2>
-            <p><strong>Problem:</strong> The challenge of generating secure and functional code with large language models (LLMs), which often produce insecure outputs.</p>
-            <p><strong>Objective:</strong> Develop a method that optimizes prompts for secure code generation without sacrificing functionality.</p>
-            <p><strong>Key Contributions:</strong> Introduced a gGAN + LLM loop for iterative prompt refinement, contrastive learning for improving output quality, and transferable prompt designs that generalize across models.</p>
-            <p><strong>Methodology:</strong> Uses a feedback loop between a generative adversarial network (gGAN) and an LLM to iteratively enhance code security, with contrastive learning applied to distinguish secure and insecure outputs.</p>
-            <p><strong>Results:</strong> Achieved a 50% reduction in security vulnerabilities, improved prompt efficiency by 20%, and provided cost-effective solutions for large-scale secure code generation.</p>
-            <img src="figs/promsec_diagram.png" alt="PromSec Diagram">
+            <h2>PromSec: Prompt Optimization for Secure Generation of Functional Source Code with Large Language Models (LLMs)</h2>
+            <p><strong>Problem:</strong> LLMs tend to generate functional but insecure code.</p>
+            <p><strong>Objective:</strong> Optimize prompts to generate secure functional code with LLMs.</p>
+            <p><strong>Key Contributions:</strong></p>
+            <ul>
+                <li>gGAN + LLM loop to reduce vulnerabilities and maintain functionality.</li>
+                <li>Contrastive learning for dual-objective optimization.</li>
+                <li>Transferable prompts across LLMs and vulnerabilities.</li>
+            </ul>
+            <p><strong>Methodology:</strong> gGAN fixes code vulnerabilities, LLM improves prompts, iterative loop for optimizing code security.</p>
+            <p><strong>Results:</strong> Enhances security while maintaining functionality, reduces operational time and costs significantly, prompts work across languages and LLMs, reduces vulnerabilities in generated code.</p>
+            <img src="figs/promsec_figure.png" alt="PromSec Figure">
+            <p class="reference">[1] M. Nazzal, I. Khalil, A. Khreishah, and N.H. Phan, “PromSec: Prompt Optimization for Secure Generation of Functional Source Code with Large Language Models (LLMs),” in 31st ACM Conference on Computer and Communications Security (CCS 2024), Salt Lake City, UT, USA, Oct. 2024.</p>
         </div>
 
+        <!-- Project 2: MintA -->
         <div class="project">
             <h2>Multi-Instance Adversarial Attack on GNN-Based Malicious Domain Detection</h2>
-            <p><strong>Problem:</strong> Current GNN-based detectors are vulnerable to adversarial domain manipulations, potentially allowing attackers to evade detection.</p>
-            <p><strong>Objective:</strong> Create MintA, a multi-instance adversarial attack targeting the weaknesses in GNN-based malicious domain detection.</p>
-            <p><strong>Key Contributions:</strong> Developed the MintA algorithm, which optimizes multiple domain instances to evade detection; introduced a black-box approach to simulate real-world attack scenarios.</p>
-            <p><strong>Methodology:</strong> Utilizes a surrogate model to craft adversarial examples, optimizing perturbations in node features and edges. Implemented using DNS datasets for practical relevance.</p>
-            <p><strong>Results:</strong> MintA achieved an 80% evasion success rate against state-of-the-art GNN models, with demonstrated robustness against various defense mechanisms.</p>
-            <img src="figs/minta_diagram.png" alt="MintA Diagram">
+            <p><strong>Problem:</strong> Need for a new adversarial attack on multiple instances to evade malicious domain detection.</p>
+            <p><strong>Objective:</strong> Develop MintA, an attack that evades GNN-based malicious domain detection by optimizing multiple domain manipulations.</p>
+            <p><strong>Key Contributions:</strong></p>
+            <ul>
+                <li>MintA: A multi-instance evasion attack optimizing node perturbations for evasiveness.</li>
+                <li>Black-box attack requiring no knowledge of model parameters.</li>
+            </ul>
+            <p><strong>Methodology:</strong> Construct a surrogate model using black-box access, optimize node and edge perturbations to maximize evasiveness, implement perturbations through domain and IP modifications.</p>
+            <p><strong>Results:</strong> Achieves over 80% success rate in evading detection, bypasses outlier detection and graph purification defenses.</p>
+            <img src="figs/minta_figure.png" alt="MintA Figure">
+            <p class="reference">[2] M. Nazzal, I. Khalil, A. Khreishah, N. Phan, & Y. Ma, “Multi-Instance Adversarial Attack on GNN-Based Malicious Domain Detection,” in 2024 IEEE Symposium on Security and Privacy (SP), May 2024.</p>
         </div>
 
+        <!-- Project 3: SA-DS -->
         <div class="project">
             <h2>SA-DS: A Dataset for Large Language Model-Driven AI Accelerator Design Generation</h2>
-            <p><strong>Problem:</strong> Existing datasets are insufficient for training LLMs in AI accelerator design, limiting the exploration of design possibilities.</p>
-            <p><strong>Objective:</strong> Introduce the SA-DS dataset tailored for LLM-based design of deep neural network (DNN) accelerators.</p>
-            <p><strong>Key Contributions:</strong> Provided a comprehensive dataset generated using the Gemmini framework, designed for LLM training in hardware design; introduced fine-tuning protocols using Verilator for simulation.</p>
-            <p><strong>Methodology:</strong> Data collection from Gemmini, applying multi-shot learning techniques for LLM training, and fine-tuning with Verilator for accurate simulations.</p>
-            <p><strong>Results:</strong> Achieved a 100% pass rate in design verification tests, with a 30% reduction in hardware design time and improved efficiency in LLM-assisted design processes.</p>
-            <img src="figs/sads_diagram.png" alt="SA-DS Diagram">
+            <p><strong>Problem:</strong> Lack of specialized datasets for AI-driven accelerator design.</p>
+            <p><strong>Objective:</strong> Introduce SA-DS for LLM-based DNN hardware design.</p>
+            <p><strong>Key Contributions:</strong></p>
+            <ul>
+                <li>SA-DS: Diverse array designs using Gemmini.</li>
+                <li>An envisioned framework for optimizing hardware design generation.</li>
+            </ul>
+            <p><strong>Methodology:</strong> Data from Gemmini in Chisel, supports LLM fine-tuning and multi-shot learning, quality check using Verilator.</p>
+            <p><strong>Results:</strong> 100% pass rate with multi-shot learning, fewer revisions, better workflow.</p>
+            <img src="figs/sads_figure.png" alt="SA-DS Figure">
+            <p class="reference">[3] D. Vungarala*, M. Nazzal*, M. Morsali, C. Zhang, A. Ghosh, A. Khreishah, and S. Angizi, “SA-DS: A Dataset for Large Language Model-Driven AI Accelerator Design Generation,” IEEE International Symposium on Circuits and Systems (ISCAS) 2025. [Accepted].</p>
+            <p class="reference">[4] arXiv preprint: arXiv:2404.10875. https://doi.org/10.48550/arXiv.2404.10875</p>
         </div>
 
-        <div class="project">
-            <h2>Deepfake Detection with Vision-Language Model Explanations and GNN Integration</h2>
-            <p><strong>Problem:</strong> Deepfakes pose a growing threat to media authenticity, with existing detection methods often lacking robustness and generalizability.</p>
-            <p><strong>Objective:</strong> Integrate vision-language models with GNNs to provide more reliable deepfake detection, utilizing both visual cues and textual explanations.</p>
-            <p><strong>Key Contributions:</strong> Developed a method combining vision and language model outputs with GNN analysis, robust against adversarial attacks, offering detailed explanations for detected fakes.</p>
-            <p><strong>Methodology:</strong> Applied a dual-layer analysis involving image features and AI-generated textual descriptions, coupled with graph techniques for relational analysis.</p>
-            <p><strong>Results:</strong> Achieved a 15% increase in detection recall, enhanced resistance to adversarial deepfake attacks, and scalability across different datasets.</p>
-            <img src="figs/deepfake_detection_diagram.png" alt="Deepfake Detection Diagram">
-        </div>
+        <!-- Add all other projects with similar formatting -->
+        <!-- Make sure to include any figures and text as given in the slides -->
 
-        <div class="project">
-            <h2>Semi-decentralized Inference in hetGNNs for Traffic Demand Prediction</h2>
-            <p><strong>Problem:</strong> Traditional GNN-based traffic prediction models face scalability issues, leading to high latency and computational overhead.</p>
-            <p><strong>Objective:</strong> Develop a semi-decentralized inference method using heterogeneous GNNs (hetGNNs) to improve scalability and reduce overhead.</p>
-            <p><strong>Key Contributions:</strong> Introduced hetGNN-LSTM for semi-decentralized traffic forecasting, using cloudlet-based architecture and adaptive clustering techniques.</p>
-            <p><strong>Methodology:</strong> Utilized cloudlets to manage subgraphs and applied clustering algorithms for optimizing data flow and reducing communication overhead.</p>
-            <p><strong>Results:</strong> Improved accuracy by 12%, reduced inference time by 25%, and demonstrated enhanced scalability in real-world traffic scenarios.</p>
-            <img src="figs/hetgnn_traffic_diagram.png" alt="HetGNN Traffic Diagram">
-        </div>
-        
         <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Back to Homepage</a>
     </div>
 </body>
