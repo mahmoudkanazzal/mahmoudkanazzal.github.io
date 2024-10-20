@@ -133,8 +133,51 @@
             <p class="reference">[4] arXiv preprint: arXiv:2404.10875. https://doi.org/10.48550/arXiv.2404.10875</p>
         </div>
 
-        <!-- Add all other projects with similar formatting -->
-        <!-- Make sure to include any figures and text as given in the slides -->
+                <!-- Work 4: Deepfake Detection -->
+        <div class="project">
+            <h2>Work 4: Deepfake Detection with Vision-Language Model Explanations and GNN Integration</h2>
+            <canvas id="projectCanvas4"></canvas>
+            <p><strong>Problem:</strong> Growing challenge of realistic deepfakes that threaten media authenticity. Existing methods struggle with robustness and generalization.</p>
+            <p><strong>Objective:</strong> Combines visual and AI-generated textual analysis for improved detection.</p>
+            <p><strong>Key Contributions:</strong></p>
+            <ul>
+                <li>Visual-Textual Integration: Fuses image analysis with AI-generated text insights.</li>
+                <li>Robust to Adversarial Attacks: Withstands customized deepfake techniques.</li>
+                <li>Strong Generalization: Adapts to diverse deepfake sources and models.</li>
+            </ul>
+            <p><strong>Methodology:</strong></p>
+            <ul>
+                <li>Divides images into components and generates detailed text explanations.</li>
+                <li>Uses a dual-layer analysis with graph techniques to merge visual and textual data.</li>
+            </ul>
+            <p><strong>Main Results:</strong> Enhanced Accuracy: Achieves higher recall, reducing false negatives. Stability Under Attack: Lowers performance drop from 13.3% to 1.5%. Scalable Solution: Effective across varied deepfake scenarios.</p>
+            <p><strong>Note:</strong> Summary presented with care for privacy, as the paper is under double-blind review.</p>
+            <img src="figs/deepfake_detection.png" alt="Deepfake Detection Illustration">
+        </div>
+
+        <!-- Work 5: Semi-decentralized Inference in hetGNNs -->
+        <div class="project">
+            <h2>Work 5: Semi-decentralized Inference in hetGNNs for Traffic Demand Prediction: An Edge-Computing Approach</h2>
+            <canvas id="projectCanvas5"></canvas>
+            <p><strong>Problem:</strong> Scalability issues in GNN-based traffic forecasting due to high message passing overhead.</p>
+            <p><strong>Objective:</strong> Create a scalable, efficient traffic forecasting method using semi-decentralized hetGNN-LSTM.</p>
+            <p><strong>Key Contributions:</strong></p>
+            <ul>
+                <li>HetGNN-LSTM: Uses multiple relationships for accurate predictions.</li>
+                <li>Semi-decentralized: Uses cloudlets to reduce overhead.</li>
+                <li>Adaptive Assignment: Minimizes inter-cloudlet communication.</li>
+            </ul>
+            <p><strong>Methodology:</strong></p>
+            <ul>
+                <li>HetGNN-LSTM: Learns from heterogeneous data and time dependencies.</li>
+                <li>Semi-Decentralized: Cloudlets manage subgraphs to reduce load.</li>
+                <li>Adaptive Assignment: Uses clustering to reduce inter-cloudlet communication.</li>
+            </ul>
+            <p><strong>Main Results:</strong> High accuracy compared to existing models. Inference time reduced by an order of magnitude. Improved scalability and reduced costs.</p>
+            <img src="figs/hetgnn_inference.png" alt="hetGNN Inference Illustration">
+            <p><strong>References:</strong></p>
+            <p>[8] M. Nazzal, A. Khreishah, J. Lee, S. Angizi, A. Al-Fuqaha, and M. Guizani, “Semi decentralized Inference in Heterogeneous Graph Neural Networks for Traffic Demand Forecasting: An Edge-Computing Approach”, IEEE Transactions on Vehicular Technology, Jan. 2024.</p>
+        </div>
 
         <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Back to Homepage</a>
     </div>
