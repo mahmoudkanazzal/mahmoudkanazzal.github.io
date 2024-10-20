@@ -98,7 +98,7 @@
         <p><strong>Key Results:</strong> Enhances security while maintaining functionality, reduces operational time and costs significantly, prompts work across languages and LLMs, reduces vulnerabilities in generated code.</p>
         <img src="figs/promsec_animation.gif" alt="PromSec Figure">
         
-        <h3>Papers:</h3>
+        <h3>Publications:</h3>
         <ul>
             <li>
                 [1] M. Nazzal, I. Khalil, A. Khreishah, and N.H. Phan, “PromSec: Prompt Optimization for Secure Generation of Functional Source Code with Large Language Models (LLMs),” in 31st ACM Conference on Computer and Communications Security (CCS 2024), Salt Lake City, UT, USA, Oct. 2024.
@@ -137,7 +137,7 @@
         <h3>Papers:</h3>
         <ul>
             <li>
-                [2] M. Nazzal, I. Khalil, A. Khreishah, N. Phan, & Y. Ma, “Multi-Instance Adversarial Attack on GNN-Based Malicious Domain Detection,” in 2024 IEEE Symposium on Security and Privacy (SP), May 2024.
+                [4] M. Nazzal, I. Khalil, A. Khreishah, N. Phan, & Y. Ma, “Multi-Instance Adversarial Attack on GNN-Based Malicious Domain Detection,” in 2024 IEEE Symposium on Security and Privacy (SP), May 2024.
                 <a href="https://ieeexplore.ieee.org/document/10646677" target="_blank">Paper</a> |
                 <a href="https://arxiv.org/abs/2308.11754" target="_blank">Arxiv Preprint</a> |
                 <a href="https://github.com/mahmoudkanazzal/MintA" target="_blank">Artifacts</a>
@@ -146,22 +146,35 @@
     </div>
 </div>
 
-        <!-- Project 3: SA-DS -->
-        <div class="project">
-            <h2>SA-DS: A Dataset for Large Language Model-Driven AI Accelerator Design Generation</h2>
-            <p><strong>Problem:</strong> Lack of specialized datasets for AI-driven accelerator design.</p>
-            <p><strong>Objective:</strong> Introduce SA-DS for LLM-based DNN hardware design.</p>
-            <p><strong>Key Contributions:</strong></p>
-            <ul>
-                <li>SA-DS: Diverse array designs using Gemmini.</li>
-                <li>An envisioned framework for optimizing hardware design generation.</li>
-            </ul>
-            <p><strong>Methodology:</strong> Data from Gemmini in Chisel, supports LLM fine-tuning and multi-shot learning, quality check using Verilator.</p>
-            <p><strong>Results:</strong> 100% pass rate with multi-shot learning, fewer revisions, better workflow.</p>
-            <img src="figs/sads_figure.png" alt="SA-DS Figure">
-            <p class="reference">[3] D. Vungarala*, M. Nazzal*, M. Morsali, C. Zhang, A. Ghosh, A. Khreishah, and S. Angizi, “SA-DS: A Dataset for Large Language Model-Driven AI Accelerator Design Generation,” IEEE International Symposium on Circuits and Systems (ISCAS) 2025. [Accepted].</p>
-            <p class="reference">[4] arXiv preprint: arXiv:2404.10875. https://doi.org/10.48550/arXiv.2404.10875</p>
-        </div>
+<div class="container">
+    <!-- Project 3: SA-DS -->
+    <div class="project">
+        <h2>SA-DS: A Dataset for Large Language Model-Driven AI Accelerator Design Generation</h2>
+        <p><strong>Problem:</strong> Lack of specialized datasets for AI-driven accelerator design.</p>
+        <p><strong>Objective:</strong> Introduce SA-DS for LLM-based DNN hardware design.</p>
+        <p><strong>Key Contributions:</strong></p>
+        <ul>
+            <li>SA-DS: Diverse array designs using Gemmini.</li>
+            <li>An envisioned framework for optimizing hardware design generation.</li>
+        </ul>
+        <p><strong>Methodology:</strong> Data from Gemmini in Chisel, supports LLM fine-tuning and multi-shot learning, quality check using Verilator.</p>
+        <p><strong>Results:</strong> 100% pass rate with multi-shot learning, fewer revisions, better workflow.</p>
+        <img src="figs/sads_figure.png" alt="SA-DS Figure">
+        
+        <h3>Papers:</h3>
+        <ul>
+            <li>
+                [5] D. Vungarala*, M. Nazzal*, M. Morsali, C. Zhang, A. Ghosh, A. Khreishah, and S. Angizi, “SA-DS: A Dataset for Large Language Model-Driven AI Accelerator Design Generation,” IEEE International Symposium on Circuits and Systems (ISCAS) 2025. [Accepted].
+                <a href="https://ieeexplore.ieee.org/document/10646677" target="_blank">Arxiv Preprint</a> |
+                <a href="https://github.com/ACADLab/SA-DS" target="_blank">Artifacts</a>
+            </li>
+            <li>
+                [6] arXiv preprint: arXiv:2404.10875. <a href="https://doi.org/10.48550/arXiv.2404.10875" target="_blank">DOI Link</a>
+            </li>
+        </ul>
+    </div>
+</div>
+
 
                 <!-- Work 4: Deepfake Detection -->
         <div class="project">
@@ -186,28 +199,39 @@
         </div>
 
         <!-- Work 5: Semi-decentralized Inference in hetGNNs -->
-        <div class="project">
-            <h2>Work 5: Semi-decentralized Inference in hetGNNs for Traffic Demand Prediction: An Edge-Computing Approach</h2>
-            <canvas id="projectCanvas5"></canvas>
-            <p><strong>Problem:</strong> Scalability issues in GNN-based traffic forecasting due to high message passing overhead.</p>
-            <p><strong>Objective:</strong> Create a scalable, efficient traffic forecasting method using semi-decentralized hetGNN-LSTM.</p>
-            <p><strong>Key Contributions:</strong></p>
-            <ul>
-                <li>HetGNN-LSTM: Uses multiple relationships for accurate predictions.</li>
-                <li>Semi-decentralized: Uses cloudlets to reduce overhead.</li>
-                <li>Adaptive Assignment: Minimizes inter-cloudlet communication.</li>
-            </ul>
-            <p><strong>Methodology:</strong></p>
-            <ul>
-                <li>HetGNN-LSTM: Learns from heterogeneous data and time dependencies.</li>
-                <li>Semi-Decentralized: Cloudlets manage subgraphs to reduce load.</li>
-                <li>Adaptive Assignment: Uses clustering to reduce inter-cloudlet communication.</li>
-            </ul>
-            <p><strong>Main Results:</strong> High accuracy compared to existing models. Inference time reduced by an order of magnitude. Improved scalability and reduced costs.</p>
-            <img src="figs/hetgnn_inference.png" alt="hetGNN Inference Illustration">
-            <p><strong>References:</strong></p>
-            <p>[8] M. Nazzal, A. Khreishah, J. Lee, S. Angizi, A. Al-Fuqaha, and M. Guizani, “Semi decentralized Inference in Heterogeneous Graph Neural Networks for Traffic Demand Forecasting: An Edge-Computing Approach”, IEEE Transactions on Vehicular Technology, Jan. 2024.</p>
-        </div>
+<div class="container">
+    <!-- Work 5: Semi-decentralized Inference in hetGNNs -->
+    <div class="project">
+        <h2>Work 5: Semi-decentralized Inference in hetGNNs for Traffic Demand Prediction: An Edge-Computing Approach</h2>
+        <canvas id="projectCanvas5"></canvas>
+        <p><strong>Problem:</strong> Scalability issues in GNN-based traffic forecasting due to high message passing overhead.</p>
+        <p><strong>Objective:</strong> Create a scalable, efficient traffic forecasting method using semi-decentralized hetGNN-LSTM.</p>
+        <p><strong>Key Contributions:</strong></p>
+        <ul>
+            <li>HetGNN-LSTM: Uses multiple relationships for accurate predictions.</li>
+            <li>Semi-decentralized: Uses cloudlets to reduce overhead.</li>
+            <li>Adaptive Assignment: Minimizes inter-cloudlet communication.</li>
+        </ul>
+        <p><strong>Methodology:</strong></p>
+        <ul>
+            <li>HetGNN-LSTM: Learns from heterogeneous data and time dependencies.</li>
+            <li>Semi-Decentralized: Cloudlets manage subgraphs to reduce load.</li>
+            <li>Adaptive Assignment: Uses clustering to reduce inter-cloudlet communication.</li>
+        </ul>
+        <p><strong>Main Results:</strong> High accuracy compared to existing models. Inference time reduced by an order of magnitude. Improved scalability and reduced costs.</p>
+        <img src="figs/hetgnn_inference.png" alt="hetGNN Inference Illustration">
+        
+        <h3>Papers:</h3>
+        <ul>
+            <li>
+                [7] M. Nazzal, A. Khreishah, J. Lee, S. Angizi, A. Al-Fuqaha, and M. Guizani, “Semi-decentralized Inference in Heterogeneous Graph Neural Networks for Traffic Demand Forecasting: An Edge-Computing Approach,” IEEE Transactions on Vehicular Technology, Jan. 2024.
+                <a href="https://arxiv.org/abs/2303.00524" target="_blank">Arxiv Preprint</a> |
+                <a href="https://github.com/mahmoudkanazzal/SemidecentralizedhetGNNLSTM" target="_blank">Artifacts</a>
+            </li>
+        </ul>
+    </div>
+</div>
+
 
         <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Back to Homepage</a>
     </div>
