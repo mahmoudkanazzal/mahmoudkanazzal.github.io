@@ -75,6 +75,21 @@
             border-radius: 5px;
             font-size: 0.9rem;
         }
+        .two-column {
+            display: flex;
+            gap: 30px;
+            margin-top: 30px;
+        }
+        .column {
+            flex: 1;
+        }
+        .column h3 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+        ul {
+            padding-left: 20px;
+        }
         .visualization {
             margin-top: 30px;
             background: #1e2124;
@@ -89,6 +104,15 @@
         .visualization p {
             margin-top: 10px;
             color: #cccccc;
+        }
+        .social-icons {
+            margin-top: 15px;
+        }
+        .social-icons a {
+            color: #3a71c1;
+            margin-right: 10px;
+            font-size: 1.2rem;
+            text-decoration: none;
         }
     </style>
 </head>
@@ -129,6 +153,29 @@
         </div>
 
         <div class="content">
+            <div class="two-column">
+                <div class="column">
+                    <h3>Research Interests</h3>
+                    <ul>
+                        <li><strong>Currently:</strong> Security and robustness of GNNs and LLMs</li>
+                        <ul>
+                            <li>Adversarial robustness and prompt optimization</li>
+                            <li>Applications in secure code generation, hardware design automation, and internet security</li>
+                        </ul>
+                        <li><strong>Previously:</strong> Machine learning for communications (e.g., physical layer security, channel estimation, spectrum sensing)</li>
+                    </ul>
+                </div>
+                <div class="column">
+                    <h3>Education</h3>
+                    <p><strong>Ph.D. in Computer Engineering</strong><br>
+                    NJIT, 2021 - 2025</p>
+                    <p><strong>M.Sc. in Electrical and Electronic Engineering</strong><br>
+                    Eastern Mediterranean University, 2010</p>
+                    <p><strong>B.Sc. in Electrical Engineering</strong><br>
+                    Birzeit University, 2009</p>
+                </div>
+            </div>
+
             <section id="about">
                 <h2>About Me</h2>
                 <p>I am a Ph.D. candidate in Computer Engineering at NJIT, specializing in advanced AI models' Security and Applications. My research focuses on the security, robustness, and applicability of Graph Neural Networks (GNNs) and Large Language Models (LLMs).</p>
@@ -137,48 +184,65 @@
 
             <section id="visualization" class="visualization">
                 <h2>Research Interests Overview</h2>
-                <img src="figs/ResearchMap.png" alt="Research Interests Visualization">
+                <img src="figs/research_interests.png" alt="Research Interests Visualization">
                 <p>This visualization summarizes my research areas, from past work in machine learning for communication to current interests in AI security and robustness, including secure code generation, deepfake detection, and adversarial attacks.</p>
             </section>
 
             <section id="experience">
                 <h2>Professional Experience</h2>
                 <ul>
-                    <li><strong>Teaching Assistant</strong>, New Jersey Institute of Technology, Newark, NJ, USA (2021 - Present)</li>
-                    <li><strong>Lecturer</strong>, Abu Dhabi Vocational Education and Training Institute, Abu Dhabi, UAE (2019 - 2021)</li>
-                    <li><strong>Lecturer</strong>, Izmir University of Economics, Izmir, Turkey (2016 - 2017)</li>
+                    <li>
+                        <strong>Teaching Assistant</strong>, New Jersey Institute of Technology, Newark, NJ, USA (2021 - Present)
+                        <ul>
+                            <li>Research on GNNs and LLMs for secure code generation.</li>
+                            <li>Lectured courses in computer engineering.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <strong>Lecturer</strong>, Abu Dhabi Vocational Education and Training Institute, Abu Dhabi, UAE (2019 - 2021)
+                        <ul>
+                            <li>Taught undergraduate electrical engineering courses.</li>
+                            <li>Supervised student projects.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <strong>Lecturer</strong>, Izmir University of Economics, Izmir, Turkey (2016 - 2017)
+                        <ul>
+                            <li>Taught courses in electrical engineering.</li>
+                            <li>Guided graduation projects.</li>
+                        </ul>
+                    </li>
                 </ul>
             </section>
         </div>
     </div>
 
-<footer id="contact" style="background-color: #1e2124; padding: 20px; text-align: center; color: #ffffff; margin-top: 40px;">
-    <h2>Contact Me</h2>
-    <div style="margin: 10px 0;">
-        <a href="mailto:mn69@njit.edu" style="color: #3a71c1; text-decoration: none; margin-right: 15px;">
-            <i class="fas fa-envelope"></i> mn69@njit.edu
+    <footer id="contact" style="background-color: #1e2124; padding: 20px; text-align: center; color: #ffffff; margin-top: 40px;">
+        <h2>Contact Me</h2>
+        <div style="margin: 10px 0;">
+            <a href="mailto:mn69@njit.edu" style="color: #3a71c1; text-decoration: none; margin-right: 15px;">
+                <i class="fas fa-envelope"></i> mn69@njit.edu
+            </a>
+            <span style="margin-right: 15px;">
+                <i class="fas fa-map-marker-alt"></i> New Jersey Institute of Technology, Newark, NJ, USA
+            </span>
+            <a href="https://www.linkedin.com/in/mahmoud-nazzal" target="_blank" style="color: #3a71c1; text-decoration: none; margin-right: 15px;">
+                <i class="fab fa-linkedin"></i> LinkedIn
+            </a>
+            <a href="https://github.com/mahmoudkanazzal" target="_blank" style="color: #3a71c1; text-decoration: none; margin-right: 15px;">
+                <i class="fab fa-github"></i> GitHub
+            </a>
+            <a href="https://scholar.google.com/citations?user=ygjUJnYAAAAJ&hl=en&authuser=2" target="_blank" style="color: #3a71c1; text-decoration: none; margin-right: 15px;">
+                <i class="fas fa-graduation-cap"></i> Google Scholar
+            </a>
+            <a href="https://orcid.org/0000-0003-3375-0310" target="_blank" style="color: #3a71c1; text-decoration: none;">
+                <i class="fab fa-orcid"></i> ORCID
+            </a>
+        </div>
+        <p style="margin-top: 20px; font-size: 0.9rem;">© 2024 Mahmoud Nazzal</p>
+        <a href="#home" class="back-link" style="display: block; margin-top: 15px; color: #3a71c1; text-decoration: none;">
+            <i class="fas fa-arrow-up"></i> Back to Homepage
         </a>
-        <span style="margin-right: 15px;">
-            <i class="fas fa-map-marker-alt"></i> New Jersey Institute of Technology, Newark, NJ, USA
-        </span>
-        <a href="https://www.linkedin.com/in/mahmoud-nazzal" target="_blank" style="color: #3a71c1; text-decoration: none; margin-right: 15px;">
-            <i class="fab fa-linkedin"></i> LinkedIn
-        </a>
-        <a href="https://github.com/mahmoudkanazzal" target="_blank" style="color: #3a71c1; text-decoration: none; margin-right: 15px;">
-            <i class="fab fa-github"></i> GitHub
-        </a>
-        <a href="https://scholar.google.com/citations?user=ygjUJnYAAAAJ&hl=en&authuser=2" target="_blank" style="color: #3a71c1; text-decoration: none; margin-right: 15px;">
-            <i class="fas fa-graduation-cap"></i> Google Scholar
-        </a>
-        <a href="https://orcid.org/0000-0003-3375-0310" target="_blank" style="color: #3a71c1; text-decoration: none;">
-            <i class="fab fa-orcid"></i> ORCID
-        </a>
-    </div>
-    <p style="margin-top: 20px; font-size: 0.9rem;">© 2024 Mahmoud Nazzal</p>
-    <a href="#home" class="back-link" style="display: block; margin-top: 15px; color: #3a71c1; text-decoration: none;">
-        <i class="fas fa-arrow-up"></i> Back to Homepage
-    </a>
-</footer>
-
+    </footer>
 </body>
 </html>
