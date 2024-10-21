@@ -44,11 +44,11 @@
             padding: 20px;
             margin-bottom: 20px;
             border-radius: 8px;
-            border: 1px solid #3a71c1;
+            border: 1px solid #d0d0d0; /* Light gray border */
         }
         .project h2 {
             font-size: 1.3rem;
-            color: #3a71c1;
+            color: #d0d0d0; /* Softer gray for project titles */
             margin-bottom: 10px;
         }
         .project img {
@@ -62,6 +62,16 @@
         .reference {
             font-style: italic;
             color: #aaaaaa;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 15px;
+            color: #ffffff; /* White color for the back link */
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        .back-link:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
@@ -84,103 +94,97 @@
 
     <div class="container">
         <!-- Project 1: PromSec -->
-    <div class="project">
-        <h2>PromSec: Prompt Optimization for Secure Generation of Functional Source Code with Large Language Models (LLMs)</h2>
-        <p><strong>Problem:</strong> LLMs tend to generate functional but insecure code.</p>
-        <p><strong>Objective:</strong> Optimize prompts to generate secure functional code with LLMs.</p>
-        <p><strong>Key Contributions:</strong></p>
-        <ul>
-            <li> Graph generative adversarial network (gGAN) + LLM loop to reduce vulnerabilities and maintain functionality.</li>
-            <li>Contrastive learning for dual-objective optimization.</li>
-            <li>Transferable prompts across LLMs and vulnerabilities.</li>
-        </ul>
-        <p><strong>Methodology:</strong> gGAN fixes code vulnerabilities, LLM improves prompts, and iterative loop for optimizing code security.</p>
-        <p><strong>Key Results:</strong> Enhances security while maintaining functionality, reduces operational time and costs significantly, prompts work across languages and LLMs, reduces vulnerabilities in generated code.</p>
-        <img src="figs/promsec_animation.gif" alt="PromSec Figure">
-        
-        <h3>Publications:</h3>
-        <ul>
-            <li>
-                [1] M. Nazzal, I. Khalil, A. Khreishah, and N.H. Phan, “PromSec: Prompt Optimization for Secure Generation of Functional Source Code with Large Language Models (LLMs),” in 31st ACM Conference on Computer and Communications Security (CCS 2024), Salt Lake City, UT, USA, Oct. 2024.
-                <a href="https://arxiv.org/pdf/2409.12699" target="_blank">Arxiv Preprint</a> |
-                <a href="https://github.com/mahmoudkanazzal/PromSec" target="_blank">Artifacts</a>
-            </li>
-            <li>
-                [2] T.K. Ton, N. Nguyen, M. Nazzal, A. Khreishah, C. Borcea, N.H. Phan, R. Jin, I. Khalil, and Y. Shen, “Demo: SGCode: A Flexible Prompt-Optimizing System for Secure Generation of Code,” 31st ACM Conference on Computer and Communications Security (CCS 2024), Salt Lake City, UT, USA, Oct. 2024.
-                <a href="https://arxiv.org/abs/2409.07368" target="_blank">Preprint</a> |
-                <a href="https://sgcode.codes/" target="_blank">Demo Website</a>
-            </li>
-            <li>
-                [3] M. Nazzal, I. Khalil, A. Khreishah, and N.H. Phan, “Method and System for Prompt Optimization for Secure Generation of Functional Source Code with Large Language Models,” US Patent, Application No.: US63/561,573, Washington, D.C., USA, Filing date: Mar. 5, 2024.
-            </li>
-        </ul>
+        <div class="project">
+            <h2>PromSec: Prompt Optimization for Secure Generation of Functional Source Code with Large Language Models (LLMs)</h2>
+            <p><strong>Problem:</strong> LLMs tend to generate functional but insecure code.</p>
+            <p><strong>Objective:</strong> Optimize prompts to generate secure functional code with LLMs.</p>
+            <p><strong>Key Contributions:</strong></p>
+            <ul>
+                <li>Graph generative adversarial network (gGAN) + LLM loop to reduce vulnerabilities and maintain functionality.</li>
+                <li>Contrastive learning for dual-objective optimization.</li>
+                <li>Transferable prompts across LLMs and vulnerabilities.</li>
+            </ul>
+            <p><strong>Methodology:</strong> gGAN fixes code vulnerabilities, LLM improves prompts, and iterative loop for optimizing code security.</p>
+            <p><strong>Key Results:</strong> Enhances security while maintaining functionality, reduces operational time and costs significantly, prompts work across languages and LLMs, reduces vulnerabilities in generated code.</p>
+            <img src="figs/promsec_animation.gif" alt="PromSec Figure">
+            
+            <h3>Publications:</h3>
+            <ul>
+                <li>
+                    [1] M. Nazzal, I. Khalil, A. Khreishah, and N.H. Phan, “PromSec: Prompt Optimization for Secure Generation of Functional Source Code with Large Language Models (LLMs),” in 31st ACM Conference on Computer and Communications Security (CCS 2024), Salt Lake City, UT, USA, Oct. 2024.
+                    <a href="https://arxiv.org/pdf/2409.12699" target="_blank">Arxiv Preprint</a> |
+                    <a href="https://github.com/mahmoudkanazzal/PromSec" target="_blank">Artifacts</a>
+                </li>
+                <li>
+                    [2] T.K. Ton, N. Nguyen, M. Nazzal, A. Khreishah, C. Borcea, N.H. Phan, R. Jin, I. Khalil, and Y. Shen, “Demo: SGCode: A Flexible Prompt-Optimizing System for Secure Generation of Code,” 31st ACM Conference on Computer and Communications Security (CCS 2024), Salt Lake City, UT, USA, Oct. 2024.
+                    <a href="https://arxiv.org/abs/2409.07368" target="_blank">Preprint</a> |
+                    <a href="https://sgcode.codes/" target="_blank">Demo Website</a>
+                </li>
+                <li>
+                    [3] M. Nazzal, I. Khalil, A. Khreishah, and N.H. Phan, “Method and System for Prompt Optimization for Secure Generation of Functional Source Code with Large Language Models,” US Patent, Application No.: US63/561,573, Washington, D.C., USA, Filing date: Mar. 5, 2024.
+                </li>
+            </ul>
+        </div>
     </div>
-</div>
 
-
-
-<div class="container">
-    <!-- Project 2: MintA -->
-    <div class="project">
-        <h2>Multi-Instance Adversarial Attack on GNN-Based Malicious Domain Detection</h2>
-        <p><strong>Problem:</strong> Need for a new adversarial attack on multiple instances to evade malicious domain detection.</p>
-        <p><strong>Objective:</strong> Develop MintA, an attack that evades GNN-based malicious domain detection by optimizing multiple domain manipulations.</p>
-        <p><strong>Key Contributions:</strong></p>
-        <ul>
-            <li>MintA: A multi-instance evasion attack optimizing node perturbations for evasiveness.</li>
-            <li>Black-box attack requiring no knowledge of model parameters.</li>
-        </ul>
-        <p><strong>Methodology:</strong> Construct a surrogate model using black-box access, optimize node and edge perturbations to maximize evasiveness, and implement perturbations through domain and IP modifications.</p>
-        <p><strong>Key Results:</strong> Achieves over 80% success rate in evading detection, bypasses outlier detection and graph purification defenses.</p>
-        <img src="figs/minta_animation.gif" alt="MintA Figure">
-        
-        <h3>Papers:</h3>
-        <ul>
-            <li>
-                [4] M. Nazzal, I. Khalil, A. Khreishah, N. Phan, & Y. Ma, “Multi-Instance Adversarial Attack on GNN-Based Malicious Domain Detection,” in 2024 IEEE Symposium on Security and Privacy (SP), May 2024.
-                <a href="https://ieeexplore.ieee.org/document/10646677" target="_blank">Paper</a> |
-                <a href="https://arxiv.org/abs/2308.11754" target="_blank">Arxiv Preprint</a> |
-                <a href="https://github.com/mahmoudkanazzal/MintA" target="_blank">Artifacts</a> |
-                <a href="https://www.youtube.com/watch?v=ynXtvb8DCAI" target="_blank">
-                    <i class="fab fa-youtube" style="color: red;"></i> Presentation Video
-                </a>
-            </li>
-        </ul>
-
+    <div class="container">
+        <!-- Project 2: MintA -->
+        <div class="project">
+            <h2>Multi-Instance Adversarial Attack on GNN-Based Malicious Domain Detection</h2>
+            <p><strong>Problem:</strong> Need for a new adversarial attack on multiple instances to evade malicious domain detection.</p>
+            <p><strong>Objective:</strong> Develop MintA, an attack that evades GNN-based malicious domain detection by optimizing multiple domain manipulations.</p>
+            <p><strong>Key Contributions:</strong></p>
+            <ul>
+                <li>MintA: A multi-instance evasion attack optimizing node perturbations for evasiveness.</li>
+                <li>Black-box attack requiring no knowledge of model parameters.</li>
+            </ul>
+            <p><strong>Methodology:</strong> Construct a surrogate model using black-box access, optimize node and edge perturbations to maximize evasiveness, and implement perturbations through domain and IP modifications.</p>
+            <p><strong>Key Results:</strong> Achieves over 80% success rate in evading detection, bypasses outlier detection and graph purification defenses.</p>
+            <img src="figs/minta_animation.gif" alt="MintA Figure">
+            
+            <h3>Papers:</h3>
+            <ul>
+                <li>
+                    [4] M. Nazzal, I. Khalil, A. Khreishah, N. Phan, & Y. Ma, “Multi-Instance Adversarial Attack on GNN-Based Malicious Domain Detection,” in 2024 IEEE Symposium on Security and Privacy (SP), May 2024.
+                    <a href="https://ieeexplore.ieee.org/document/10646677" target="_blank">Paper</a> |
+                    <a href="https://arxiv.org/abs/2308.11754" target="_blank">Arxiv Preprint</a> |
+                    <a href="https://github.com/mahmoudkanazzal/MintA" target="_blank">Artifacts</a> |
+                    <a href="https://www.youtube.com/watch?v=ynXtvb8DCAI" target="_blank">
+                        <i class="fab fa-youtube" style="color: red;"></i> Presentation Video
+                    </a>
+                </li>
+            </ul>
+        </div>
     </div>
-</div>
 
-<div class="container">
-    <!-- Project 3: SA-DS -->
-    <div class="project">
-        <h2>SA-DS: A Dataset for Large Language Model-Driven AI Accelerator Design Generation</h2>
-        <p><strong>Problem:</strong> Lack of specialized datasets for AI-driven accelerator design.</p>
-        <p><strong>Objective:</strong> Introduce SA-DS for LLM-based DNN hardware design.</p>
-        <p><strong>Key Contributions:</strong></p>
-        <ul>
-            <li>SA-DS: Diverse array designs using Gemmini.</li>
-            <li>An envisioned framework for optimizing hardware design generation.</li>
-        </ul>
-        <p><strong>Methodology:</strong> Data from Gemmini in Chisel, supports LLM fine-tuning and multi-shot learning, quality check using Verilator.</p>
-        <p><strong>Results:</strong> 100% pass rate with multi-shot learning, fewer revisions, better workflow.</p>
-        <img src="figs/sads_figure.png" alt="SA-DS Figure">
-        
-        <h3>Papers:</h3>
-        <ul>
-            <li>
-                [5] D. Vungarala*, M. Nazzal*, M. Morsali, C. Zhang, A. Ghosh, A. Khreishah, and S. Angizi, “SA-DS: A Dataset for Large Language Model-Driven AI Accelerator Design Generation,” IEEE International Symposium on Circuits and Systems (ISCAS) 2025. [Accepted].
-                 <a href="https://doi.org/10.48550/arXiv.2404.10875" target="_blank">DOI Link</a> |
-                <a href="https://github.com/ACADLab/SA-DS" target="_blank">Artifacts</a>
-            </li>
-<!--             <li>
-                [6] arXiv preprint: arXiv:2404.10875. <a href="https://doi.org/10.48550/arXiv.2404.10875" target="_blank">DOI Link</a>
-            </li> -->
-        </ul>
+    <div class="container">
+        <!-- Project 3: SA-DS -->
+        <div class="project">
+            <h2>SA-DS: A Dataset for Large Language Model-Driven AI Accelerator Design Generation</h2>
+            <p><strong>Problem:</strong> Lack of specialized datasets for AI-driven accelerator design.</p>
+            <p><strong>Objective:</strong> Introduce SA-DS for LLM-based DNN hardware design.</p>
+            <p><strong>Key Contributions:</strong></p>
+            <ul>
+                <li>SA-DS: Diverse array designs using Gemmini.</li>
+                <li>An envisioned framework for optimizing hardware design generation.</li>
+            </ul>
+            <p><strong>Methodology:</strong> Data from Gemmini in Chisel, supports LLM fine-tuning and multi-shot learning, quality check using Verilator.</p>
+            <p><strong>Results:</strong> 100% pass rate with multi-shot learning, fewer revisions, better workflow.</p>
+            <img src="figs/sads_figure.png" alt="SA-DS Figure">
+            
+            <h3>Papers:</h3>
+            <ul>
+                <li>
+                    [5] D. Vungarala*, M. Nazzal*, M. Morsali, C. Zhang, A. Ghosh, A. Khreishah, and S. Angizi, “SA-DS: A Dataset for Large Language Model-Driven AI Accelerator Design Generation,” IEEE International Symposium on Circuits and Systems (ISCAS) 2025. [Accepted].
+                    <a href="https://doi.org/10.48550/arXiv.2404.10875" target="_blank">DOI Link</a> |
+                    <a href="https://github.com/ACADLab/SA-DS" target="_blank">Artifacts</a>
+                </li>
+            </ul>
+        </div>
     </div>
-</div>
 
-
-                <!-- Work 4: Deepfake Detection -->
+    <div class="container">
+        <!-- Work 4: Deepfake Detection -->
         <div class="project">
             <h2>Work 4: Deepfake Detection with Vision-Language Model Explanations and GNN Integration</h2>
             <canvas id="projectCanvas4"></canvas>
@@ -201,44 +205,42 @@
             <p><strong>Note:</strong> Summary presented with care for privacy, as the paper is under double-blind review.</p>
             <img src="figs/vigitext_animation.gif" alt="Deepfake Detection Illustration">
         </div>
+    </div>
 
+    <div class="container">
         <!-- Work 5: Semi-decentralized Inference in hetGNNs -->
-<div class="container">
-    <!-- Work 5: Semi-decentralized Inference in hetGNNs -->
-    <div class="project">
-        <h2>Work 5: Semi-decentralized Inference in hetGNNs for Traffic Demand Prediction: An Edge-Computing Approach</h2>
-        <canvas id="projectCanvas5"></canvas>
-        <p><strong>Problem:</strong> Scalability issues in GNN-based traffic forecasting due to high message passing overhead.</p>
-        <p><strong>Objective:</strong> Create a scalable, efficient traffic forecasting method using semi-decentralized hetGNN-LSTM.</p>
-        <p><strong>Key Contributions:</strong></p>
-        <ul>
-            <li>HetGNN-LSTM: Uses multiple relationships for accurate predictions.</li>
-            <li>Semi-decentralized: Uses cloudlets to reduce overhead.</li>
-            <li>Adaptive Assignment: Minimizes inter-cloudlet communication.</li>
-        </ul>
-        <p><strong>Methodology:</strong></p>
-        <ul>
-            <li>HetGNN-LSTM: Learns from heterogeneous data and time dependencies.</li>
-            <li>Semi-Decentralized: Cloudlets manage subgraphs to reduce load.</li>
-            <li>Adaptive Assignment: Uses clustering to reduce inter-cloudlet communication.</li>
-        </ul>
-        <p><strong>Main Results:</strong> High accuracy compared to existing models. Inference time reduced by an order of magnitude. Improved scalability and reduced costs.</p>
-        <img src="figs/hetgnn_inference.png" alt="hetGNN Inference Illustration">
-        
-        <h3>Papers:</h3>
-        <ul>
-            <li>
-                [7] M. Nazzal, A. Khreishah, J. Lee, S. Angizi, A. Al-Fuqaha, and M. Guizani, “Semi-decentralized Inference in Heterogeneous Graph Neural Networks for Traffic Demand Forecasting: An Edge-Computing Approach,” IEEE Transactions on Vehicular Technology, Jan. 2024.
-                <a href="https://ieeexplore.ieee.org/abstract/document/10409531" target="_blank">Paper</a> |
-                <a href="https://arxiv.org/abs/2303.00524" target="_blank">Arxiv Preprint</a> |
-                <a href="https://github.com/mahmoudkanazzal/SemidecentralizedhetGNNLSTM" target="_blank">Artifacts</a>
-            </li>
-        </ul>
+        <div class="project">
+            <h2>Work 5: Semi-decentralized Inference in hetGNNs for Traffic Demand Prediction: An Edge-Computing Approach</h2>
+            <canvas id="projectCanvas5"></canvas>
+            <p><strong>Problem:</strong> Scalability issues in GNN-based traffic forecasting due to high message passing overhead.</p>
+            <p><strong>Objective:</strong> Create a scalable, efficient traffic forecasting method using semi-decentralized hetGNN-LSTM.</p>
+            <p><strong>Key Contributions:</strong></p>
+            <ul>
+                <li>HetGNN-LSTM: Uses multiple relationships for accurate predictions.</li>
+                <li>Semi-decentralized: Uses cloudlets to reduce overhead.</li>
+                <li>Adaptive Assignment: Minimizes inter-cloudlet communication.</li>
+            </ul>
+            <p><strong>Methodology:</strong></p>
+            <ul>
+                <li>HetGNN-LSTM: Learns from heterogeneous data and time dependencies.</li>
+                <li>Semi-Decentralized: Cloudlets manage subgraphs to reduce load.</li>
+                <li>Adaptive Assignment: Uses clustering to reduce inter-cloudlet communication.</li>
+            </ul>
+            <p><strong>Main Results:</strong> High accuracy compared to existing models. Inference time reduced by an order of magnitude. Improved scalability and reduced costs.</p>
+            <img src="figs/hetgnn_inference.png" alt="hetGNN Inference Illustration">
+            
+            <h3>Papers:</h3>
+            <ul>
+                <li>
+                    [7] M. Nazzal, A. Khreishah, J. Lee, S. Angizi, A. Al-Fuqaha, and M. Guizani, “Semi-decentralized Inference in Heterogeneous Graph Neural Networks for Traffic Demand Forecasting: An Edge-Computing Approach,” IEEE Transactions on Vehicular Technology, Jan. 2024.
+                    <a href="https://ieeexplore.ieee.org/abstract/document/10409531" target="_blank">Paper</a> |
+                    <a href="https://arxiv.org/abs/2303.00524" target="_blank">Arxiv Preprint</a> |
+                    <a href="https://github.com/mahmoudkanazzal/SemidecentralizedhetGNNLSTM" target="_blank">Artifacts</a>
+                </li>
+            </ul>
+        </div>
     </div>
-</div>
 
-
-        <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Back to Homepage</a>
-    </div>
+    <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Back to Homepage</a>
 </body>
 </html>
