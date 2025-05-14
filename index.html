@@ -114,16 +114,32 @@
             font-size: 1.2rem;
             text-decoration: none;
         }
+        footer {
+            background-color: #1e2124;
+            padding: 20px;
+            text-align: center;
+            color: #ffffff;
+            margin-top: 40px;
+        }
+        footer a {
+            color: #3a71c1;
+            text-decoration: none;
+            margin-right: 15px;
+        }
+        .back-link {
+            display: block;
+            margin-top: 15px;
+        }
     </style>
 </head>
 <body>
     <header>
         <h1>Mahmoud Nazzal</h1>
         <nav>
-<!--             <a href="#about">About</a> -->
+            <!-- <a href="#about">About</a> -->
             <a href="#research-interests">Research Interests</a>
             <a href="#experience">Experience</a>
-<!--             <a href="#education">Education</a> -->
+            <!-- <a href="#education">Education</a> -->
             <a href="teaching.html">Teaching</a>
             <a href="recent_projects.html">Recent Projects</a>
             <a href="publications.html">Publications</a>
@@ -138,13 +154,14 @@
         <div class="profile">
             <img src="mahmoud-nazzal-photo.JPG" alt="Mahmoud Nazzal">
             <h2>Mahmoud Nazzal</h2>
-            <p>Ph.D. Candidate in Computer Engineering</p>
+            <p>Ph.D. Graduate</p>
+            <p>Incoming Assistant Professor, Department of Computer Science<br>
+               Old Dominion University, Norfolk, VA, USA</p>
             <p>Specializing in AI Security and Applications</p>
-            <p>New Jersey Institute of Technology</p>
             <div class="social-icons">
                 <a href="https://scholar.google.com/citations?user=ygjUJnYAAAAJ&hl=en&authuser=2" target="_blank"><i class="fas fa-graduation-cap"></i></a>
                 <a href="https://www.linkedin.com/in/mahmoud-nazzal/" target="_blank"><i class="fab fa-linkedin"></i></a>
-                <a href="mailto:nm69@njit.edu"><i class="fas fa-envelope"></i></a>
+                <a href="mailto:mn69@njit.edu"><i class="fas fa-envelope"></i></a>
                 <a href="https://github.com/mahmoudkanazzal" target="_blank"><i class="fab fa-github"></i></a>
                 <a href="https://orcid.org/0000-0003-3375-0310" target="_blank"><i class="fab fa-orcid"></i></a>
             </div>
@@ -156,26 +173,27 @@
         <div class="content">
             <section id="about">
                 <h2>About Me</h2>
-                <p>I am a Ph.D. candidate in Computer Engineering at NJIT, specializing in advanced AI models' Security and Applications. My research focuses on the security, robustness, and applicability of Graph Neural Networks (GNNs) and Large Language Models (LLMs).</p>
-                <p>My goal is to advance AI security technologies that enhance trust and reliability in the systems we depend on today and in the future. Overall, I have contributed to more than 20 conference papers, 12 journal papers, 7 patent applications, and 1 book chapter, and lectured undergraduate computer engineering courses at NJIT and in universities in Turkey and the UAE.</p>
+                <p>I am an incoming Assistant Professor in the Computer Science department at Old Dominion University, specializing in AI Security and Applications. My research focuses on the security, robustness, and applicability of Graph Neural Networks (GNNs) and Large Language Models (LLMs).</p>
+                <p>My goal is to advance AI security technologies that enhance trust and reliability in the systems we depend on today and in the future. Overall, I have contributed to more than 20 conference papers, 12 journal papers, 7 patent applications, and 1 book chapter, and have lectured undergraduate computer engineering courses at NJIT and in universities in Turkey and the UAE.</p>
             </section>
 
             <div class="two-column" id="research-interests">
                 <div class="column">
                     <h3>Research Interests</h3>
                     <ul>
-                        <li><strong>Currently:</strong> Security and robustness of GNNs and LLMs</li>
-                        <ul>
-                            <li>Adversarial robustness and prompt optimization</li>
-                            <li>Applications in secure code generation, hardware design automation, and internet security</li>
-                        </ul>
+                        <li><strong>Currently:</strong> Security and robustness of GNNs and LLMs
+                            <ul>
+                                <li>Adversarial robustness and prompt optimization</li>
+                                <li>Applications in secure code generation, hardware design automation, and internet security</li>
+                            </ul>
+                        </li>
                         <li><strong>Previously:</strong> Machine learning for communications (e.g., physical layer security, channel estimation, spectrum sensing)</li>
                     </ul>
                 </div>
                 <div class="column">
                     <h3>Education</h3>
                     <p><strong>Ph.D. in Computer Engineering</strong><br>
-                    NJIT, 2021 - 2025</p>
+                    NJIT, 2021 – 2025</p>
                     <p><strong>M.Sc. in Electrical and Electronic Engineering</strong><br>
                     Eastern Mediterranean University, 2010</p>
                     <p><strong>B.Sc. in Electrical Engineering</strong><br>
@@ -193,21 +211,21 @@
                 <h2>Professional Experience</h2>
                 <ul>
                     <li>
-                        <strong>Teaching Assistant</strong>, New Jersey Institute of Technology, Newark, NJ, USA (2021 - Present)
+                        <strong>Teaching Assistant</strong>, New Jersey Institute of Technology, Newark, NJ, USA (2021 – Present)
                         <ul>
                             <li>Research on GNNs and LLMs for secure code generation.</li>
                             <li>Lectured courses in computer engineering.</li>
                         </ul>
                     </li>
                     <li>
-                        <strong>Lecturer</strong>, Abu Dhabi Vocational Education and Training Institute, Abu Dhabi, UAE (2019 - 2021)
+                        <strong>Lecturer</strong>, Abu Dhabi Vocational Education and Training Institute, Abu Dhabi, UAE (2019 – 2021)
                         <ul>
                             <li>Taught undergraduate electrical engineering courses.</li>
                             <li>Supervised student projects.</li>
                         </ul>
                     </li>
                     <li>
-                        <strong>Lecturer</strong>, Izmir University of Economics, Izmir, Turkey (2016 - 2017)
+                        <strong>Lecturer</strong>, Izmir University of Economics, Izmir, Turkey (2016 – 2017)
                         <ul>
                             <li>Taught courses in electrical engineering.</li>
                             <li>Guided graduation projects.</li>
@@ -218,32 +236,18 @@
         </div>
     </div>
 
-    <footer id="contact" style="background-color: #1e2124; padding: 20px; text-align: center; color: #ffffff; margin-top: 40px;">
+    <footer id="contact">
         <h2>Contact Me</h2>
         <div style="margin: 10px 0;">
-            <a href="mailto:mn69@njit.edu" style="color: #3a71c1; text-decoration: none; margin-right: 15px;">
-                <i class="fas fa-envelope"></i> mn69@njit.edu
-            </a>
-            <span style="color: #3a71c1;margin-right: 15px;">
-                <i class="fas fa-map-marker-alt"></i> New Jersey Institute of Technology, Newark, NJ, USA
-            </span>
-            <a href="https://www.linkedin.com/in/mahmoud-nazzal" target="_blank" style="color: #3a71c1; text-decoration: none; margin-right: 15px;">
-                <i class="fab fa-linkedin"></i> LinkedIn
-            </a>
-            <a href="https://github.com/mahmoudkanazzal" target="_blank" style="color: #3a71c1; text-decoration: none; margin-right: 15px;">
-                <i class="fab fa-github"></i> GitHub
-            </a>
-            <a href="https://scholar.google.com/citations?user=ygjUJnYAAAAJ&hl=en&authuser=2" target="_blank" style="color: #3a71c1; text-decoration: none; margin-right: 15px;">
-                <i class="fas fa-graduation-cap"></i> Google Scholar
-            </a>
-            <a href="https://orcid.org/0000-0003-3375-0310" target="_blank" style="color: #3a71c1; text-decoration: none;">
-                <i class="fab fa-orcid"></i> ORCID
-            </a>
+            <a href="mailto:mn69@njit.edu"><i class="fas fa-envelope"></i> mn69@njit.edu</a>
+            <span style="margin-right: 15px;"><i class="fas fa-map-marker-alt"></i> Norfolk, VA, USA</span>
+            <a href="https://www.linkedin.com/in/mahmoud-nazzal" target="_blank"><i class="fab fa-linkedin"></i> LinkedIn</a>
+            <a href="https://github.com/mahmoudkanazzal" target="_blank"><i class="fab fa-github"></i> GitHub</a>
+            <a href="https://scholar.google.com/citations?user=ygjUJnYAAAAJ&hl=en" target="_blank"><i class="fas fa-graduation-cap"></i> Google Scholar</a>
+            <a href="https://orcid.org/0000-0003-3375-0310" target="_blank"><i class="fab fa-orcid"></i> ORCID</a>
         </div>
-        <p style="color: #3a71c1;margin-top: 20px; font-size: 0.9rem;">© 2024 Mahmoud Nazzal</p>
-        <a href="#home" class="back-link" style="display: block; margin-top: 15px; color: #3a71c1; text-decoration: none;">
-            <i class="fas fa-arrow-up"></i> Back to Homepage
-        </a>
+        <p style="font-size: 0.9rem; margin-top: 20px;">© 2024 Mahmoud Nazzal</p>
+        <a href="#home" class="back-link"><i class="fas fa-arrow-up"></i> Back to Homepage</a>
     </footer>
 </body>
 </html>
