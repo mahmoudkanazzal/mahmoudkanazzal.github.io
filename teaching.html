@@ -89,42 +89,6 @@
         .back-link:hover {
             text-decoration: underline;
         }
-
-        /* === Redesigned ODU block styles === */
-        .odu-block {
-            padding: 20px;
-            border-radius: 6px;
-            background: #2e3035;
-            border: 1px solid #3e4147;
-        }
-
-        .odu-block .course-block {
-            margin-top: 18px;
-            padding: 12px 15px;
-            background: #1f2124;
-            border-left: 3px solid #6c8cff; /* subtle accent */
-            border-radius: 4px;
-        }
-
-        .course-title {
-            font-size: 1.05rem;
-            color: #e6e6e6;
-            margin-bottom: 6px;
-        }
-
-        .course-term {
-            font-style: italic;
-            font-size: 0.85rem;
-            color: #bbbbbb;
-            margin-left: 6px;
-        }
-
-        .course-description {
-            line-height: 1.55;
-            color: #d4d4d4;
-            margin: 0;
-            margin-top: 4px;
-        }
     </style>
 </head>
 <body>
@@ -146,49 +110,47 @@
 <div class="container">
     <div class="teaching-list">
 
-        <!-- Redesigned Old Dominion University block -->
-        <div class="teaching-item odu-block">
-            <h2>Old Dominion University, Norfolk, VA, USA
+        <!-- NEW: Old Dominion University block -->
+        <div class="teaching-item">
+            <h2>Old Dominion University, Norfolk, VA, USA 
                 <img src="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.5.0/flags/4x3/us.svg" class="flag" alt="USA Flag">
             </h2>
-            <p class="term">Aug. 2025 – Present</p>
-            <p><strong>Assistant Professor of Computer Science</strong></p>
-            <p class="term">Graduate Courses Taught (M.S./Ph.D.)</p>
-
-            <div class="course-block">
-                <p class="course-title">
-                    <strong>CS 722/822 – Machine Learning</strong>
-                    <span class="course-term">(Graduate course, Fall 2025)</span>
-                </p>
-                <p class="course-description">
-                    A rigorous, hands-on introduction to classical machine learning for M.S. and Ph.D. students.
-                    The course covers supervised and unsupervised learning methods, including regression, classification,
-                    clustering, anomaly detection, and dimensionality reduction, with strong emphasis on evaluation,
-                    cross-validation, calibration, and error analysis. Neural networks are introduced through perceptron
-                    and multilayer perceptron classifiers. Students complete a curated paper review, a team project with
-                    a conference-style presentation, a midterm, and a comprehensive final exam.
-                </p>
-            </div>
-
-            <div class="course-block">
-                <p class="course-title">
-                    <strong>CS 795/895 – Special Topics in Computer Science: Large Language Model (LLM) Architectures &amp; Applications</strong>
-                    <span class="course-term">(Graduate course, Spring 2026)</span>
-                </p>
-                <p class="course-description">
-                    A graduate special topics course offering an in-depth exploration of the architectures, training paradigms,
-                    and applications of modern large language models. Students begin with foundational ML and NLP concepts and
-                    progress to transformer-based architectures, prompt optimization, retrieval-augmented generation (RAG),
-                    and multimodal extensions via vision-language models (VLMs). The course emphasizes the growing role of LLMs
-                    as core reasoning components in agentic AI systems. Students study pre-training objectives, fine-tuning
-                    strategies, and evaluation metrics, and are prepared to analyze, design, and apply LLM-based systems in
-                    research and real-world contexts.
-                </p>
-            </div>
+            <p class="term">Aug. 2025 - Present</p>
+            <p>Assistant Professor of Computer Science, Graduate Courses Taught (M.S./Ph.D.):</p>
+            <ul>
+                <li>
+                    <strong>CS 795/895 – Special Topics in Computer Science: Large Language Model (LLM) Architectures and Applications</strong> 
+                    (Graduate-level course, Spring 2026)  
+                    <ul>
+                        <li>
+                            This graduate special topics course provides an in-depth exploration of the architectures, training paradigms, 
+                            and applications of modern large language models. Starting from foundational ML and NLP concepts, the course 
+                            progresses to transformer-based LLM architectures, prompt optimization, and retrieval-augmented generation (RAG). 
+                            It also examines multimodal extensions via vision-language models (VLMs) and the emerging role of LLMs as core 
+                            reasoning engines in agentic AI systems capable of planning and tool use. Students study pre-training objectives, 
+                            fine-tuning strategies, and state-of-the-art evaluation metrics, and are prepared to analyze, design, and apply 
+                            LLM-based systems in both research and real-world contexts.
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>CS 722/822 – Machine Learning</strong> (Graduate-level course, Fall 2025)  
+                    <ul>
+                        <li>
+                            This rigorous, hands-on graduate course introduces classical machine learning for M.S. and Ph.D. students. 
+                            It covers supervised and unsupervised learning methods, including regression, classification, clustering, anomaly 
+                            detection, and dimensionality reduction, with a strong emphasis on evaluation, cross-validation, calibration, 
+                            and error analysis. Neural networks are introduced through perceptron and multilayer perceptron classifiers to 
+                            situate them within the classical ML landscape. The course includes a curated paper review, a team project with 
+                            a conference-style presentation, a midterm, and a comprehensive final exam.
+                        </li>
+                    </ul>
+                </li>
+            </ul>
         </div>
 
         <div class="teaching-item">
-            <h2>New Jersey Institute of Technology, Newark, NJ, USA
+            <h2>New Jersey Institute of Technology, Newark, NJ, USA 
                 <img src="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.5.0/flags/4x3/us.svg" class="flag" alt="USA Flag">
             </h2>
             <p class="term">Sep. 2022 - May 2024</p>
@@ -208,7 +170,7 @@
         </div>
 
         <div class="teaching-item">
-            <h2>Institute of Applied Technology, Abu Dhabi, UAE
+            <h2>Institute of Applied Technology, Abu Dhabi, UAE 
                 <img src="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.5.0/flags/4x3/ae.svg" class="flag" alt="UAE Flag">
             </h2>
             <p class="term">Aug. 2019 - Jul. 2021</p>
@@ -222,7 +184,7 @@
         </div>
 
         <div class="teaching-item">
-            <h2>Izmir University of Economics, Izmir, Turkey
+            <h2>Izmir University of Economics, Izmir, Turkey 
                 <img src="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.5.0/flags/4x3/tr.svg" class="flag" alt="Turkey Flag">
             </h2>
             <p class="term">Sept. 2016 - Jun. 2017</p>
@@ -237,7 +199,7 @@
         </div>
 
         <div class="teaching-item">
-            <h2>Eastern Mediterranean University, Famagusta, Cyprus
+            <h2>Eastern Mediterranean University, Famagusta, Cyprus 
                 <img src="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.5.0/flags/4x3/cy.svg" class="flag" alt="Cyprus Flag">
             </h2>
             <p class="term">Sept. 2009 - Jun. 2016</p>
