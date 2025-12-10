@@ -105,12 +105,14 @@
         ul {
             padding-left: 20px;
         }
+
         .visualization {
-            margin-top: 30px;
             background: #1e2124;
             padding: 20px;
             border-radius: 8px;
+            margin-top: 30px;
         }
+
         .visualization img {
             width: 100%;
             border-radius: 8px;
@@ -120,6 +122,17 @@
             margin-top: 10px;
             color: #cccccc;
         }
+
+        /* NEW: SIDE-BY-SIDE SECTIONS */
+        .visualization-row {
+            display: flex;
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .visualization-half {
+            flex: 1;
+        }
+
         footer {
             background-color: #1e2124;
             padding: 20px;
@@ -137,11 +150,13 @@
             margin-top: 15px;
         }
 
-        /* Optional mobile improvement */
         @media (max-width: 768px) {
             .container {
                 flex-direction: column;
                 align-items: center;
+            }
+            .visualization-row {
+                flex-direction: column;
             }
         }
     </style>
@@ -221,17 +236,20 @@
                 </div>
             </div>
 
-            <section id="visualization" class="visualization">
-                <h2>Research Interests Overview</h2>
-                <img src="figs/ResearchMap.png" alt="Research Interests Visualization" style="width: 70%; max-width: 800px; display: block; margin: 0 auto;">
-                <p>This visualization summarizes my research areas, from past work in machine learning for communications to current interests in AI security and robustness, including secure code generation, deepfake detection, and adversarial attacks.</p>
-            </section>
+            <!-- NEW SIDE-BY-SIDE BLOCK -->
+            <div class="visualization-row">
+                <section id="visualization" class="visualization visualization-half">
+                    <h2>Research Interests Overview</h2>
+                    <img src="figs/ResearchMap.png" alt="Research Interests Visualization" style="width: 70%; max-width: 800px; display: block; margin: 0 auto;">
+                    <p>This visualization summarizes my research areas, from past work in machine learning for communications to current interests in AI security and robustness, including secure code generation, deepfake detection, and adversarial attacks.</p>
+                </section>
 
-            <section id="contributions" class="visualization">
-                <h2>Contribution Map</h2>
-                <img src="areaWiseContributions.png" alt="Research Area Contributions" style="width: 100%; max-width: 900px; display: block; margin: 0 auto; border-radius: 8px;">
-                <p>This contribution map illustrates the areas of my research across software engineering, adversarial machine learning, hardware design automation, predictive modeling, and real-world ML applications. It also highlights top-tier venues like CCS, IEEE S&amp;P, GLSVLSI, and others.</p>
-            </section>
+                <section id="contributions" class="visualization visualization-half">
+                    <h2>Contribution Map</h2>
+                    <img src="areaWiseContributions.png" alt="Research Area Contributions" style="width: 100%; max-width: 900px; display: block; margin: 0 auto; border-radius: 8px;">
+                    <p>This contribution map illustrates the areas of my research across software engineering, adversarial machine learning, hardware design automation, predictive modeling, and real-world ML applications. It also highlights top-tier venues like CCS, IEEE S&amp;P, GLSVLSI, and others.</p>
+                </section>
+            </div>
 
             <section id="experience">
                 <h2>Professional Experience</h2>
