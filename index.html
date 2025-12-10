@@ -75,6 +75,24 @@
             border-radius: 5px;
             font-size: 0.9rem;
         }
+
+        /* --------------------------- */
+        /* FIXED SOCIAL ICONS SECTION  */
+        /* --------------------------- */
+        .social-icons {
+            margin-top: 18px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 16px; /* spacing between icons */
+        }
+        .social-icons a {
+            color: #3a71c1;
+            font-size: 1.6rem; /* larger icons */
+            text-decoration: none;
+        }
+        /* --------------------------- */
+
         .two-column {
             display: flex;
             gap: 30px;
@@ -105,15 +123,6 @@
             margin-top: 10px;
             color: #cccccc;
         }
-        .social-icons {
-            margin-top: 15px;
-        }
-        .social-icons a {
-            color: #3a71c1;
-            margin-right: 10px;
-            font-size: 1.2rem;
-            text-decoration: none;
-        }
         footer {
             background-color: #1e2124;
             padding: 20px;
@@ -130,8 +139,18 @@
             display: block;
             margin-top: 15px;
         }
+
+        /* Optional mobile improvement */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+
     </style>
 </head>
+
 <body>
     <header>
         <h1>Mahmoud Nazzal, Ph.D.</h1>
@@ -143,7 +162,6 @@
             <a href="publications.html">Publications</a>
             <a href="awards.html">Awards</a>
             <a href="technical_skills.html">Technical Skills</a>
-            <!-- CV link kept as-is; update filename later if you upload a new CV -->
             <a href="M_Nazzal_CV_Aug_2025.pdf" target="_blank">CV</a>
             <a href="#contact">Contact</a>
         </nav>
@@ -156,6 +174,7 @@
             <p>Assistant Professor, Department of Computer Science &amp; School of Cybersecurity<br>
                Old Dominion University, Norfolk, VA, USA</p>
             <p>Specializing in AI Security and Applications</p>
+
             <div class="social-icons">
                 <a href="https://scholar.google.com/citations?user=ygjUJnYAAAAJ&hl=en&oi=ao" target="_blank"><i class="fas fa-graduation-cap"></i></a>
                 <a href="https://www.linkedin.com/in/mahmoud-nazzal/" target="_blank"><i class="fab fa-linkedin"></i></a>
@@ -163,6 +182,7 @@
                 <a href="https://github.com/mahmoudkanazzal" target="_blank"><i class="fab fa-github"></i></a>
                 <a href="https://orcid.org/0000-0003-3375-0310" target="_blank"><i class="fab fa-orcid"></i></a>
             </div>
+
             <a href="M_Nazzal_CV_Aug_2025.pdf" class="download-cv" target="_blank">
                 <i class="fas fa-download"></i> Download CV
             </a>
@@ -192,6 +212,7 @@
                         <li><strong>Previously:</strong> Machine learning for communications (e.g., physical layer security, channel estimation, spectrum sensing)</li>
                     </ul>
                 </div>
+
                 <div class="column">
                     <h3>Education</h3>
                     <p><strong>Ph.D. in Computer Engineering</strong><br>
@@ -263,5 +284,6 @@
         <p style="font-size: 0.9rem; margin-top: 20px;">© 2025 Mahmoud Nazzal, Ph.D.</p>
         <a href="#home" class="back-link"><i class="fas fa-arrow-up"></i> Back to Homepage</a>
     </footer>
+
 </body>
 </html>
