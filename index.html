@@ -32,17 +32,25 @@
             text-decoration: none;
             font-size: 0.9rem;
         }
+
+        /* ===== LAYOUT TUNING (ONLY CHANGE) ===== */
         .container {
-            max-width: 1100px;
+            max-width: 1200px;   /* was 1100px */
             margin: 30px auto;
             padding: 20px;
             display: flex;
             gap: 30px;
         }
         .profile {
-            flex: 1;
+            flex: 0.9;           /* was 1 */
             text-align: center;
+            margin-left: -10px;  /* subtle left shift */
         }
+        .content {
+            flex: 2.1;           /* was 2 */
+        }
+        /* ===================================== */
+
         .profile img {
             width: 150px;
             height: 150px;
@@ -57,9 +65,6 @@
         .profile p {
             margin: 5px 0;
             color: #cccccc;
-        }
-        .content {
-            flex: 2;
         }
         h2 {
             font-size: 1.5rem;
@@ -163,6 +168,9 @@
             }
             .two-column {
                 flex-direction: column;
+            }
+            .profile {
+                margin-left: 0; /* reset shift on mobile */
             }
         }
     </style>
