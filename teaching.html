@@ -82,24 +82,24 @@
         .back-link {
             display: inline-block;
             margin-top: 15px;
-            color: #7fb3ff;
-            text-decoration: none;
             font-size: 0.9rem;
         }
         .back-link:hover {
-            color: #a8c7ff;
             text-decoration: underline;
         }
 
         /* ---- FIX LINK COLORS (Teaching page only) ---- */
-        .teaching-item a {
+        .teaching-item a,
+        .back-link {
             color: #7fb3ff;
             text-decoration: none;
         }
-        .teaching-item a:visited {
+        .teaching-item a:visited,
+        .back-link:visited {
             color: #7fb3ff;
         }
-        .teaching-item a:hover {
+        .teaching-item a:hover,
+        .back-link:hover {
             color: #a8c7ff;
             text-decoration: underline;
         }
@@ -125,66 +125,76 @@
 <div class="container">
     <div class="teaching-list">
 
+        <!-- OLD DOMINION UNIVERSITY -->
         <div class="teaching-item">
-            <h2>Old Dominion University, Norfolk, VA, USA
+            <h2>Old Dominion University, Norfolk, VA, USA 
                 <img src="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.5.0/flags/4x3/us.svg" class="flag" alt="USA Flag">
             </h2>
             <p class="term">Aug. 2025 - Present</p>
             <p>Assistant Professor of Computer Science, Graduate Courses Taught (M.S./Ph.D.):</p>
             <ul>
                 <li style="margin-top:20px;">
-                    <strong>CS 795/895 – Special Topics in Computer Science: Large Language Model (LLM) Architectures and Applications</strong>
-                    (Spring 2026)
+                    <strong>CS 795/895 – Special Topics in Computer Science: Large Language Model (LLM) Architectures and Applications</strong> 
+                    (Graduate-level course, Spring 2026)  
                     <ul>
                         <li>
-                            This graduate special topics course provides an in-depth exploration of the architectures, training paradigms,
-                            and applications of modern large language models. Starting from foundational ML and NLP concepts, the course
-                            progresses to transformer-based LLM architectures, prompt optimization, and retrieval-augmented generation (RAG).
-                            It also examines multimodal extensions via vision-language models (VLMs) and the emerging role of LLMs as core
-                            reasoning engines in agentic AI systems capable of planning and tool use. Students study pre-training objectives,
-                            fine-tuning strategies, and state-of-the-art evaluation metrics, and are prepared to analyze, design, and apply
+                            This graduate special topics course provides an in-depth exploration of the architectures, training paradigms, 
+                            and applications of modern large language models. Starting from foundational ML and NLP concepts, the course 
+                            progresses to transformer-based LLM architectures, prompt optimization, and retrieval-augmented generation (RAG). 
+                            It also examines multimodal extensions via vision-language models (VLMs) and the emerging role of LLMs as core 
+                            reasoning engines in agentic AI systems capable of planning and tool use. Students study pre-training objectives, 
+                            fine-tuning strategies, and state-of-the-art evaluation metrics, and are prepared to analyze, design, and apply 
                             LLM-based systems in both research and real-world contexts.
                         </li>
                         <li>
-                            <a href="CS795_895_LLM_Architectures_Applications_Syllabus_Spring2026.pdf" target="_blank">
-                                Syllabus (PDF)
-                            </a>
+                            <a href="CS795_895_LLM_Architectures_Applications_Syllabus_Spring2026.pdf" target="_blank">Syllabus (PDF)</a>
                         </li>
                     </ul>
                 </li>
 
                 <li style="margin-top:20px;">
-                    <strong>CS 722/822 – Machine Learning</strong> (Fall 2025)
+                    <strong>CS 722/822 – Machine Learning</strong> (Graduate-level course, Fall 2025)  
                     <ul>
                         <li>
-                            This graduate course introduces classical machine learning for M.S. and Ph.D. students, covering supervised
-                            and unsupervised learning, regression, classification, clustering, anomaly detection, and dimensionality
-                            reduction, with emphasis on evaluation, cross-validation, calibration, and error analysis.
+                            This graduate course introduces classical machine learning for M.S. and Ph.D. students. 
+                            It covers supervised and unsupervised learning methods, including regression, classification, clustering, anomaly 
+                            detection, and dimensionality reduction, with a strong emphasis on evaluation, cross-validation, calibration, 
+                            and error analysis. Neural networks are introduced through perceptron and multilayer perceptron classifiers to 
+                            situate them within the classical ML landscape. The course includes a curated paper review, a team project with 
+                            a conference-style presentation, a midterm, and a comprehensive final exam.
                         </li>
                         <li>
-                            <a href="CS722_822_Machine_Learning_Syllabus_Fall2025.pdf" target="_blank">
-                                Syllabus (PDF)
-                            </a>
+                            <a href="CS722_822_Machine_Learning_Syllabus_Fall2025.pdf" target="_blank">Syllabus (PDF)</a>
                         </li>
                     </ul>
                 </li>
             </ul>
         </div>
 
+        <!-- NJIT -->
         <div class="teaching-item">
-            <h2>New Jersey Institute of Technology, Newark, NJ, USA
+            <h2>New Jersey Institute of Technology, Newark, NJ, USA 
                 <img src="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.5.0/flags/4x3/us.svg" class="flag" alt="USA Flag">
             </h2>
             <p class="term">Sep. 2022 - May 2024</p>
             <p>Lecturer, Courses Taught:</p>
             <ul>
-                <li>Microprocessors</li>
-                <li>Computer Architecture and Organization</li>
+                <li>Microprocessors
+                    <ul>
+                        <li><em>Course evaluation: 3.29/4.00</em></li>
+                    </ul>
+                </li>
+                <li>Computer Architecture and Organization
+                    <ul>
+                        <li><em>Course evaluation: Fall 3.69/4.00, Spring 3.24/4.00</em></li>
+                    </ul>
+                </li>
             </ul>
         </div>
 
+        <!-- UAE -->
         <div class="teaching-item">
-            <h2>Institute of Applied Technology, Abu Dhabi, UAE
+            <h2>Institute of Applied Technology, Abu Dhabi, UAE 
                 <img src="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.5.0/flags/4x3/ae.svg" class="flag" alt="UAE Flag">
             </h2>
             <p class="term">Aug. 2019 - Jul. 2021</p>
@@ -197,8 +207,9 @@
             </ul>
         </div>
 
+        <!-- TURKEY -->
         <div class="teaching-item">
-            <h2>Izmir University of Economics, Izmir, Turkey
+            <h2>Izmir University of Economics, Izmir, Turkey 
                 <img src="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.5.0/flags/4x3/tr.svg" class="flag" alt="Turkey Flag">
             </h2>
             <p class="term">Sept. 2016 - Jun. 2017</p>
@@ -212,8 +223,9 @@
             </ul>
         </div>
 
+        <!-- CYPRUS -->
         <div class="teaching-item">
-            <h2>Eastern Mediterranean University, Famagusta, Cyprus
+            <h2>Eastern Mediterranean University, Famagusta, Cyprus 
                 <img src="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.5.0/flags/4x3/cy.svg" class="flag" alt="Cyprus Flag">
             </h2>
             <p class="term">Sept. 2009 - Jun. 2016</p>
@@ -223,6 +235,14 @@
                 <li>Computer Architecture and Organization</li>
                 <li>C/C++ Programming</li>
                 <li>Electric Circuits</li>
+            </ul>
+            <p class="term">Sept. 2015 - Oct. 2009</p>
+            <p>Teaching Assistant, supervised laboratory sessions and conducted tutorials for the courses:</p>
+            <ul>
+                <li>Digital Signal Processing</li>
+                <li>Introduction to Logic Design</li>
+                <li>Introduction to Programming</li>
+                <li>Signals and Systems</li>
             </ul>
         </div>
 
