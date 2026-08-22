@@ -151,3 +151,8 @@ hr.soft { border: 0; border-top: 1px solid var(--border-soft); margin: 24px 0; }
 
 .research-image-panel { padding: 14px; overflow: hidden; }
 .homepage-research-image { display: block; width: 100%; height: auto; max-height: none; object-fit: contain; border-radius: 6px; background: #ffffff; }
+
+.collab-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-top: 14px; }
+.collab-card { display: flex; gap: 12px; align-items: flex-start; background: var(--panel-soft); border: 1px solid var(--border-soft); border-radius: 8px; padding: 12px 14px; }
+.collab-card .flag { font-size: 1.4rem; line-height: 1; margin-top: 2px; }
+.collab-card strong { display: block; margin-bottom: 2px; }
