@@ -1,263 +1,100 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Mahmoud Nazzal - Recent Projects">
-    <title>Mahmoud Nazzal | Recent Projects</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #2b2d31;
-            color: #ffffff;
-            margin: 0;
-            padding: 0;
-            font-size: 0.85rem;
-        }
-        header {
-            background: #1e2124;
-            padding: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        header h1 {
-            margin: 0;
-            font-size: 1.2rem;
-            color: #ffffff;
-        }
-        nav a {
-            color: #ffffff;
-            margin-left: 15px;
-            text-decoration: none;
-            font-size: 0.85rem;
-        }
-        .container {
-            max-width: 1100px;
-            margin: 20px auto;
-            padding: 20px;
-            background: #2b2d31;
-        }
-        .project {
-            background: #1e2124;
-            padding: 20px;
-            margin-bottom: 20px;
-            border-radius: 8px;
-            border: 1px solid #d0d0d0; /* Light gray border */
-        }
-        .project h2 {
-            font-size: 1.3rem;
-            color: #d0d0d0; /* Softer gray for project titles */
-            margin-bottom: 10px;
-        }
-        .project img {
-            width: 100%;
-            margin: 10px 0;
-            border-radius: 5px;
-        }
-        .project p {
-            margin: 10px 0;
-        }
-        .reference {
-            font-style: italic;
-            color: #aaaaaa;
-        }
-        .back-link {
-            display: inline-block;
-            margin-top: 15px;
-            color: #ffffff; /* White color for the back link */
-            text-decoration: none;
-            font-size: 0.9rem;
-        }
-        .back-link:hover {
-            text-decoration: underline;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Research Projects - Mahmoud Nazzal, Ph.D.">
+  <title>Research Projects | Mahmoud Nazzal, Ph.D.</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <header>
-        <h1>Recent Projects</h1>
-        <nav>
-            <a href="index.html">Home</a>
-<!--             <a href="about.html">About</a> -->
-            <a href="research.html">Research</a>
-            <a href="experience.html">Experience</a>
-<!--             <a href="education.html">Education</a> -->
-            <a href="teaching.html">Teaching</a>
-            <a href="awards.html">Awards</a>
-            <a href="technical_skills.html">Technical Skills</a>
-            <a href="M_Nazzal_CV_Oct_2024_public.pdf" target="_blank">CV</a>
-            <a href="#contact">Contact</a>
+<header><h1>Research Projects</h1><nav>
+  <a href="index.html">Home</a>
+  <a href="research.html">Research</a>
+  <a href="teaching.html">Teaching</a>
+  <a href="recent_projects.html">Research Projects</a>
+  <a href="publications.html">Publications</a>
+  <a href="awards.html">Awards</a>
+  <a href="grants.html">Grants</a>
+  <a href="technical_skills.html">Technical Skills</a>
+  <a href="MNazzalCV.pdf" target="_blank">CV</a>
+  <a href="index.html#contact">Contact</a>
+</nav></header>
+<div class="container">
+<h2 class="page-title">Research Projects</h2>
+<p class="page-subtitle">Current funded research appears first, followed by selected research projects and their associated publications, artifacts, or demonstrations.</p>
 
-            <nav>
-    <a href="index.html">Home</a>
-<!--             <a href="about.html">About</a> -->
-    <a href="research.html">Research</a>
-    <a href="experience.html">Experience</a>
-<!--             <a href="education.html">Education</a> -->
-    <a href="teaching.html">Teaching</a>
-    <a href="awards.html">Awards</a>
-    <a href="grants.html">Grants</a>
-    <a href="technical_skills.html">Technical Skills</a>
-    <a href="M_Nazzal_CV_Oct_2024_public.pdf" target="_blank">CV</a>
-    <a href="#contact">Contact</a>
-</nav>
+<div class="section-title"><i class="fas fa-flask"></i><h2>Current Funded Research</h2></div>
+<div class="project">
+  <h2>Intelligent Framework for Securing IoT Systems in Critical Infrastructure</h2>
+  <div class="project-meta">Commonwealth Cyber Initiative (CCI) · Principal Investigator · Collaboration with George Mason University · Award HC-2Q26-033</div>
+  <p><strong>Research challenge:</strong> Critical-infrastructure IoT devices often use custom firmware that is difficult to validate at scale, creating risks involving functional correctness, software vulnerabilities, and hardware incompatibility.</p>
+  <p><strong>Project direction:</strong> The project develops a hardware-aware LLM verification framework for IoT firmware. The funded project description organizes the approach across input-level optimization, representation-level graph/semantic reasoning, and system-level integration with external security scanners and hardware simulators.</p>
+  <div class="tag-row"><span class="tag">IoT Security</span><span class="tag">LLM Verification</span><span class="tag">Firmware Assurance</span><span class="tag">Critical Infrastructure</span></div>
+  <div class="project-links"><a href="https://cyberinitiative.org/research/funded-projects/2026/critical-infrastructure.html" target="_blank" rel="noopener">CCI project page</a></div>
+</div>
+<div class="project">
+  <h2>Securing Mobile Agentic AI Systems: Systematic Risk Analysis and Defense Against Confused Deputy Behavior</h2>
+  <div class="project-meta">COVA Commonwealth Cyber Initiative (CCI) · Co-Principal Investigator · Collaboration with William &amp; Mary</div>
+  <p><strong>Research challenge:</strong> Mobile LLM agents interact with applications, notifications, third-party SDKs, and privileged system resources. These interactions can expose agents to adversarial inputs and confused-deputy behavior across application boundaries.</p>
+  <p><strong>Project direction:</strong> The funded project studies automated generation of realistic adversarial scenarios, principled measurement of agent misbehavior, and graph-based runtime defenses for detecting and mitigating confused-deputy behavior.</p>
+  <div class="tag-row"><span class="tag">Agentic AI Security</span><span class="tag">Mobile Security</span><span class="tag">Confused Deputy</span><span class="tag">Runtime Defense</span></div>
+  <div class="project-links"><a href="https://covacci.org/research/cova-cci-awards-6-projects/" target="_blank" rel="noopener">COVA CCI project page</a></div>
+</div>
 
-
-            
-        </nav>
-    </header>
-
-    <div class="container">
-        <!-- Project 1: PromSec -->
-        <div class="project">
-            <h2>PromSec: Prompt Optimization for Secure Generation of Functional Source Code with Large Language Models (LLMs)</h2>
-            <p><strong>Problem:</strong> LLMs tend to generate functional but insecure code.</p>
-            <p><strong>Objective:</strong> Optimize prompts to generate secure functional code with LLMs.</p>
-            <p><strong>Key Contributions:</strong></p>
-            <ul>
-                <li>Graph generative adversarial network (gGAN) + LLM loop to reduce vulnerabilities and maintain functionality.</li>
-                <li>Contrastive learning for dual-objective optimization.</li>
-                <li>Transferable prompts across LLMs and vulnerabilities.</li>
-            </ul>
-            <p><strong>Methodology:</strong> gGAN fixes code vulnerabilities, LLM improves prompts, and iterative loop for optimizing code security.</p>
-            <p><strong>Key Results:</strong> Enhances security while maintaining functionality, reduces operational time and costs significantly, prompts work across languages and LLMs, reduces vulnerabilities in generated code.</p>
-            <img src="figs/promsec_animation.gif" alt="PromSec Figure">
-            
-            <h3>Publications:</h3>
-            <ul>
-                <li>
-                    [1] M. Nazzal, I. Khalil, A. Khreishah, and N.H. Phan, “PromSec: Prompt Optimization for Secure Generation of Functional Source Code with Large Language Models (LLMs),” in 31st ACM Conference on Computer and Communications Security (CCS 2024), Salt Lake City, UT, USA, Oct. 2024.
-                    <a href="https://arxiv.org/pdf/2409.12699" target="_blank">Arxiv Preprint</a> |
-                    <a href="https://github.com/mahmoudkanazzal/PromSec" target="_blank">Artifacts</a>
-                </li>
-                <li>
-                    [2] T.K. Ton, N. Nguyen, M. Nazzal, A. Khreishah, C. Borcea, N.H. Phan, R. Jin, I. Khalil, and Y. Shen, “Demo: SGCode: A Flexible Prompt-Optimizing System for Secure Generation of Code,” 31st ACM Conference on Computer and Communications Security (CCS 2024), Salt Lake City, UT, USA, Oct. 2024.
-                    <a href="https://arxiv.org/abs/2409.07368" target="_blank">Preprint</a> |
-                    <a href="https://sgcode.codes/" target="_blank">Demo Website</a>
-                </li>
-                <li>
-                    [3] M. Nazzal, I. Khalil, A. Khreishah, and N.H. Phan, “Method and System for Prompt Optimization for Secure Generation of Functional Source Code with Large Language Models,” US Patent, Application No.: US63/561,573, Washington, D.C., USA, Filing date: Mar. 5, 2024.
-                </li>
-            </ul>
-        </div>
-    </div>
-
-    <div class="container">
-        <!-- Project 2: MintA -->
-        <div class="project">
-            <h2>Multi-Instance Adversarial Attack on GNN-Based Malicious Domain Detection</h2>
-            <p><strong>Problem:</strong> Need for a new adversarial attack on multiple instances to evade malicious domain detection.</p>
-            <p><strong>Objective:</strong> Develop MintA, an attack that evades GNN-based malicious domain detection by optimizing multiple domain manipulations.</p>
-            <p><strong>Key Contributions:</strong></p>
-            <ul>
-                <li>MintA: A multi-instance evasion attack optimizing node perturbations for evasiveness.</li>
-                <li>Black-box attack requiring no knowledge of model parameters.</li>
-            </ul>
-            <p><strong>Methodology:</strong> Construct a surrogate model using black-box access, optimize node and edge perturbations to maximize evasiveness, and implement perturbations through domain and IP modifications.</p>
-            <p><strong>Key Results:</strong> Achieves over 80% success rate in evading detection, bypasses outlier detection and graph purification defenses.</p>
-            <img src="figs/minta_animation.gif" alt="MintA Figure">
-            
-            <h3>Papers:</h3>
-            <ul>
-                <li>
-                    [4] M. Nazzal, I. Khalil, A. Khreishah, N. Phan, & Y. Ma, “Multi-Instance Adversarial Attack on GNN-Based Malicious Domain Detection,” in 2024 IEEE Symposium on Security and Privacy (SP), May 2024.
-                    <a href="https://ieeexplore.ieee.org/document/10646677" target="_blank">Paper</a> |
-                    <a href="https://arxiv.org/abs/2308.11754" target="_blank">Arxiv Preprint</a> |
-                    <a href="https://github.com/mahmoudkanazzal/MintA" target="_blank">Artifacts</a> |
-                    <a href="https://www.youtube.com/watch?v=ynXtvb8DCAI" target="_blank">
-                        <i class="fab fa-youtube" style="color: red;"></i> Presentation Video
-                    </a>
-                </li>
-            </ul>
-        </div>
-    </div>
-
-    <div class="container">
-        <!-- Project 3: SA-DS -->
-        <div class="project">
-            <h2>SA-DS: A Dataset for Large Language Model-Driven AI Accelerator Design Generation</h2>
-            <p><strong>Problem:</strong> Lack of specialized datasets for AI-driven accelerator design.</p>
-            <p><strong>Objective:</strong> Introduce SA-DS for LLM-based DNN hardware design.</p>
-            <p><strong>Key Contributions:</strong></p>
-            <ul>
-                <li>SA-DS: Diverse array designs using Gemmini.</li>
-                <li>An envisioned framework for optimizing hardware design generation.</li>
-            </ul>
-            <p><strong>Methodology:</strong> Data from Gemmini in Chisel, supports LLM fine-tuning and multi-shot learning, quality check using Verilator.</p>
-            <p><strong>Results:</strong> 100% pass rate with multi-shot learning, fewer revisions, better workflow.</p>
-            <img src="figs/sads_figure.png" alt="SA-DS Figure">
-            
-            <h3>Papers:</h3>
-            <ul>
-                <li>
-                    [5] D. Vungarala*, M. Nazzal*, M. Morsali, C. Zhang, A. Ghosh, A. Khreishah, and S. Angizi, “SA-DS: A Dataset for Large Language Model-Driven AI Accelerator Design Generation,” IEEE International Symposium on Circuits and Systems (ISCAS) 2025. [Accepted].
-                    <a href="https://doi.org/10.48550/arXiv.2404.10875" target="_blank">DOI Link</a> |
-                    <a href="https://github.com/ACADLab/SA-DS" target="_blank">Artifacts</a>
-                </li>
-            </ul>
-        </div>
-    </div>
-
-    <div class="container">
-        <!-- Work 4: Deepfake Detection -->
-        <div class="project">
-            <h2>Work 4: Deepfake Detection with Vision-Language Model Explanations and GNN Integration</h2>
-            <canvas id="projectCanvas4"></canvas>
-            <p><strong>Problem:</strong> Growing challenge of realistic deepfakes that threaten media authenticity. Existing methods struggle with robustness and generalization.</p>
-            <p><strong>Objective:</strong> Combines visual and AI-generated textual analysis for improved detection.</p>
-            <p><strong>Key Contributions:</strong></p>
-            <ul>
-                <li>Visual-Textual Integration: Fuses image analysis with AI-generated text insights.</li>
-                <li>Robust to Adversarial Attacks: Withstands customized deepfake techniques.</li>
-                <li>Strong Generalization: Adapts to diverse deepfake sources and models.</li>
-            </ul>
-            <p><strong>Methodology:</strong></p>
-            <ul>
-                <li>Divides images into components and generates detailed text explanations.</li>
-                <li>Uses a dual-layer analysis with graph techniques to merge visual and textual data.</li>
-            </ul>
-            <p><strong>Main Results:</strong> Enhanced Accuracy: Achieves higher recall, reducing false negatives. Stability Under Attack: Lowers performance drop from 13.3% to 1.5%. Scalable Solution: Effective across varied deepfake scenarios.</p>
-            <p><strong>Note:</strong> Summary presented with care for privacy, as the paper is under double-blind review.</p>
-            <img src="figs/vigitext_animation.gif" alt="Deepfake Detection Illustration">
-        </div>
-    </div>
-
-    <div class="container">
-        <!-- Work 5: Semi-decentralized Inference in hetGNNs -->
-        <div class="project">
-            <h2>Work 5: Semi-decentralized Inference in hetGNNs for Traffic Demand Prediction: An Edge-Computing Approach</h2>
-            <canvas id="projectCanvas5"></canvas>
-            <p><strong>Problem:</strong> Scalability issues in GNN-based traffic forecasting due to high message passing overhead.</p>
-            <p><strong>Objective:</strong> Create a scalable, efficient traffic forecasting method using semi-decentralized hetGNN-LSTM.</p>
-            <p><strong>Key Contributions:</strong></p>
-            <ul>
-                <li>HetGNN-LSTM: Uses multiple relationships for accurate predictions.</li>
-                <li>Semi-decentralized: Uses cloudlets to reduce overhead.</li>
-                <li>Adaptive Assignment: Minimizes inter-cloudlet communication.</li>
-            </ul>
-            <p><strong>Methodology:</strong></p>
-            <ul>
-                <li>HetGNN-LSTM: Learns from heterogeneous data and time dependencies.</li>
-                <li>Semi-Decentralized: Cloudlets manage subgraphs to reduce load.</li>
-                <li>Adaptive Assignment: Uses clustering to reduce inter-cloudlet communication.</li>
-            </ul>
-            <p><strong>Main Results:</strong> High accuracy compared to existing models. Inference time reduced by an order of magnitude. Improved scalability and reduced costs.</p>
-            <img src="figs/hetgnn_inference.png" alt="hetGNN Inference Illustration">
-            
-            <h3>Papers:</h3>
-            <ul>
-                <li>
-                    [7] M. Nazzal, A. Khreishah, J. Lee, S. Angizi, A. Al-Fuqaha, and M. Guizani, “Semi-decentralized Inference in Heterogeneous Graph Neural Networks for Traffic Demand Forecasting: An Edge-Computing Approach,” IEEE Transactions on Vehicular Technology, Jan. 2024.
-                    <a href="https://ieeexplore.ieee.org/abstract/document/10409531" target="_blank">Paper</a> |
-                    <a href="https://arxiv.org/abs/2303.00524" target="_blank">Arxiv Preprint</a> |
-                    <a href="https://github.com/mahmoudkanazzal/SemidecentralizedhetGNNLSTM" target="_blank">Artifacts</a>
-                </li>
-            </ul>
-        </div>
-    </div>
-
-    <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Back to Homepage</a>
+<div class="section-title"><i class="fas fa-project-diagram"></i><h2>Selected Research Projects</h2></div>
+<div class="project">
+  <h2>PromSec / SGCode: Prompt Optimization for Secure Generation of Functional Source Code</h2>
+  <p><strong>Research challenge:</strong> LLM-generated code can be functional while still containing security vulnerabilities.</p>
+  <p><strong>Approach:</strong> PromSec develops prompt optimization for secure and functional code generation; SGCode demonstrates a flexible prompt-optimizing system built around this research direction.</p>
+  <img src="figs/promsec_animation.gif" alt="PromSec secure code generation project figure">
+  <p class="reference">ACM CCS 2024; related WIPO (PCT) patent application WO2025188204A1.</p>
+  <div class="project-links"><a href="https://github.com/mahmoudkanazzal/PromSec" target="_blank" rel="noopener">Artifacts</a><a href="https://sgcode.codes/" target="_blank" rel="noopener">SGCode demo</a></div>
+</div>
+<div class="project">
+  <h2>MintA: Multi-Instance Adversarial Attack on GNN-Based Malicious Domain Detection</h2>
+  <p><strong>Research challenge:</strong> Graph-based malicious-domain detectors can be targeted by coordinated changes to multiple attacker-controlled entities.</p>
+  <p><strong>Approach:</strong> MintA studies black-box multi-instance evasion against GNN-based malicious-domain detection and evaluates the attack against defenses including outlier detection and graph purification.</p>
+  <img src="figs/minta_animation.gif" alt="MintA malicious-domain evasion project figure">
+  <p class="reference">IEEE Symposium on Security and Privacy (S&amp;P) 2024.</p>
+  <div class="project-links"><a href="https://ieeexplore.ieee.org/document/10646677" target="_blank" rel="noopener">Paper</a><a href="https://github.com/mahmoudkanazzal/MintA" target="_blank" rel="noopener">Artifacts</a><a href="https://www.youtube.com/watch?v=ynXtvb8DCAI" target="_blank" rel="noopener">Presentation</a></div>
+</div>
+<div class="project">
+  <h2>ViGText: Deepfake Image Detection with Vision-Language Model Explanations and Graph Neural Networks</h2>
+  <p><strong>Research challenge:</strong> Deepfake detection requires methods that can leverage complementary visual and semantic evidence while remaining robust across manipulation types.</p>
+  <p><strong>Approach:</strong> ViGText combines vision-language model explanations with graph neural networks for deepfake image detection.</p>
+  <img src="figs/vigitext_animation.gif" alt="ViGText deepfake detection project figure">
+  <p class="reference">33rd Network and Distributed System Security Symposium (NDSS 2026), San Diego, CA, Feb. 2026.</p>
+  <div class="project-links"><a href="https://github.com/AhmadALBarqawi/ViGText" target="_blank" rel="noopener">Artifacts</a></div>
+</div>
+<div class="project">
+  <h2>FedChip and SA-DS: LLM-Aided AI Accelerator Design</h2>
+  <p><strong>Research direction:</strong> Explore LLM-based methods and datasets for artificial-intelligence accelerator design generation.</p>
+  <p><strong>Selected outcomes:</strong> FedChip studies federated LLMs for AI accelerator chip design; SA-DS provides a dataset for LLM-driven AI accelerator design generation.</p>
+  <img src="figs/sads_figure.png" alt="SA-DS AI accelerator design dataset figure">
+  <p class="reference">ICLAD 2025 (FedChip); IEEE ISCAS 2025 (SA-DS).</p>
+  <div class="project-links"><a href="https://github.com/ACADLab/FedChip" target="_blank" rel="noopener">FedChip artifacts</a><a href="https://github.com/ACADLab/SA-DS" target="_blank" rel="noopener">SA-DS artifacts</a></div>
+</div>
+<div class="project">
+  <h2>STING: Stealthy Backdoor Attack on GNN-Based Malicious Domain Detection</h2>
+  <p><strong>Research direction:</strong> Study stealthy backdoor attacks against graph-neural-network-based malicious-domain detection through DNS perturbations.</p>
+  <p class="reference">IEEE Open Journal of the Communications Society, vol. 6, pp. 7823–7841, Sep. 2025.</p>
+</div>
+<div class="project">
+  <h2>Semi-Decentralized Inference in Heterogeneous GNNs for Traffic Demand Forecasting</h2>
+  <p><strong>Research direction:</strong> Edge-computing inference with heterogeneous graph neural networks for traffic demand forecasting.</p>
+  <img src="figs/hetgnn_inference.png" alt="Heterogeneous GNN edge inference project figure">
+  <p class="reference">IEEE Transactions on Vehicular Technology, Jan. 2024.</p>
+  <div class="project-links"><a href="https://github.com/mahmoudkanazzal/SemidecentralizedhetGNNLSTM" target="_blank" rel="noopener">Artifacts</a></div>
+</div>
+<div class="page-actions">
+  <a href="javascript:history.back()"><i class="fas fa-arrow-left"></i> Previous page</a>
+  <a href="index.html"><i class="fas fa-home"></i> Home</a>
+</div></div>
+<footer>
+  © 2026 Mahmoud Nazzal, Ph.D. · <a href="mailto:mnazzal@odu.edu">mnazzal@odu.edu</a> ·
+  <a href="https://faculty.pages.cs.odu.edu/mahmoud-nazzal/" target="_blank" rel="noopener">ODU Faculty Website</a>
+</footer>
 </body>
 </html>
