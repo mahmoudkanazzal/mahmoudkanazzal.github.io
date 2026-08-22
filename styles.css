@@ -156,3 +156,11 @@ hr.soft { border: 0; border-top: 1px solid var(--border-soft); margin: 24px 0; }
 .collab-card { display: flex; gap: 12px; align-items: flex-start; background: var(--panel-soft); border: 1px solid var(--border-soft); border-radius: 8px; padding: 12px 14px; }
 .collab-card .flag { font-size: 1.4rem; line-height: 1; margin-top: 2px; }
 .collab-card strong { display: block; margin-bottom: 2px; }
+
+.flag-img { width: 34px; height: 24px; object-fit: contain; flex: 0 0 auto; margin-top: 1px; border-radius: 2px; }
+.institution-heading { display: flex; align-items: center; gap: 10px; }
+.institution-flag { width: 32px; height: 23px; object-fit: contain; flex: 0 0 auto; border-radius: 2px; }
+@media (max-width: 640px) {
+  .flag-img { width: 30px; height: 21px; }
+  .institution-flag { width: 29px; height: 21px; }
+}
