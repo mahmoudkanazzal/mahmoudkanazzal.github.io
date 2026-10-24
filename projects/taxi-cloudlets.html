@@ -23,6 +23,7 @@ html.embed .wrap > header { display: none; }
   --bg: #1e2124; --fg: #f2f2f2; --muted: #aeb3ba; --card: #262a2f; --line: #41464d; --panel: #2b2f35;
   --sky-top: #1a1d21; --sky-bot: #262a2f; --floor: #24282d; --floor-c: #2f353d; --road: #363b43; --dash: #5f6670;
   --bld-front: #30353c; --bld-side: #24282e; --bld-top: #3e444d; --win: #d9a64e;
+  --water: #1b2b3b; --water-hi: #4a86d6; --park: #24402f; --park-hi: #4bb578; --skyline: #2a2f36;
   --taxi: #f0c445; --taxi-d: #b48d29; --lamp: #fff0b3; --glass: #1a1d21;
   --cyan: #4aa8e0; --mint: #4bb578; --magenta: #c46bd6; --violet: #9a78e0; --amber: #c9973f; --red: #dc5a5a; --steel: #8f96a0;
   --f-body: Calibri, Carlito, "Segoe UI", system-ui, -apple-system, sans-serif;
@@ -69,14 +70,14 @@ svg { display: block; width: 100%; min-width: 660px; height: auto; font-family: 
 
 <div class="wrap">
   <header>
-    <p class="eyebrow">Taxi demand and supply forecasting with GNNs</p>
+    <p class="eyebrow">NYC taxi demand and supply forecasting with GNNs</p>
     <h1>How semi-decentralized cloudlets make citywide taxi forecasts about 10× faster</h1>
   </header>
 
   <div class="acts" id="acts"></div>
   <p class="caption" id="caption" aria-live="polite"></p>
 
-  <div class="stage"><svg id="svg" viewBox="0 0 1120 480" role="img" aria-label="Animation in two parts, set in a 3D night city. Taxis form a changing network linked by shared roads, closeness and nearby destinations, and a GNN forecasts passengers and free taxis around each taxi. Three computation settings are compared: a centralized server overloads, decentralized taxi-to-taxi messaging piles up, and semi-decentralized cloudlets at cell towers, with borders adjusted to cut few links, finish about ten times faster in a three-lane race."></svg></div>
+  <div class="stage"><svg id="svg" viewBox="0 0 1120 480" role="img" aria-label="Animation in two parts, set in a 3D night-time Manhattan, with rivers on both sides, Central Park, the Empire State and Chrysler buildings, the Statue of Liberty and the skyline. Taxis form a changing network linked by shared roads, closeness and nearby destinations, and a GNN forecasts passengers and free taxis around each taxi. Three computation settings are compared: a centralized server overloads, decentralized taxi-to-taxi messaging piles up, and semi-decentralized cloudlets at cell towers, with borders adjusted to cut few links, finish about ten times faster in a three-lane race."></svg></div>
 
   <div class="ctl">
     <button class="btn" id="play" type="button">Pause</button>
@@ -125,7 +126,7 @@ function chipG(parent, label, color, dark = true) {
 
 /* ---------- story ---------- */
 const STAGES = [
-  { t: 0,    name: "Living network",     cap: "Every taxi is a node in a living network, linked by a shared road, by being close, or by heading to nearby destinations. Taxis move, enter and leave, so the network keeps changing." },
+  { t: 0,    name: "Living network",     cap: "Every taxi in New York City is a node in a living network, linked by a shared road, by being close, or by heading to nearby destinations. Taxis move, enter and leave, so the network keeps changing." },
   { t: 4.0,  name: "Forecast",           cap: "A graph neural network (GNN) reads the network and recent history to forecast, for every taxi, how many passengers and free taxis will be nearby. The question is where to run it." },
   { t: 7.0,  name: "Centralized",        cap: "One central server: every taxi uploads, and a single machine builds the citywide graph and runs the GNN. It overloads." },
   { t: 10.4, name: "Decentralized",      cap: "Fully decentralized: taxis exchange messages with neighbors in range and compute locally. Messages hop from taxi to taxi and pile up. Both extremes are too slow." },
@@ -151,14 +152,24 @@ const TOWERS = [[-175, -95], [175, -95], [-175, 95], [175, 95]];
 const BLD = [];
 for (let a = 0; a < 5; a++) for (let b = 0; b < 4; b++) {
   const key = a * 7 + b, plaza = (a === 1 || a === 3) && (b === 1 || b === 2);
-  if (plaza || rnd(key) < .2) continue;
+  if (plaza || (b === 0 && a >= 1 && a <= 3) || (a === 2 && (b === 1 || b === 2)) || rnd(key) < .2) continue;
+  const midtown = a === 2 && (b === 1 || b === 2) ? 50 : 0;
   const x0 = XB[a] + 18, x1 = XB[a + 1] - 18, z0 = ZB[b] + 18, z1 = ZB[b + 1] - 18;
   const parts = x1 - x0 > 100 ? 2 : 1;
   for (let q = 0; q < parts; q++) {
     const w = (x1 - x0 - (parts - 1) * 12) / parts;
-    BLD.push({ x0: x0 + q * (w + 12), x1: x0 + q * (w + 12) + w, z0, z1, h: 18 + 52 * rnd(key * 3 + q + 1), seed: key * 3 + q });
+    BLD.push({ x0: x0 + q * (w + 12), x1: x0 + q * (w + 12) + w, z0, z1, h: 18 + 52 * rnd(key * 3 + q + 1) + midtown, seed: key * 3 + q });
   }
 }
+/* Midtown landmarks: a stepped Empire State style tower (back) and a Chrysler style spire (front) */
+BLD.push(
+  { x0: -62, x1: -14, z0: -100, z1: -46, y0: 0, h: 104, seed: 501 },
+  { x0: -55, x1: -21, z0: -93, z1: -53, y0: 104, h: 128, seed: 502 },
+  { x0: -49, x1: -27, z0: -87, z1: -59, y0: 128, h: 142, seed: 503, lm: "mast" },
+  { x0: 8, x1: 62, z0: -100, z1: -24, y0: 0, h: 62, seed: 504 },
+  { x0: 16, x1: 52, z0: 40, z1: 76, y0: 0, h: 124, seed: 505, lm: "chrysler", cs: 1.4 },
+  { x0: -62, x1: -10, z0: 24, z1: 100, y0: 0, h: 54, seed: 506 },
+);
 const TAXI = [];
 for (let i = 0; i < 18; i++) {
   const h = i % 7 < 3;
@@ -236,11 +247,41 @@ const sh = el("filter", { id: "sh", x: "-20%", y: "-20%", width: "140%", height:
 el("feDropShadow", { dx: 0, dy: 6, stdDeviation: 7, "flood-color": "#000", "flood-opacity": .45 }, sh);
 el("rect", { x: 0, y: 0, width: 800, height: 480 }, L.sky, { fill: "url(#skyG)" });
 for (let i = 0; i < 40; i++) el("circle", { cx: rnd(i + 300) * 790, cy: rnd(i + 400) * 120, r: .6 + rnd(i + 500) * 1.1 }, L.sky, { fill: "#fff", opacity: .25 + .5 * rnd(i + 600) });
+/* Manhattan skyline across the river */
+{
+  const SKY_BASE = 124, sk = el("g", {}, L.sky);
+  lgrad("cityGlow", [[0, "--amber", 0], [1, "--amber", .12]]);
+  el("rect", { x: 0, y: SKY_BASE - 70, width: 800, height: 70 }, sk, { fill: "url(#cityGlow)" });
+  let x = 0, i = 0;
+  while (x < 800) {
+    const w = 16 + 26 * rnd(i + 700), h = 12 + 46 * rnd(i + 800) * (1 - .5 * Math.abs(x - 430) / 430);
+    el("rect", { x, y: SKY_BASE - h, width: w + .5, height: h }, sk, { fill: v("--skyline") });
+    for (let k = 0; k < 4; k++) if (rnd(i * 9 + k) > .45) el("rect", { x: x + 3 + rnd(i * 5 + k) * (w - 6), y: SKY_BASE - h + 4 + rnd(i * 7 + k) * (h - 8), width: 1.6, height: 1.6 }, sk, { fill: v("--win"), opacity: .5 });
+    x += w; i++;
+  }
+  /* a stepped spire and a slanted crown */
+  const sp = el("g", { transform: `translate(520 ${SKY_BASE})` }, sk, { fill: v("--skyline") });
+  el("path", { d: "M -17 0 L -17 -62 L -11 -62 L -11 -74 L -6 -74 L -6 -84 L -2 -84 L -2 -100 L 2 -100 L 2 -84 L 6 -84 L 6 -74 L 11 -74 L 11 -62 L 17 -62 L 17 0 Z" }, sp);
+  el("circle", { cx: 0, cy: -101, r: 1.8 }, sp, { fill: v("--red") });
+  el("path", { d: "M 250 124 L 250 52 L 278 38 L 278 124 Z" }, sk, { fill: v("--skyline") });
+  el("path", { d: "M 640 124 L 640 60 L 652 46 L 664 60 L 664 124 Z" }, sk, { fill: v("--skyline") });
+}
 L.edges.setAttribute("filter", "url(#glow)");
 L.over.setAttribute("filter", "url(#glow)");
 
 /* ---------- floor, roads, buildings ---------- */
+const WATER = [[[-430, -345], [430, -345], [430, -232], [-430, -232]], [[-430, 232], [430, 232], [430, 350], [-430, 350]]];
+{ const cp = el("clipPath", { id: "sceneClip" }, defs); el("rect", { x: 0, y: 0, width: 800, height: 480 }, cp); }
+const waterG = el("g", { "clip-path": "url(#sceneClip)" }, L.floor);
+const waters = WATER.map(c => ({ c, p: el("path", {}, waterG, { fill: v("--water") }) }));
+const shimmer = Array.from({ length: 16 }, (_, i) => ({ x: rnd(i + 900) * 820 - 410, z: i < 8 ? -330 + rnd(i + 950) * 85 : 245 + rnd(i + 950) * 95, e: el("path", {}, waterG, { fill: "none", stroke: v("--water-hi"), strokeWidth: 1.4, strokeLinecap: "round", opacity: .35 + .3 * rnd(i + 990) }) }));
 const floorP = el("path", {}, L.floor, { fill: "url(#floorG)", stroke: v("--line"), strokeWidth: 1.5 });
+const PARK = [[-232, -194], [232, -194], [232, -128], [-232, -128]];
+const parkP = el("path", {}, L.floor, { fill: v("--park"), stroke: v("--park-hi"), strokeWidth: 1.2, strokeOpacity: .5 });
+const TREES = [];
+for (let i = 0; i < 46; i++) { const x = -226 + rnd(i + 1100) * 452, z = -190 + rnd(i + 1200) * 58; if (Math.abs(Math.abs(x) - 80) < 14) continue; TREES.push({ x, z, r: 4 + 3 * rnd(i + 1300), e: el("circle", {}, L.floor, { fill: v("--park-hi"), opacity: .35 + .3 * rnd(i + 1400) }) }); }
+const placeLbl = [["Hudson River", -255, -288, "#8fb4e8"], ["Central Park", -158, -150, "#8fd6a8"], ["East River", 255, 292, "#8fb4e8"]].map(([s, x, z, c]) =>
+  ({ x, z, e: txt(L.fx, 0, 0, s, 12.5, { fill: c, fontStyle: "italic", stroke: "#1a1d21", strokeWidth: 3.5, paintOrder: "stroke", opacity: .9 }, "middle", true) }));
 const roads = [];
 XR.forEach(x => roads.push({ a: [x, -210], b: [x, 210] }));
 ZR.forEach(z => roads.push({ a: [-330, z], b: [330, z] }));
@@ -254,7 +295,43 @@ BLD.forEach(b => {
   b.front = el("path", {}, b.g, { fill: v("--bld-front") });
   b.top = el("path", {}, b.g, { fill: v("--bld-top"), stroke: v("--bld-side"), strokeWidth: 1 });
   b.wins = [0, 1, 2].map(() => el("path", {}, b.g, { fill: "none", stroke: v("--win"), strokeWidth: 2.6, strokeDasharray: "3 5" }));
+  if (b.lm === "mast") {
+    b.crown = el("g", {}, b.g);
+    el("rect", { x: -4, y: -8, width: 8, height: 8 }, b.crown, { fill: v("--bld-top") });
+    el("rect", { x: -1.6, y: -34, width: 3.2, height: 27 }, b.crown, { fill: "#c9d0d8" });
+    el("circle", { cx: 0, cy: -36, r: 6 }, b.crown, { fill: v("--red"), opacity: .35 });
+    b.beacon = el("circle", { cx: 0, cy: -36, r: 2.6 }, b.crown, { fill: v("--red") });
+  }
+  if (b.lm === "chrysler") {
+    b.crown = el("g", {}, b.g);
+    [38, 31, 24, 17, 11].forEach((w, i) => {
+      const y0 = -i * 9, r = w / 2;
+      el("path", { d: `M ${-r} ${y0} L ${-r} ${y0 - 3} A ${r} 10 0 0 1 ${r} ${y0 - 3} L ${r} ${y0} Z` }, b.crown, { fill: "url(#steelG)", stroke: "#4c535c", strokeWidth: .8 });
+      const n = 5 - Math.min(i, 3);
+      for (let j = 0; j < n; j++) {
+        const ang = Math.PI * (j + .5) / n, cx = -Math.cos(ang) * r * .72, cy = y0 - 3 - Math.sin(ang) * 6.2;
+        const ox = -Math.cos(ang), oy = -Math.sin(ang);
+        el("path", { d: `M ${cx - oy * 1.6} ${cy + ox * 1.6} L ${cx + ox * 3.4} ${cy + oy * 3.4} L ${cx + oy * 1.6} ${cy - ox * 1.6} Z` }, b.crown, { fill: "#ffe3a0" });
+      }
+    });
+    el("path", { d: "M -2.2 -46 L 0 -82 L 2.2 -46 Z" }, b.crown, { fill: "#e9eef3" });
+  }
 });
+/* the Statue of Liberty in the harbor */
+lgrad("steelG", [[0, "--fg", 1], [1, "--steel", 1]]);
+const LIB = el("g", {}, L.obj);
+el("ellipse", { cx: 0, cy: 0, rx: 34, ry: 9 }, LIB, { fill: "#2a3530" });
+el("path", { d: "M -21 0 L -16 -6 L 16 -6 L 21 0 Z" }, LIB, { fill: "#3a4640" });
+el("path", { d: "M -9 -6 L -8 -26 L 8 -26 L 9 -6 Z" }, LIB, { fill: "#46524b" });
+el("rect", { x: -10, y: -29, width: 20, height: 3 }, LIB, { fill: "#55625a" });
+el("path", { d: "M -6 -29 L -4 -50 L -5 -55 L -2 -58 L 2 -58 L 5 -54 L 6 -48 L 6 -29 Z" }, LIB, { fill: "#5e9c88" });
+el("rect", { x: -8.5, y: -50, width: 4, height: 7, rx: 1 }, LIB, { fill: "#4f8a77" });
+el("circle", { cx: 0, cy: -61, r: 3.2 }, LIB, { fill: "#5e9c88" });
+[-60, -30, 0, 30, 60].forEach(d => { const a = (d - 90) * Math.PI / 180; el("line", { x1: 3.2 * Math.cos(a), y1: -61 + 3.2 * Math.sin(a), x2: 7.5 * Math.cos(a), y2: -61 + 7.5 * Math.sin(a) }, LIB, { stroke: "#5e9c88", strokeWidth: 1.4, strokeLinecap: "round" }); });
+el("path", { d: "M 3 -55 L 6 -77 L 9 -77 L 7 -54 Z" }, LIB, { fill: "#5e9c88" });
+el("rect", { x: 5.4, y: -81, width: 4.2, height: 4 }, LIB, { fill: "#4f8a77" });
+const libGlow = el("circle", { cx: 7.5, cy: -85, r: 8 }, LIB, { fill: v("--amber"), opacity: .35 });
+el("ellipse", { cx: 7.5, cy: -85, rx: 2.6, ry: 4 }, LIB, { fill: "#ffd27a" });
 
 /* ---------- zones ---------- */
 const ZC = ["--cyan", "--mint", "--violet", "--amber"];
@@ -430,18 +507,26 @@ function render(t) {
 
   /* floor and roads */
   floorP.setAttribute("d", poly([[-345, -225], [345, -225], [345, 225], [-345, 225]].map(([x, z]) => P(x, 0, z))));
+  waters.forEach(w => w.p.setAttribute("d", poly(w.c.map(([x, z]) => P(x, -2, z)))));
+  shimmer.forEach((m, i) => { const x = ((m.x + t * 14 * (i % 2 ? 1 : -1) + 430) % 860 + 860) % 860 - 430; const a = P(x, -2, m.z), b = P(x + 26, -2, m.z); m.e.setAttribute("d", `M ${a[0]} ${a[1]} L ${b[0]} ${b[1]}`); });
+  parkP.setAttribute("d", poly(PARK.map(([x, z]) => P(x, .5, z))));
+  TREES.forEach(tr => { const q = P(tr.x, 0, tr.z); tr.e.setAttribute("cx", q[0]); tr.e.setAttribute("cy", q[1] - 2 * q[2]); tr.e.setAttribute("r", tr.r * q[2]); });
+  placeLbl.forEach(pl => { const q = P(pl.x, 0, pl.z); pl.e.setAttribute("x", q[0]); pl.e.setAttribute("y", q[1] + 4); pl.e.style.opacity = .9 * (1 - .6 * raw(t, T_ZON, T_ZON + .5)) * (pl.x === -158 ? 1 - vis(t, T_CEN[0] - .3, T_CEN[1]) : 1); });
   roads.forEach(r => { const a = P(r.a[0], 0, r.a[1]), b = P(r.b[0], 0, r.b[1]); const d = `M ${a[0]} ${a[1]} L ${b[0]} ${b[1]}`; r.e.setAttribute("d", d); r.c.setAttribute("d", d); });
 
   /* buildings with lit windows */
   BLD.forEach(b => {
     const c = P;
     b.top.setAttribute("d", poly([c(b.x0, b.h, b.z0), c(b.x1, b.h, b.z0), c(b.x1, b.h, b.z1), c(b.x0, b.h, b.z1)]));
-    b.front.setAttribute("d", poly([c(b.x0, 0, b.z1), c(b.x1, 0, b.z1), c(b.x1, b.h, b.z1), c(b.x0, b.h, b.z1)]));
+    const y0 = b.y0 || 0;
+    b.front.setAttribute("d", poly([c(b.x0, y0, b.z1), c(b.x1, y0, b.z1), c(b.x1, b.h, b.z1), c(b.x0, b.h, b.z1)]));
     const mid = c((b.x0 + b.x1) / 2, 0, (b.z0 + b.z1) / 2);
     const sx = mid[4] > 0 ? b.x0 : b.x1;
-    b.side.setAttribute("d", poly([c(sx, 0, b.z0), c(sx, 0, b.z1), c(sx, b.h, b.z1), c(sx, b.h, b.z0)]));
+    b.side.setAttribute("d", poly([c(sx, y0, b.z0), c(sx, y0, b.z1), c(sx, b.h, b.z1), c(sx, b.h, b.z0)]));
+    if (b.crown) { const q = c((b.x0 + b.x1) / 2, b.h, (b.z0 + b.z1) / 2); b.crown.setAttribute("transform", `translate(${q[0].toFixed(1)} ${q[1].toFixed(1)}) scale(${(q[2] * (b.cs || 1)).toFixed(3)})`); }
+    if (b.beacon) b.beacon.style.opacity = .4 + .6 * (frac(t * .8) < .5 ? 1 : 0);
     b.wins.forEach((w, j) => {
-      const hy = b.h * (.25 + j * .25);
+      const hy = y0 + (b.h - y0) * (.25 + j * .25);
       if (hy > b.h - 6) { w.style.opacity = 0; return; }
       const w0 = c(b.x0 + 6, hy, b.z1), w1 = c(b.x1 - 6, hy, b.z1);
       w.setAttribute("d", `M ${w0[0]} ${w0[1]} L ${w1[0]} ${w1[1]}`);
@@ -450,6 +535,7 @@ function render(t) {
     b.zz = mid[3];
   });
   BLD.slice().sort((a, b) => a.zz - b.zz).forEach(b => L.bld.appendChild(b.g));
+  { const q = P(-385, -2, -292); LIB.setAttribute("transform", `translate(${q[0].toFixed(1)} ${q[1].toFixed(1)}) scale(${(q[2] * 1.0).toFixed(3)})`); libGlow.style.opacity = .25 + .15 * Math.sin(t * 3); }
 
   /* taxis + network */
   const pos = TAXI.map((_, i) => taxiAt(i, sim));

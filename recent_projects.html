@@ -54,12 +54,20 @@
   <p class="reference"><strong>Associated paper:</strong> Under double-blind review.</p>
 </div>
 <div class="project">
+  <h2>PSET: Trusted Warnings, Untrusted Context in Mobile LLM Agents</h2>
+  <p><strong>Research challenge:</strong> Mobile LLM agents act with user-granted authority while processing content from advertisements, messages, and third-party applications. This work formalizes <em>security-UI preconditioning</em>, in which untrusted content predicts a future protected event, such as a TLS privacy warning or an installation confirmation, frames it as expected, and prescribes a crossing action before the event appears. The warning itself stays authentic. An audit of 437 released mobile-agent traces shows that authentic security UI can interrupt a diverted trajectory, but also that a safe response can fail during execution and be followed by replanning toward a crossing action.</p>
+  <p><strong>Approach:</strong> Prospective Security-Event Taint (PSET) records prospective claims from untrusted content together with their source in trusted state, matches them against later protected events, and, when a matching claim prescribes a crossing action, removes that event's crossing actions from the agent's autonomous choices and escalates. A deterministic reference implementation over four protected-event classes produces the specified decision in all six controlled validation cases. A six-condition protocol for controlled causal evaluation is defined and left to future work.</p>
+  <iframe class="anim" src="projects/pset.html" title="PSET animated overview" loading="lazy"></iframe>
+  <p class="reference"><strong>Associated paper:</strong> <strong>M. Nazzal</strong>, M. Rabiu, and Y. Xiao, “Trusted Warnings, Untrusted Context: Security-UI Preconditioning in Mobile LLM Agents,” AAAI 2026 Fall Symposium on Trustworthy Agentic Systems (TAS 2026), Arlington, VA, USA, Nov. 2026. [Accepted]</p>
+  <div class="project-links"><a href="https://github.com/mahmoudkanazzal/PSET" target="_blank" rel="noopener">Artifacts</a></div>
+</div>
+<div class="project">
   <h2>PromSec / SGCode: Prompt Optimization for Secure Generation of Functional Source Code</h2>
   <p><strong>Research challenge:</strong> LLM-generated code can be functional while still containing security vulnerabilities.</p>
   <p><strong>Approach:</strong> PromSec develops prompt optimization for secure and functional code generation; SGCode demonstrates a flexible prompt-optimizing system built around this research direction.</p>
   <!-- previous static figure, kept in the repo but inactive: <img src="figs/promsec_animation.gif" alt="PromSec secure code generation project figure"> -->
   <iframe class="anim" src="projects/promsec.html" title="PromSec animated overview" loading="lazy"></iframe>
-  <p class="reference"><strong>Associated paper(s):</strong> “PromSec: Prompt Optimization for Secure Generation of Functional Source Code with Large Language Models (LLMs),” ACM CCS 2024; “Demo: SGCode: A Flexible Prompt-Optimizing System for Secure Generation of Code,” ACM CCS 2024.</p>
+  <p class="reference"><strong>Associated paper(s):</strong> <strong>M. Nazzal</strong>, I. Khalil, A. Khreishah, and N. H. Phan, “PromSec: Prompt Optimization for Secure Generation of Functional Source Code with Large Language Models (LLMs),” 31st ACM Conference on Computer and Communications Security (CCS 2024), Salt Lake City, UT, USA, Oct. 2024. [Acceptance rate: 16.7%] [Covered by a U.S. provisional patent.] Also: “Demo: SGCode: A Flexible Prompt-Optimizing System for Secure Generation of Code,” ACM CCS 2024.</p>
   <div class="project-links"><a href="https://doi.org/10.1145/3658644.3690298" target="_blank" rel="noopener">PromSec paper</a><a href="https://doi.org/10.1145/3658644.3691367" target="_blank" rel="noopener">SGCode paper</a><a href="https://github.com/mahmoudkanazzal/PromSec" target="_blank" rel="noopener">PromSec artifacts</a><a href="https://sgcode.codes/" target="_blank" rel="noopener">SGCode demo</a></div>
 </div>
 <div class="project">
@@ -68,7 +76,7 @@
   <p><strong>Approach:</strong> MintA studies black-box multi-instance evasion against GNN-based malicious-domain detection and evaluates the attack against defenses including outlier detection and graph purification.</p>
   <!-- previous static figure, kept in the repo but inactive: <img src="figs/minta_animation.gif" alt="MintA malicious-domain evasion project figure"> -->
   <iframe class="anim" src="projects/minta.html" title="MintA animated overview" loading="lazy"></iframe>
-  <p class="reference"><strong>Associated paper:</strong> “Multi-Instance Adversarial Attack on GNN-Based Malicious Domain Detection,” IEEE Symposium on Security and Privacy (S&amp;P) 2024.</p>
+  <p class="reference"><strong>Associated paper:</strong> <strong>M. Nazzal</strong>, I. Khalil, A. Khreishah, N. H. Phan, and Y. Ma, “Multi-Instance Adversarial Attack on GNN-Based Malicious Domain Detection,” 45th IEEE Symposium on Security and Privacy (IEEE S&amp;P 2024), San Francisco, CA, USA, May 2024. [Acceptance rate: 17.8%]</p>
   <div class="project-links"><a href="https://doi.org/10.1109/SP54263.2024.00006" target="_blank" rel="noopener">Paper</a><a href="https://github.com/mahmoudkanazzal/MintA" target="_blank" rel="noopener">Artifacts</a><a href="https://www.youtube.com/watch?v=ynXtvb8DCAI" target="_blank" rel="noopener">Presentation</a></div>
 </div>
 <div class="project">
@@ -77,7 +85,7 @@
   <p><strong>Approach:</strong> ViGText combines vision-language model explanations with graph neural networks for deepfake image detection.</p>
   <!-- previous static figure, kept in the repo but inactive: <img src="figs/vigitext_animation.gif" alt="ViGText deepfake detection project figure"> -->
   <iframe class="anim" src="projects/vigtext.html" title="ViGText animated overview" loading="lazy"></iframe>
-  <p class="reference"><strong>Associated paper:</strong> “ViGText: Deepfake Image Detection with Vision-Language Model Explanations and Graph Neural Networks,” 33rd Network and Distributed System Security Symposium (NDSS 2026).</p>
+  <p class="reference"><strong>Associated paper:</strong> A. Al-Barqawi, <strong>M. Nazzal</strong>, I. Khalil, A. Khreishah, and N. H. Phan, “ViGText: Deepfake Image Detection with Vision-Language Model Explanations and Graph Neural Networks,” 33rd Network and Distributed System Security Symposium (NDSS 2026), San Diego, CA, USA, Feb. 2026. [Acceptance rate: 16–18%]</p>
   <div class="project-links"><a href="https://www.ndss-symposium.org/wp-content/uploads/2026-s303-paper.pdf" target="_blank" rel="noopener">Paper</a><a href="https://github.com/AhmadALBarqawi/ViGText" target="_blank" rel="noopener">Artifacts</a></div>
 </div>
 <div class="project">
@@ -86,21 +94,16 @@
   <p><strong>Selected outcomes:</strong> FedChip studies federated LLMs for AI accelerator chip design; SA-DS provides a dataset for LLM-driven AI accelerator design generation.</p>
   <!-- previous static figure, kept in the repo but inactive: <img src="figs/sads_figure.png" alt="SA-DS AI accelerator design dataset figure"> -->
   <iframe class="anim" src="projects/fedchip.html" title="FedChip animated overview" loading="lazy"></iframe>
-  <p class="reference"><strong>Associated paper(s):</strong> “FedChip: Federated LLM for Artificial Intelligence Accelerator Chip Design,” IEEE ICLAD 2025; “SA-DS: A Dataset for Large Language Model-Driven AI Accelerator Design Generation,” IEEE ISCAS 2025.</p>
+  <p class="reference"><strong>Associated paper(s):</strong> <strong>M. Nazzal*</strong>, K. Nguyen*, D. Vungarala*, R. Zand, H. Phan, A. Khreishah, and S. Angizi, “FedChip: Federated LLM for Artificial Intelligence Accelerator Chip Design,” IEEE International Conference on LLM-Aided Design (ICLAD 2025), Stanford University, Stanford, CA, Jun. 2025.<br>D. Vungarala*, <strong>M. Nazzal*</strong>, M. Morsali, C. Zhang, A. Ghosh, A. Khreishah, and S. Angizi, “SA-DS: A Dataset for Large Language Model-Driven AI Accelerator Design Generation,” 58th IEEE International Symposium on Circuits and Systems (IEEE ISCAS), London, UK, May 2025.<br>(*Equal contribution)</p>
   <div class="project-links"><a href="https://doi.org/10.1109/ICLAD65226.2025.00019" target="_blank" rel="noopener">FedChip paper</a><a href="https://github.com/ACADLab/FedChip" target="_blank" rel="noopener">FedChip artifacts</a><a href="https://doi.org/10.1109/ISCAS56072.2025.11044008" target="_blank" rel="noopener">SA-DS paper</a><a href="https://github.com/ACADLab/SA-DS" target="_blank" rel="noopener">SA-DS artifacts</a></div>
 </div>
-<div class="project">
-  <h2>STING: Stealthy Backdoor Attack on GNN-Based Malicious Domain Detection</h2>
-  <p><strong>Research direction:</strong> Study stealthy backdoor attacks against graph-neural-network-based malicious-domain detection through DNS perturbations.</p>
-  <p class="reference"><strong>Associated paper:</strong> “STING: A Stealthy Backdoor Attack on GNN-Based Malicious Domain Detection via DNS Perturbations,” IEEE Open Journal of the Communications Society, vol. 6, pp. 7823–7841, 2025.</p>
-  <div class="project-links"><a href="https://doi.org/10.1109/OJCOMS.2025.3610784" target="_blank" rel="noopener">Paper</a><a href="https://github.com/mahmoudkanazzal/STING" target="_blank" rel="noopener">Project repository</a></div>
 </div>
 <div class="project">
   <h2>Semi-Decentralized Inference in Heterogeneous GNNs for Traffic Demand Forecasting</h2>
   <p><strong>Research direction:</strong> Edge-computing inference with heterogeneous graph neural networks for traffic demand forecasting.</p>
   <!-- previous static figure, kept in the repo but inactive: <img src="figs/hetgnn_inference.png" alt="Heterogeneous GNN edge inference project figure"> -->
   <iframe class="anim" src="projects/taxi-cloudlets.html" title="Semi-decentralized traffic forecasting animated overview" loading="lazy"></iframe>
-  <p class="reference"><strong>Associated paper:</strong> “Semi-Decentralized Inference in Heterogeneous Graph Neural Networks for Traffic Demand Forecasting: An Edge-Computing Approach,” IEEE Transactions on Vehicular Technology, vol. 73, no. 12, pp. 19400–19416, 2024.</p>
+  <p class="reference"><strong>Associated paper:</strong> <strong>M. Nazzal</strong>, A. Khreishah, J. Lee, S. Angizi, A. Al-Fuqaha, and M. Guizani, “Semi-decentralized Inference in Heterogeneous Graph Neural Networks for Traffic Demand Forecasting: An Edge-Computing Approach,” IEEE Transactions on Vehicular Technology, Jan. 2024.</p>
   <div class="project-links"><a href="https://doi.org/10.1109/TVT.2024.3355971" target="_blank" rel="noopener">Paper</a><a href="https://github.com/mahmoudkanazzal/SemidecentralizedhetGNNLSTM" target="_blank" rel="noopener">Artifacts</a></div>
 </div>
 <div class="page-actions">
