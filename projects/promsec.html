@@ -1,0 +1,644 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body { margin: 0; background: #1e2124; }
+html.embed .wrap { padding: 4px 0 8px !important; }
+html.embed .wrap > header { display: none; }
+</style>
+<script>if (window.self !== window.top) document.documentElement.classList.add("embed");</script>
+</head>
+<body>
+<title>PromSec Optimization Loop</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Carlito:ital,wght@0,400;0,700;1,400&display=swap">
+<style>
+/* Layout: one 3D ring on a tilted floor. Five stations stand on pedestals around it; the prompt card is the hero. A single object travels the ring and changes form. Secure code waits outside the ring. */
+:root {
+  color-scheme: dark;
+  --bg: #1e2124; --fg: #f2f2f2; --muted: #aeb3ba; --card: #262a2f; --line: #41464d; --edge: #6e757e; --floor: #24282d;
+  --ink: #4a515c; --on-ink: #f2f2f2;
+  --blue: #4a86d6; --green: #4bb578; --red: #dc5a5a; --purple: #9a78e0; --orange: #d97a3a; --gold: #c9973f;
+  --blue-soft: #25344a; --purple-soft: #302a42; --green-soft: #223a2d; --orange-soft: #3b2c22; --ink-soft: #30343a; --panel: #2b2f35;
+  --hi: #ffffff;
+  --f-display: Calibri, Carlito, "Segoe UI", system-ui, -apple-system, sans-serif;
+  --f-body: Calibri, Carlito, "Segoe UI", system-ui, -apple-system, sans-serif;
+  --f-mono: Calibri, Carlito, "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+
+body { background: var(--bg); color: var(--fg); font-family: var(--f-body); }
+.wrap { max-width: 1180px; margin: 0 auto; padding-block: 28px 36px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; flex-direction: column; gap: 18px; }
+.eyebrow { font: 700 13px/1 var(--f-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--blue); margin: 0 0 8px; }
+h1 { font: 700 clamp(28px, 4.2vw, 42px)/1.05 var(--f-display); margin: 0; text-wrap: balance; letter-spacing: -.01em; }
+
+.acts { display: flex; gap: 28px; }
+.act { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+.tab { appearance: none; border: 0; background: none; padding: 0; text-align: left; cursor: pointer; color: var(--muted);
+  font: 700 13px/1 var(--f-mono); letter-spacing: .1em; text-transform: uppercase; display: flex; align-items: center; gap: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tab::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--line); flex: none; }
+.act.on .tab { color: var(--c); }
+.act.on .tab::before { background: var(--c); box-shadow: 0 0 0 4px color-mix(in srgb, var(--c) 25%, transparent); }
+.tab:focus-visible { outline: 2px solid var(--blue, var(--fg)); outline-offset: 4px; border-radius: 4px; }
+.act.on .step .bar i { background: var(--c); }
+.rail { display: grid; gap: 8px; }
+.step { appearance: none; border: 0; background: none; padding: 0; text-align: left; cursor: pointer; color: var(--muted);
+  font: 400 14px/1.25 var(--f-body); display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.step .bar { height: 4px; border-radius: 4px; background: var(--line); overflow: hidden; }
+.step .bar i { display: block; height: 100%; width: 0; background: var(--fg); border-radius: 4px; }
+.step .lbl { display: flex; gap: 8px; align-items: baseline; }
+.step b { font: 700 13px var(--f-mono); }
+.step.on { color: var(--fg); }
+.step:focus-visible { outline: 2px solid var(--blue); outline-offset: 4px; border-radius: 4px; }
+@media (max-width: 720px) { .step .txt { display: none; } }
+
+.caption { font: 400 clamp(17px, 2.3vw, 21px)/1.35 var(--f-display); min-height: 1.4em; margin: 0; max-width: 72ch; }
+.stage { overflow-x: auto; border-radius: 18px; background: var(--card); border: 1px solid var(--line); }
+svg { display: block; width: 100%; min-width: 640px; height: auto; }
+
+.ctl { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.btn { appearance: none; border: 1px solid var(--line); background: var(--card); color: var(--fg); border-radius: 999px;
+  padding: 8px 16px; font: 700 14px var(--f-body); cursor: pointer; }
+.btn:hover { border-color: var(--muted); }
+.btn:focus-visible, #scrub:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+#scrub { flex: 1 1 200px; accent-color: var(--blue); min-width: 0; }
+
+.t-mono { font-family: var(--f-mono); font-weight: 500; }
+.t-monob { font-family: var(--f-mono); font-weight: 700; }
+.t-body { font-family: var(--f-body); }
+.t-bodyb { font-family: var(--f-body); font-weight: 600; }
+.t-disp { font-family: var(--f-display); font-weight: 700; }
+</style>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">PromSec · ACM CCS 2024</p>
+    <h1>How PromSec refines a prompt</h1>
+  </header>
+
+  <div class="acts" id="acts"></div>
+  <p class="caption" id="caption" aria-live="polite"></p>
+
+  <div class="stage"><svg id="svg" viewBox="0 0 1120 470" role="img" aria-label="Animation in two parts. The problem: an LLM that learned from flawed public code writes code that runs but hides weak spots, and rewording the prompt by trial and error is slow, costly and leaves the weak spots in place. The solution: PromSec sends the prompt to an LLM, a scanner flags weak spots, a graph repair model removes them while keeping what the code does, and the LLM rewrites the prompt from the repaired code. Over three rounds the weak spots drop from three to one to zero, and secure code is delivered."></svg></div>
+
+  <div class="ctl">
+    <button class="btn" id="play" type="button">Pause</button>
+    <button class="btn" id="restart" type="button">Restart</button>
+    <input type="range" id="scrub" min="0" max="21.6" step="0.01" value="0" aria-label="Timeline">
+  </div>
+</div>
+
+<script>
+(() => {
+const NS = "http://www.w3.org/2000/svg";
+const svg = document.getElementById("svg");
+const LOOP = 21.6, END = 21.0;
+
+/* ---------- helpers ---------- */
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const raw = (t, a, b) => clamp((t - a) / (b - a));
+const io = x => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+const out = x => 1 - Math.pow(1 - x, 3);
+const back = x => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2); };
+const lerp = (a, b, p) => a + (b - a) * p;
+const pulse = (t, at, d = .7) => { const p = raw(t, at, at + d); return p > 0 && p < 1 ? Math.sin(Math.PI * p) : 0; };
+const v = n => `var(${n})`;
+function el(tag, attrs = {}, parent = svg, style = {}) {
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  Object.assign(e.style, style);
+  parent.appendChild(e);
+  return e;
+}
+function txt(parent, x, y, s, cls, size, style = {}, anchor = "start") {
+  const e = el("text", { x, y, class: cls, "font-size": size, "text-anchor": anchor }, parent, style);
+  e.textContent = s; return e;
+}
+const halo = { stroke: v("--card"), strokeWidth: 4, paintOrder: "stroke", strokeLinejoin: "round" };
+
+/* ---------- story ---------- */
+const STAGES = [
+  { t: 0,    name: "Write code", cap: "A prompt goes to an LLM, which writes code." },
+  { t: 1.8,  name: "Scan",       cap: "A security scanner flags the code's weak spots." },
+  { t: 3.6,  name: "Repair",     cap: "A learned graph model removes the weak spots and keeps what the code does." },
+  { t: 5.8,  name: "New prompt", cap: "The LLM reads the repaired code and writes a better prompt." },
+  { t: 8.4,  name: "Repeat",     cap: "Each new prompt starts another round, with fewer weak spots." },
+  { t: 16.45, name: "Deliver",   cap: "The code is clean. The refined prompt now gets secure, working code on its own." },
+];
+const K = [3, 1, 0];
+const R = [{ t0: .6, sc: 1 }, { t0: 8.4, sc: .7 }, { t0: 13.9, sc: .85 }];
+const at = (r, u) => R[r].t0 + u * R[r].sc;
+const EXIT = [16.45, 17.25];
+
+/* ---------- 3D camera ---------- */
+const RX = 300, RZ = 185, CX = 476, CY = 250, F = 1000, PHI = .55;
+const cph = Math.cos(PHI), sph = Math.sin(PHI);
+let cth = 1, sth = 0;
+function P(X, Y, Z) {
+  const xr = X * cth + Z * sth, zr = -X * sth + Z * cth;
+  const zz = zr * cph + Y * sph, k = F / (F - zz);
+  return [CX + xr * k, CY + (zr * sph - Y * cph) * k, k, zz];
+}
+const ring = deg => { const a = deg * Math.PI / 180; return [RX * Math.cos(a), 0, RZ * Math.sin(a)]; };
+const ANG = { p: 168, llm: 242, scan: 296, rep: 390, rew: 452 };
+const SEC = [RX + 232, 0, -RZ * .8];
+
+/* ---------- layers + defs ---------- */
+const defs = el("defs");
+const root = el("g");
+const L = {};
+["floor", "ring", "shadow", "obj", "fx", "hud"].forEach(k => L[k] = el("g", {}, root));
+function rgrad(id, c) {
+  const g = el("radialGradient", { id, cx: "35%", cy: "30%", r: "80%" }, defs);
+  el("stop", { offset: "0" }, g, { stopColor: v("--hi"), stopOpacity: .9 });
+  el("stop", { offset: "0.35" }, g, { stopColor: v(c) });
+  el("stop", { offset: "1" }, g, { stopColor: v(c) });
+}
+["blue", "green", "red", "purple", "orange", "gold", "ink"].forEach(c => rgrad("g-" + c, "--" + c));
+const flt = el("filter", { id: "sh", x: "-20%", y: "-20%", width: "140%", height: "150%" }, defs);
+el("feDropShadow", { dx: 0, dy: 6, stdDeviation: 6, "flood-color": "#0a0f24", "flood-opacity": .2 }, flt);
+
+/* ---------- floor + ring ---------- */
+const floorDisc = el("path", {}, L.floor, { fill: v("--floor") });
+const floorRim = el("path", {}, L.floor, { fill: "none", stroke: v("--line"), strokeWidth: 1.5 });
+const ringBase = el("path", {}, L.ring, { fill: "none", stroke: v("--line"), strokeWidth: 14, strokeLinecap: "round" });
+const ringFlow = el("path", {}, L.ring, { fill: "none", stroke: v("--edge"), strokeWidth: 3.5, strokeLinecap: "round", strokeDasharray: "1 13" });
+const exitBase = el("path", {}, L.ring, { fill: "none", stroke: v("--green"), strokeWidth: 3, strokeDasharray: "2 9", strokeLinecap: "round", opacity: .35 });
+const poly = pts => "M " + pts.map(q => q[0].toFixed(1) + " " + q[1].toFixed(1)).join(" L ");
+
+/* ---------- stations ---------- */
+function pedestal(g, color, soft) {
+  el("rect", { x: -38, y: -14, width: 76, height: 14 }, g, { fill: v(color) });
+  el("ellipse", { cx: 0, cy: 0, rx: 38, ry: 15 }, g, { fill: v(color) });
+  el("rect", { x: -38, y: -14, width: 76, height: 14 }, g, { fill: "#000", opacity: .22 });
+  el("ellipse", { cx: 0, cy: 0, rx: 38, ry: 15 }, g, { fill: "#000", opacity: .22 });
+  const top = el("ellipse", { cx: 0, cy: -14, rx: 38, ry: 15 }, g, { fill: v(soft), stroke: v(color), strokeWidth: 2 });
+  return top;
+}
+function badge(g, color, icon) {
+  const b = el("g", {}, g);
+  el("circle", { r: 23 }, b, { fill: `url(#g-${color.slice(2)})`, filter: "url(#sh)" });
+  const ic = el("g", { fill: "none", stroke: "#fff", "stroke-width": 2.6, "stroke-linecap": "round", "stroke-linejoin": "round" }, b);
+  if (icon === "llm") { const t = txt(b, 0, 5, "LLM", "t-disp", 13, { fill: v("--on-ink") }, "middle"); }
+  if (icon === "scan") { el("circle", { cx: -3, cy: -3, r: 7.5 }, ic); el("line", { x1: 3, y1: 3, x2: 10, y2: 10 }, ic); }
+  if (icon === "graph") {
+    el("path", { d: "M -9 7 L 0 -9 L 9 7 Z" }, ic);
+    [[-9, 7], [0, -9], [9, 7]].forEach(([x, y]) => el("circle", { cx: x, cy: y, r: 3.4 }, b, { fill: "#fff" }));
+  }
+  if (icon === "shield") { el("path", { d: "M 0 -12 L 10 -8 L 10 0 C 10 7 5 11 0 13 C -5 11 -10 7 -10 0 L -10 -8 Z" }, ic); el("path", { d: "M -5 0 L -1 4 L 6 -4" }, ic); }
+  return b;
+}
+const ST = [
+  { id: "p",   ang: ANG.p,   color: "--blue",   soft: "--blue-soft",   label: "Prompt", hero: true },
+  { id: "llm", ang: ANG.llm, color: "--ink",    soft: "--ink-soft",    label: "LLM writes code", icon: "llm" },
+  { id: "scan", ang: ANG.scan, color: "--orange", soft: "--orange-soft", label: "Security scanner", icon: "scan" },
+  { id: "rep", ang: ANG.rep, color: "--purple", soft: "--purple-soft", label: "Graph repair", icon: "graph" },
+  { id: "rew", ang: ANG.rew, color: "--ink",    soft: "--ink-soft",    label: "LLM rewrites prompt", icon: "llm" },
+  { id: "sec", pos: SEC,     color: "--green",  soft: "--green-soft",  label: "Secure code", icon: "shield" },
+];
+const SID = {};
+ST.forEach(s => {
+  SID[s.id] = s;
+  s.world = s.pos || ring(s.ang);
+  s.g = el("g", {}, L.obj);
+  s.glow = el("ellipse", { cx: 0, cy: -6, rx: 50, ry: 20 }, s.g, { fill: v("--gold"), opacity: 0 });
+  s.top = pedestal(s.g, s.color, s.soft);
+  s.lbl = txt(s.g, 0, 36, s.label, "t-bodyb", 13, Object.assign({ fill: v("--fg") }, halo), "middle");
+  if (!s.hero) { s.bw = el("g", {}, s.g); s.b = badge(s.bw, s.color, s.icon); }
+});
+/* hero prompt card */
+const PS = SID.p;
+const card = el("g", { transform: "translate(0 -22)" }, PS.g);
+const CW = 108, CHh = 134;
+const backs = [1, 0].map(() => el("rect", { x: -CW / 2, y: -CHh, width: CW, height: CHh, rx: 12 }, card, { fill: v("--blue-soft"), stroke: v("--blue"), strokeWidth: 1.5, opacity: 0 }));
+backs.reverse();
+el("rect", { x: -CW / 2 + 4, y: -CHh + 6, width: CW, height: CHh, rx: 12 }, card, { fill: v("--blue"), opacity: .9 });
+const cMain = el("rect", { x: -CW / 2, y: -CHh, width: CW, height: CHh, rx: 12, filter: "url(#sh)" }, card, { fill: v("--card"), stroke: v("--blue"), strokeWidth: 2 });
+el("circle", { cx: -CW / 2 + 17, cy: -CHh + 18, r: 9 }, card, { fill: v("--blue") });
+txt(card, -CW / 2 + 17, -CHh + 22, "P", "t-monob", 10, { fill: v("--card") }, "middle");
+const verT = txt(card, CW / 2 - 12, -CHh + 22.5, "v1", "t-monob", 11.5, { fill: v("--blue") }, "end");
+[[0, 78], [1, 62]].forEach(([i, w]) => el("rect", { x: -CW / 2 + 12, y: -CHh + 38 + i * 14, width: w, height: 6, rx: 3 }, card, { fill: v("--edge") }));
+const gLines = [[0, 70], [1, 54], [2, 66]].map(([i, w]) => ({ w, e: el("rect", { x: -CW / 2 + 12, y: -CHh + 72 + i * 14, width: 0, height: 6, rx: 3 }, card, { fill: v("--green") }) }));
+const cardGlow = el("rect", { x: -CW / 2 - 7, y: -CHh - 7, width: CW + 14, height: CHh + 14, rx: 16 }, card, { fill: "none", stroke: v("--gold"), strokeWidth: 4, opacity: 0 });
+
+/* ---------- traveling object ---------- */
+const tokSh = el("ellipse", { rx: 16, ry: 6 }, L.shadow, { fill: v("--fg"), opacity: .14 });
+const TOK = { g: el("g", {}, L.obj) };
+el("circle", { r: 24 }, TOK.g, { fill: v("--gold"), opacity: .18 });
+/* prompt sheet */
+TOK.card = el("g", {}, TOK.g);
+el("rect", { x: -13, y: -17, width: 26, height: 34, rx: 4 }, TOK.card, { fill: v("--blue"), filter: "url(#sh)" });
+[-8, -1, 6].forEach((y, i) => el("rect", { x: -8, y, width: i === 2 ? 10 : 16, height: 3, rx: 1.5 }, TOK.card, { fill: "#fff" }));
+/* code chip with weak-spot beads */
+TOK.chip = el("g", {}, TOK.g);
+el("rect", { x: -18, y: -14, width: 36, height: 36, rx: 9 }, TOK.chip, { fill: v("--ink") });
+el("rect", { x: -18, y: -14, width: 36, height: 36, rx: 9 }, TOK.chip, { fill: "#000", opacity: .3 });
+el("rect", { x: -18, y: -18, width: 36, height: 36, rx: 9 }, TOK.chip, { fill: v("--ink"), filter: "url(#sh)" });
+txt(TOK.chip, 0, 4, "</>", "t-monob", 11, { fill: v("--on-ink") }, "middle");
+TOK.beads = [[-12, -22], [0, -26], [12, -22]].map(([x, y]) => el("circle", { cx: x, cy: y, r: 5.5 }, TOK.chip, { fill: `url(#g-red)`, stroke: v("--card"), strokeWidth: 1.5 }));
+TOK.ok = el("g", { transform: "translate(15 -16)" }, TOK.chip);
+el("circle", { r: 8 }, TOK.ok, { fill: `url(#g-green)`, stroke: v("--card"), strokeWidth: 1.5 });
+el("path", { d: "M -3.5 0 L -1 2.5 L 4 -3" }, TOK.ok, { fill: "none", stroke: "#fff", strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round" });
+/* graph form: same shape before and after repair */
+TOK.graph = el("g", {}, TOK.g);
+const GN = [[-16, 10], [16, 10], [0, -17], [0, 2]];
+el("path", { d: "M -16 10 L 16 10 L 0 -17 Z M -16 10 L 0 2 L 16 10 M 0 2 L 0 -17" }, TOK.graph, { fill: v("--purple-soft"), stroke: v("--purple"), strokeWidth: 2, strokeLinejoin: "round" });
+TOK.gn = GN.map(([x, y]) => el("circle", { cx: x, cy: y, r: 6 }, TOK.graph, { fill: `url(#g-purple)`, stroke: v("--card"), strokeWidth: 1.5 }));
+TOK.gspark = el("circle", { r: 10 }, TOK.graph, { fill: "none", stroke: v("--gold"), strokeWidth: 2, opacity: 0 });
+/* lesson spark */
+TOK.spark = el("g", {}, TOK.g);
+el("circle", { r: 13 }, TOK.spark, { fill: v("--green"), opacity: .25 });
+el("circle", { r: 8 }, TOK.spark, { fill: `url(#g-green)` });
+
+/* ---------- fx ---------- */
+const ringPulse = el("ellipse", {}, L.fx, { fill: "none", stroke: v("--gold"), strokeWidth: 3, opacity: 0 });
+const sparks = Array.from({ length: 12 }, (_, i) => ({ a: i / 12 * Math.PI * 2, e: el("circle", { r: 3.2 }, L.fx, { fill: v(i % 2 ? "--gold" : "--green") }) }));
+
+/* ---------- weak-spot tracker ---------- */
+const HUD = el("g", { transform: "translate(920 326)" }, L.hud);
+el("rect", { x: 0, y: 0, width: 176, height: 124, rx: 14, filter: "url(#sh)" }, HUD, { fill: v("--panel"), stroke: v("--line"), strokeWidth: 1.5 });
+txt(HUD, 14, 26, "Weak spots", "t-bodyb", 13.5, { fill: v("--fg") });
+const HB = 98, HU = 13, HW = 24, HDX = 8, HDY = 6;
+const cols = [0, 1, 2].map(r => {
+  const cx = 40 + r * 50, g = el("g", {}, HUD);
+  const side = el("path", {}, g, { fill: v(r === 2 ? "--green" : "--red") });
+  const sideD = el("path", {}, g, { fill: "#000", opacity: .28 });
+  const front = el("rect", { x: cx - HW / 2, width: HW }, g, { fill: v(r === 2 ? "--green" : "--red") });
+  const top = el("path", {}, g, { fill: v(r === 2 ? "--green" : "--red") });
+  const topH = el("path", {}, g, { fill: "#fff", opacity: .35 });
+  const n = txt(g, cx + HDX / 2, 0, String(K[r]), "t-disp", 14, { fill: v(r === 2 ? "--green" : "--red") }, "middle");
+  txt(HUD, cx, HB + 17, `round ${r + 1}`, "t-mono", 9.5, { fill: v("--muted") }, "middle");
+  return { cx, g, side, sideD, front, top, topH, n };
+});
+
+/* ---------- act 1: the problem ---------- */
+const PL = 13.6;
+const PSTAGES = [
+  { t: 0,    name: "Flawed lessons",  cap: "LLMs learned to code from huge amounts of public code, and much of that code carries security flaws." },
+  { t: 3.0,  name: "Works, but",      cap: "Ask with an ordinary prompt, and the code runs but hides weak spots an attacker could exploit." },
+  { t: 6.4,  name: "Trial and error", cap: "Most users don't know how to phrase a safer prompt. Every reworded try needs another round of generating and checking." },
+  { t: 11.0, name: "Still unsafe",    cap: "Trial and error is slow and costly, and the weak spots keep coming back." },
+];
+const SROOT = tt => out(raw(tt, 0, .6));
+const rootP = el("g");
+
+/* public code that the LLM learned from */
+const STK = { x: 470, y: 50 };
+const sheets = [-64, -32, 0, 32, 64].map((dx, i) => {
+  const g = el("g", {}, rootP);
+  el("rect", { x: -11, y: -10, width: 22, height: 28, rx: 3 }, g, { fill: v("--edge") });
+  el("rect", { x: -11, y: -14, width: 22, height: 28, rx: 3 }, g, { fill: v("--card"), stroke: v("--edge"), strokeWidth: 1.5 });
+  [-7, -1, 5].forEach((y, j) => el("rect", { x: -6, y, width: j === 1 ? 8 : 12, height: 2.6, rx: 1.3 }, g, { fill: v("--muted") }));
+  const dot = el("circle", { cx: 5, cy: 0, r: 3.2 }, g, { fill: v("--red") });
+  return { g, dot, x: STK.x + dx, y: STK.y + (i % 2 ? 4 : -2) };
+});
+const stackLbl = txt(rootP, STK.x, STK.y + 42, "public code, full of flaws", "t-bodyb", 13, { fill: v("--muted") }, "middle");
+
+/* trial-and-error cost panel (where the weak-spot tracker sits later) */
+const CP = el("g", { transform: "translate(920 326)" }, rootP);
+el("rect", { x: 0, y: 0, width: 176, height: 124, rx: 14, filter: "url(#sh)" }, CP, { fill: v("--panel"), stroke: v("--line"), strokeWidth: 1.5 });
+txt(CP, 14, 26, "Trial and error", "t-bodyb", 13.5, { fill: v("--fg") });
+txt(CP, 14, 56, "tries", "t-body", 12.5, { fill: v("--muted") });
+const cpN = txt(CP, 162, 60, "0", "t-disp", 26, { fill: v("--fg") }, "end");
+txt(CP, 14, 86, "time and cost", "t-body", 12.5, { fill: v("--muted") });
+el("rect", { x: 14, y: 96, width: 148, height: 10, rx: 5 }, CP, { fill: v("--line") });
+const cpBar = el("rect", { x: 14, y: 96, width: 0, height: 10, rx: 5 }, CP, { fill: v("--orange") });
+const stampU = el("g", {}, rootP);
+el("rect", { x: -84, y: -22, width: 168, height: 44, rx: 8 }, stampU, { fill: v("--card"), opacity: .94, stroke: v("--red"), strokeWidth: 3 });
+txt(stampU, 0, 8, "STILL UNSAFE", "t-disp", 22, { fill: v("--red"), letterSpacing: ".06em" }, "middle");
+
+const ATT = [{ s: 3.2, sc: 1, n: 3 }, { s: 6.6, sc: .75, n: 2 }, { s: 8.9, sc: .75, n: 3 }];
+
+function renderP(tt) {
+  rootP.style.opacity = tt < PL ? 1 - raw(tt, PL - .5, PL) : 0;
+  const back2 = raw(tt, PL - .6, PL);
+  ["rep", "rew", "sec"].forEach(id => SID[id].g.style.opacity = lerp(.2, 1, back2) * (id === "sec" ? .55 : 1));
+  exitBase.style.opacity = .14 * back2;
+  L.hud.style.opacity = back2;
+  ringFlow.style.strokeDashoffset = -tt * 22;
+
+  /* stack flies into the LLM */
+  const [lx, ly, lk] = P(...SID.llm.world), bx = lx, by = ly - 64 * 1.12 * lk;
+  sheets.forEach((s, i) => {
+    const a = raw(tt, .3 + i * .08, .7 + i * .08);
+    const f = io(raw(tt, 1.7 + i * .15, 2.4 + i * .15));
+    const x = lerp(s.x, bx, f), y = lerp(s.y, by, f) - 40 * Math.sin(Math.PI * f);
+    s.g.setAttribute("transform", `translate(${x.toFixed(1)} ${y.toFixed(1)}) scale(${((a ? back(a) : 0) * lerp(1, .35, f)).toFixed(3)})`);
+    s.g.style.opacity = 1 - raw(tt, 2.25 + i * .15, 2.4 + i * .15);
+    s.dot.setAttribute("r", 3.2 + 1.6 * pulse(tt, .9 + i * .1, .6));
+  });
+  stackLbl.style.opacity = io(raw(tt, .5, .9)) * (1 - io(raw(tt, 2.2, 2.6)));
+
+  /* tries */
+  let st = null;
+  ATT.forEach((A, ai) => { const u = (tt - A.s) / A.sc; if (u >= 0 && (u < 2.9 || ai === 2)) st = { u, A, ai }; });
+  let llmG = pulse(tt, 2.5, 1), scanG = 0;
+  if (st) {
+    const { u, A } = st;
+    let w, Y = 118, form = "chip", m = 1, beads = 0, ok = 0, op = 1;
+    const lift = (a0, a1, p, y0, y1) => { w = ring(lerp(a0, a1, io(p))); Y = lerp(y0, y1, io(p)) + 26 * Math.sin(Math.PI * p); };
+    if (u < .7) { lift(ANG.p, ANG.llm, u / .7, 70, 118); form = "card"; }
+    else if (u < 1.0) { w = ring(ANG.llm); form = u < .85 ? "card" : "chip"; m = raw(u, .8, 1.0); }
+    else if (u < 1.6) { lift(ANG.llm, ANG.scan, (u - 1.0) / .6, 118, 118); ok = 1; }
+    else { w = ring(ANG.scan); ok = 1; beads = raw(u, 1.8, 2.3) * A.n; op = st.ai === 2 ? 1 : 1 - raw(u, 2.6, 2.9); }
+    llmG = Math.max(llmG, pulse(u, .7, .4));
+    scanG = u > 1.6 ? .8 * (1 - raw(u, 2.6, 2.9)) : 0;
+    const [x, y, k] = P(w[0], Y, w[2]), [fx, fy, fk] = P(w[0], 0, w[2]);
+    TOK.g.style.opacity = op;
+    TOK.g.setAttribute("transform", `translate(${x.toFixed(1)} ${y.toFixed(1)}) scale(${(k * 1.12).toFixed(3)})`);
+    tokSh.setAttribute("cx", fx); tokSh.setAttribute("cy", fy); tokSh.setAttribute("rx", 16 * fk); tokSh.setAttribute("ry", 6 * fk);
+    tokSh.style.opacity = .14 * op;
+    TOK.card.style.opacity = form === "card" ? 1 : 0;
+    TOK.chip.style.opacity = form === "chip" ? m : 0;
+    TOK.graph.style.opacity = 0; TOK.spark.style.opacity = 0;
+    TOK.beads.forEach((b, i) => {
+      const shown = beads > i ? clamp(beads - i) : 0;
+      b.style.opacity = shown; b.setAttribute("r", 5.5 * (shown ? back(shown) : 0)); b.style.fill = "url(#g-red)";
+    });
+    TOK.ok.style.opacity = ok;
+    L.obj.appendChild(TOK.g);
+  } else { TOK.g.style.opacity = 0; tokSh.style.opacity = 0; }
+  SID.llm.glow.style.opacity = .45 * llmG;
+  SID.scan.glow.style.opacity = .45 * scanG;
+
+  /* the prompt card gets reworded */
+  const tries = 1 + (tt >= 6.5) + (tt >= 8.8);
+  verT.textContent = "try " + tries;
+  const jg = pulse(tt, 6.4, .5) + pulse(tt, 8.7, .5);
+  card.setAttribute("transform", `translate(0 -22) rotate(${(5 * jg * Math.sin(tt * 38)).toFixed(2)})`);
+  cardGlow.style.opacity = .8 * jg;
+
+  /* cost */
+  CP.style.opacity = io(raw(tt, 3.0, 3.4));
+  cpN.textContent = String(tt < 3.2 ? 0 : tries);
+  const cost = ATT.reduce((a, A) => a + raw(tt, A.s, A.s + 2.6 * A.sc) / 3, 0);
+  cpBar.setAttribute("width", (148 * cost).toFixed(1));
+  cpBar.style.fill = cost > .8 ? v("--red") : v("--orange");
+  cpN.style.fill = pulse(tt, 6.5, .4) + pulse(tt, 8.8, .4) > .1 ? v("--orange") : v("--fg");
+  const s = raw(tt, 11.3, 11.6);
+  stampU.style.opacity = s;
+  stampU.setAttribute("transform", `translate(1008 ${(424 + 3 * pulse(tt, 11.58, .25)).toFixed(1)}) rotate(-8) scale(${lerp(1.8, 1, out(s)).toFixed(3)})`);
+}
+
+
+/* ---------- acts + rail ---------- */
+const ACTS = [
+  { name: "The problem", color: "--red", stages: PSTAGES, off: 0, end: PL - .5 },
+  { name: "How PromSec solves it", color: "--blue", stages: STAGES, off: PL, end: PL + END },
+];
+const TOT = PL + LOOP;
+const ALL = [];
+const actsEl = document.getElementById("acts");
+ACTS.forEach(A => {
+  const box = document.createElement("div");
+  box.className = "act"; box.style.setProperty("--c", `var(${A.color})`); box.style.flexGrow = A.stages.length;
+  const tab = document.createElement("button");
+  tab.className = "tab"; tab.type = "button"; tab.textContent = A.name;
+  tab.addEventListener("click", () => { t = A.off + .01; });
+  box.appendChild(tab);
+  const rl = document.createElement("div");
+  rl.className = "rail"; rl.style.gridTemplateColumns = `repeat(${A.stages.length}, minmax(0, 1fr))`;
+  box.appendChild(rl);
+  A.stages.forEach((s, i) => {
+    const g0 = A.off + s.t, g1 = i < A.stages.length - 1 ? A.off + A.stages[i + 1].t : A.end;
+    const b = document.createElement("button");
+    b.className = "step"; b.type = "button";
+    b.innerHTML = `<span class="bar"><i></i></span><span class="lbl"><b>${i + 1}</b><span class="txt">${s.name}</span></span>`;
+    b.setAttribute("aria-label", `${A.name}, step ${i + 1}: ${s.name}`);
+    b.addEventListener("click", () => { t = g0 + .01; });
+    rl.appendChild(b);
+    ALL.push({ t: g0, end: g1, cap: s.cap, b });
+  });
+  A.box = box; actsEl.appendChild(box);
+});
+const caption = document.getElementById("caption");
+function renderUI(tt) {
+  let si = 0; ALL.forEach((s, i) => { if (tt >= s.t) si = i; });
+  ALL.forEach((s, i) => { s.b.querySelector("i").style.width = (raw(tt, s.t, s.end) * 100) + "%"; s.b.classList.toggle("on", i === si); });
+  if (caption.dataset.i !== String(si)) { caption.dataset.i = si; caption.textContent = ALL[si].cap; }
+  ACTS[0].box.classList.toggle("on", tt < PL);
+  ACTS[1].box.classList.toggle("on", tt >= PL);
+}
+function render(tt) {
+  renderUI(tt);
+  if (tt < PL) { renderS(0.05); root.style.opacity = SROOT(tt); renderP(tt); }
+  else { rootP.style.opacity = 0; renderS(tt - PL); }
+}
+
+
+/* ---------- token state at time t ---------- */
+function tokenState(t) {
+  const lift = (a0, a1, p, y0 = 118, y1 = 118) => ({ w: ring(lerp(a0, a1, io(p))), y: lerp(y0, y1, io(p)) + 26 * Math.sin(Math.PI * p) });
+  for (let r = 0; r < 3; r++) {
+    const s = R[r].sc, u = (t - R[r].t0) / s;
+    if (u < 0 || u > 7.9) continue;
+    const st = { form: "card", beads: 0, beadOk: 0, graphFix: 0, ok: 0, r, u };
+    if (u < .8) return Object.assign(st, lift(ANG.p, ANG.llm, u / .8, 70, 118), { form: "card" });
+    if (u < 1.2) return Object.assign(st, { w: ring(ANG.llm), y: 118, form: u < 1.05 ? "card" : "chip", morph: raw(u, .9, 1.2) });
+    if (u < 2.0) return Object.assign(st, lift(ANG.llm, ANG.scan, (u - 1.2) / .8), { form: "chip" });
+    if (u < 2.9 || r === 2 && u < 3.1) return Object.assign(st, { w: ring(ANG.scan), y: 118, form: "chip", beads: raw(u, 2.1, 2.8) * K[r], ok: r === 2 ? raw(u, 2.6, 2.8) : 0 });
+    if (r === 2) {
+      if (t < EXIT[0] || t > EXIT[1] + 3.6) return null;
+      const p = raw(t, EXIT[0], EXIT[1]);
+      const a = ring(ANG.scan);
+      return Object.assign(st, { w: [lerp(a[0], SEC[0], io(p)), 0, lerp(a[2], SEC[2], io(p))], y: lerp(118, 96, io(p)) + 24 * Math.sin(Math.PI * p), form: "chip", ok: 1, beads: 0, settle: raw(t, EXIT[1], EXIT[1] + .4) });
+    }
+    if (u < 3.0) return Object.assign(st, { w: ring(ANG.scan), y: 118, form: "chip", beads: K[r] });
+    if (u < 3.8) return Object.assign(st, lift(ANG.scan, ANG.rep, (u - 3.0) / .8), { form: "chip", beads: K[r] });
+    if (u < 5.0) return Object.assign(st, { w: ring(ANG.rep), y: 118, form: u < 3.95 || u > 4.85 ? "chip" : "graph", beads: K[r], beadOk: raw(u, 4.85, 4.9), graphFix: raw(u, 4.15, 4.7) });
+    if (u < 5.2) return Object.assign(st, { w: ring(ANG.rep), y: 118, form: "chip", beads: K[r], beadOk: 1 });
+    if (u < 5.9) return Object.assign(st, lift(ANG.rep, ANG.rew, (u - 5.2) / .7), { form: "chip", beads: K[r], beadOk: 1 });
+    if (u < 6.2) return Object.assign(st, { w: ring(ANG.rew), y: 118, form: u < 6.05 ? "chip" : "spark", beads: K[r], beadOk: 1 });
+    if (u < 6.9) return Object.assign(st, lift(ANG.rew, ANG.p + 360, (u - 6.2) / .7, 118, 80), { form: "spark" });
+    return null;
+  }
+  return null;
+}
+
+/* ---------- render ---------- */
+function renderS(t) {
+  root.style.opacity = 1 - raw(t, END, LOOP);
+
+  /* camera swing */
+  const th = .2 * Math.sin(2 * Math.PI * t / LOOP);
+  cth = Math.cos(th); sth = Math.sin(th);
+
+  /* floor and ring */
+  const disc = [], rim = [], rp = [];
+  for (let d = 0; d <= 360; d += 6) {
+    const a = d * Math.PI / 180;
+    disc.push(P((RX + 120) * Math.cos(a), 0, (RZ + 78) * Math.sin(a)));
+    rp.push(P(RX * Math.cos(a), 0, RZ * Math.sin(a)));
+  }
+  floorDisc.setAttribute("d", poly(disc) + " Z");
+  floorRim.setAttribute("d", poly(disc) + " Z");
+  ringBase.setAttribute("d", poly(rp));
+  ringFlow.setAttribute("d", poly(rp));
+  ringFlow.style.strokeDashoffset = -t * 22;
+  const ea = P(...ring(ANG.scan)), eb = P(...SEC);
+  exitBase.setAttribute("d", `M ${ea[0]} ${ea[1]} L ${eb[0]} ${eb[1]}`);
+  exitBase.style.opacity = .14 + .76 * raw(t, EXIT[0] - .3, EXIT[0]);
+  exitBase.style.strokeDashoffset = -t * 22;
+
+  /* stations */
+  const actAt = {
+    p: R.map((_, r) => at(r, 0)).concat([0, 1].map(r => at(r, 6.9))),
+    llm: R.map((_, r) => at(r, .8)), scan: R.map((_, r) => at(r, 2.0)),
+    rep: [0, 1].map(r => at(r, 3.8)), rew: [0, 1].map(r => at(r, 5.9)), sec: [EXIT[1]],
+  };
+  const objs = [];
+  ST.forEach(s => {
+    const [x, y, k, zz] = P(...s.world);
+    let h = Math.max(0, ...actAt[s.id].map(a => pulse(t, a, .9)));
+    if (s.id === "scan") h = Math.max(h, ...R.map((_, r) => .7 * raw(t, at(r, 2.0), at(r, 2.2)) * (1 - raw(t, at(r, 2.7), at(r, 2.9)))));
+    if (s.id === "rep") h = Math.max(h, ...[0, 1].map(r => .7 * raw(t, at(r, 3.8), at(r, 4.0)) * (1 - raw(t, at(r, 4.9), at(r, 5.1)))));
+    if (s.id === "sec") h = Math.max(h, .6 * raw(t, EXIT[1], EXIT[1] + .4));
+    s.g.setAttribute("transform", `translate(${x.toFixed(1)} ${y.toFixed(1)}) scale(${(k * 1.12).toFixed(3)})`);
+    s.glow.style.opacity = .45 * h;
+    if (s.bw) {
+      const bob = 3 * Math.sin(t * 2.2 + s.world[0] * .02);
+      s.bw.setAttribute("transform", `translate(0 ${(-64 + bob - 8 * h).toFixed(1)}) scale(${(1 + .12 * h).toFixed(3)})`);
+    }
+    s.zz = zz; objs.push(s);
+  });
+  SID.sec.g.style.opacity = .55 + .45 * raw(t, EXIT[1], EXIT[1] + .4);
+  SID.sec.lbl.textContent = t >= EXIT[1] ? "Secure, working code" : "Secure code";
+  SID.sec.lbl.style.fill = t >= EXIT[1] ? v("--green") : v("--fg");
+
+  /* hero prompt card */
+  const v2 = at(0, 6.9), v3 = at(1, 6.9);
+  verT.textContent = "v" + (1 + (t >= v2) + (t >= v3));
+  gLines.forEach((gl, i) => {
+    const t0 = i < 2 ? v2 + .1 + i * .2 : v3 + .1;
+    gl.e.setAttribute("width", gl.w * out(raw(t, t0, t0 + .4)));
+    gl.e.style.opacity = i < 2 && t >= v3 + .3 ? .65 : 1;
+  });
+  [v2, v3].forEach((tv, i) => {
+    const p = out(raw(t, tv, tv + .4));
+    backs[i].setAttribute("transform", `translate(${(6 * (i + 1) * p).toFixed(1)} ${(-6 * (i + 1) * p).toFixed(1)})`);
+    backs[i].style.opacity = p;
+  });
+  const cg = Math.max(pulse(t, v2, 1), pulse(t, v3, .9), pulse(t, EXIT[1] + .2, 1.2));
+  cardGlow.style.opacity = cg;
+  cMain.style.stroke = t >= EXIT[1] ? v("--green") : v("--blue");
+  PS.lbl.textContent = t >= EXIT[1] ? "Refined prompt" : "Prompt";
+  card.setAttribute("transform", `translate(0 ${(-22 - 6 * cg).toFixed(1)})`);
+
+  /* token */
+  const ts = tokenState(t);
+  if (ts) {
+    const [x, y, k, zz] = P(ts.w[0], ts.y, ts.w[2]);
+    const [fx, fy, fk] = P(ts.w[0], 0, ts.w[2]);
+    TOK.g.style.opacity = ts.settle ? 1 - ts.settle : 1;
+    TOK.g.setAttribute("transform", `translate(${x.toFixed(1)} ${y.toFixed(1)}) scale(${(k * 1.12).toFixed(3)})`);
+    tokSh.setAttribute("cx", fx); tokSh.setAttribute("cy", fy); tokSh.setAttribute("rx", 16 * fk); tokSh.setAttribute("ry", 6 * fk);
+    tokSh.style.opacity = .14 * (ts.settle ? 1 - ts.settle : 1);
+    const m = ts.morph === undefined ? 1 : ts.morph;
+    TOK.card.style.opacity = ts.form === "card" ? 1 : 0;
+    TOK.chip.style.opacity = ts.form === "chip" ? m : 0;
+    TOK.graph.style.opacity = ts.form === "graph" ? 1 : 0;
+    TOK.spark.style.opacity = ts.form === "spark" ? 1 : 0;
+    TOK.beads.forEach((b, i) => {
+      const shown = ts.beads > i ? clamp(ts.beads - i) : 0;
+      b.style.opacity = shown;
+      b.setAttribute("r", 5.5 * (shown ? back(shown) : 0));
+      b.style.fill = ts.beadOk ? `url(#g-green)` : `url(#g-red)`;
+    });
+    TOK.ok.style.opacity = ts.ok || 0;
+    const nb = K[ts.r];
+    TOK.gn.forEach((n, i) => {
+      const bad = i < nb;
+      const fixed = bad && ts.graphFix * nb > i + .5;
+      n.style.fill = bad && !fixed ? `url(#g-red)` : fixed ? `url(#g-green)` : `url(#g-purple)`;
+    });
+    TOK.gspark.style.opacity = ts.form === "graph" ? pulse(ts.graphFix, 0, 1) : 0;
+    TOK.gspark.setAttribute("r", 10 + 22 * ts.graphFix);
+    TOK.zz = zz + 1; objs.push(TOK);
+  } else { TOK.g.style.opacity = 0; tokSh.style.opacity = 0; }
+
+  /* depth order */
+  objs.sort((a, b) => a.zz - b.zz).forEach(o => L.obj.appendChild(o.g));
+
+  /* delivery sparkle */
+  const sp = raw(t, EXIT[1], EXIT[1] + 1);
+  const [sx, sy, sk] = P(SEC[0], 70, SEC[2]);
+  sparks.forEach(s => {
+    const r = (20 + 60 * out(sp)) * sk;
+    s.e.setAttribute("cx", sx + r * Math.cos(s.a)); s.e.setAttribute("cy", sy + r * .6 * Math.sin(s.a));
+    s.e.style.opacity = sp > 0 && sp < 1 ? 1 - sp : 0;
+  });
+  const rpp = raw(t, EXIT[1], EXIT[1] + .9);
+  const [rx0, ry0, rk] = P(SEC[0], 0, SEC[2]);
+  ringPulse.setAttribute("cx", rx0); ringPulse.setAttribute("cy", ry0);
+  ringPulse.setAttribute("rx", (40 + 60 * rpp) * rk); ringPulse.setAttribute("ry", (15 + 22 * rpp) * rk);
+  ringPulse.style.opacity = rpp > 0 && rpp < 1 ? 1 - rpp : 0;
+
+  /* tracker */
+  cols.forEach((c, r) => {
+    const p = out(raw(t, at(r, 2.8), at(r, 2.8) + .5));
+    const h = HU * K[r] * p, x0 = c.cx - HW / 2, x1 = c.cx + HW / 2, yt = HB - h;
+    c.front.setAttribute("y", yt); c.front.setAttribute("height", h);
+    const sd = `M ${x1} ${yt} L ${x1 + HDX} ${yt - HDY} L ${x1 + HDX} ${HB - HDY} L ${x1} ${HB} Z`;
+    c.side.setAttribute("d", sd); c.sideD.setAttribute("d", sd);
+    const td = `M ${x0} ${yt} L ${x0 + HDX} ${yt - HDY} L ${x1 + HDX} ${yt - HDY} L ${x1} ${yt} Z`;
+    c.top.setAttribute("d", td); c.topH.setAttribute("d", td);
+    c.g.style.opacity = p > 0 ? 1 : 0;
+    c.n.setAttribute("y", yt - HDY - 6);
+  });
+}
+
+/* ---------- playback ---------- */
+const playBtn = document.getElementById("play"), scrub = document.getElementById("scrub");
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+let t = reduce ? PL + 18.5 : 0.2, playing = !reduce, last = null, dragging = false;
+scrub.max = TOT;
+playBtn.textContent = playing ? "Pause" : "Play";
+playBtn.addEventListener("click", () => { playing = !playing; playBtn.textContent = playing ? "Pause" : "Play"; });
+document.getElementById("restart").addEventListener("click", () => { t = 0; });
+scrub.addEventListener("input", () => { t = +scrub.value; dragging = true; });
+scrub.addEventListener("change", () => { dragging = false; });
+function frame(now) {
+  if (last !== null && playing && !dragging) t = (t + (now - last) / 1000) % TOT;
+  last = now;
+  render(t);
+  if (!dragging) scrub.value = t;
+  requestAnimationFrame(frame);
+}
+render(t);
+requestAnimationFrame(frame);
+})();
+</script>
+
+<script>
+(function () {
+  if (window.self === window.top) return;
+  var last = 0;
+  function post() {
+    var h = Math.ceil(document.querySelector(".wrap").getBoundingClientRect().height);
+    if (h !== last) { last = h; parent.postMessage({ type: "anim-height", h: h }, "*"); }
+  }
+  new ResizeObserver(post).observe(document.body);
+  window.addEventListener("load", post);
+  /* start from the beginning when scrolled into view; pause when off screen */
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  var play = document.getElementById("play"), restart = document.getElementById("restart");
+  var seen = false, ours = false;
+  var playing = function () { return play.textContent.trim() === "Pause"; };
+  if (playing()) play.click();
+  new IntersectionObserver(function (es) {
+    es.forEach(function (e) {
+      if (e.isIntersecting) {
+        if (!seen) { seen = true; restart.click(); if (!playing()) play.click(); }
+        else if (ours && !playing()) play.click();
+        ours = false;
+      } else if (playing()) { play.click(); ours = true; }
+    });
+  }, { threshold: 0.35 }).observe(document.querySelector(".stage"));
+})();
+</script>
+</body>
+</html>

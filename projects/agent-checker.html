@@ -1,0 +1,759 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body { margin: 0; background: #1e2124; }
+html.embed .wrap { padding: 4px 0 8px !important; }
+html.embed .wrap > header { display: none; }
+</style>
+<script>if (window.self !== window.top) document.documentElement.classList.add("embed");</script>
+</head>
+<body>
+<title>Agent Action Checker</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Carlito:ital,wght@0,400;0,700;1,400&display=swap">
+<style>
+/* Layout: the agent's run as a row of 3D step blocks on a tilted floor, with the checker's map arcing above; risk meter and decision log on the right. */
+:root {
+  color-scheme: dark;
+  --bg: #1e2124; --fg: #f2f2f2; --muted: #aeb3ba; --card: #262a2f; --line: #41464d; --edge: #6e757e; --panel: #2b2f35;
+  --sky: #1c1f23; --floor: #24282d; --floor-c: #2f353d;
+  --ink: #4a515c; --blk: #363b43; --blk-side: #1f2226; --blk-front: #2e3238;
+  --blue: #4a86d6; --orange: #d97a3a; --green: #4bb578; --amber: #c9973f; --red: #dc5a5a; --cyan: #4aa8e0;
+  --blue-soft: #25344a; --green-soft: #223a2d; --amber-soft: #3a3122; --red-soft: #40272a;
+  --f-body: Calibri, Carlito, "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+
+body { background: var(--bg); color: var(--fg); font-family: var(--f-body); }
+.wrap { max-width: 1180px; margin: 0 auto; padding-block: 28px 36px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; flex-direction: column; gap: 18px; }
+.eyebrow { font: 700 13px/1 var(--f-body); letter-spacing: .1em; text-transform: uppercase; color: var(--red); margin: 0 0 8px; }
+h1 { font: 700 clamp(28px, 4.2vw, 42px)/1.05 var(--f-body); margin: 0; text-wrap: balance; letter-spacing: -.01em; }
+
+.acts { display: flex; gap: 28px; }
+.act { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+.tab { appearance: none; border: 0; background: none; padding: 0; text-align: left; cursor: pointer; color: var(--muted);
+  font: 700 13px/1 var(--f-mono); letter-spacing: .1em; text-transform: uppercase; display: flex; align-items: center; gap: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tab::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--line); flex: none; }
+.act.on .tab { color: var(--c); }
+.act.on .tab::before { background: var(--c); box-shadow: 0 0 0 4px color-mix(in srgb, var(--c) 25%, transparent); }
+.tab:focus-visible { outline: 2px solid var(--blue, var(--fg)); outline-offset: 4px; border-radius: 4px; }
+.act.on .step .bar i { background: var(--c); }
+.rail { display: grid; gap: 8px; }
+.step { appearance: none; border: 0; background: none; padding: 0; text-align: left; cursor: pointer; color: var(--muted);
+  font: 400 14px/1.25 var(--f-body); display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.step .bar { height: 4px; border-radius: 4px; background: var(--line); overflow: hidden; }
+.step .bar i { display: block; height: 100%; width: 0; background: var(--fg); border-radius: 4px; }
+.step .lbl { display: flex; gap: 8px; align-items: baseline; }
+.step b { font: 700 13px var(--f-body); }
+.step.on { color: var(--fg); }
+.step:focus-visible { outline: 2px solid var(--blue); outline-offset: 4px; border-radius: 4px; }
+@media (max-width: 640px) { .step .txt { display: none; } }
+
+.caption { font: 400 clamp(17px, 2.3vw, 21px)/1.35 var(--f-body); min-height: 2.7em; margin: 0; max-width: 72ch; }
+.stage { overflow-x: auto; border-radius: 18px; background: var(--card); border: 1px solid var(--line); }
+svg { display: block; width: 100%; min-width: 660px; height: auto; font-family: var(--f-body); }
+
+.ctl { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.btn { appearance: none; border: 1px solid var(--line); background: var(--card); color: var(--fg); border-radius: 999px;
+  padding: 8px 16px; font: 700 14px var(--f-body); cursor: pointer; }
+.btn:hover { border-color: var(--muted); }
+.btn:focus-visible, #scrub:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+#scrub { flex: 1 1 200px; accent-color: var(--blue); min-width: 0; }
+</style>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Runtime action verification for LLM agents</p>
+    <h1>How a checker stops a harmful agent action just before it runs</h1>
+  </header>
+
+  <div class="acts" id="acts"></div>
+  <p class="caption" id="caption" aria-live="polite"></p>
+
+  <div class="stage"><svg id="svg" viewBox="0 0 1120 480" role="img" aria-label="Animation in two parts. The problem: an AI agent works through a task with tools, and an email it reads hides an attacker's instruction. Existing guards either compare actions with the user's request or ask another AI to judge, and both approve every step, including sending the account number to an unknown address, with no guarantee about false alarms on normal work. The solution: a checker keeps a connected map of the run showing order, which tool answered which request, and where earlier information reappears. Thresholds are set on harmless runs. Before each action the checker scores the path that led to it, with a score that only rises: paying a bill is allowed, sharing a file is held for review, and sending the account number is blocked before it runs."></svg></div>
+
+  <div class="ctl">
+    <button class="btn" id="play" type="button">Pause</button>
+    <button class="btn" id="restart" type="button">Restart</button>
+    <input type="range" id="scrub" min="0" max="26" step="0.01" value="0" aria-label="Timeline">
+  </div>
+</div>
+
+<script>
+(() => {
+const NS = "http://www.w3.org/2000/svg";
+const svg = document.getElementById("svg");
+const LOOP = 26, END = 25.4;
+
+/* ---------- helpers ---------- */
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const raw = (t, a, b) => clamp((t - a) / (b - a));
+const io = x => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+const out = x => 1 - Math.pow(1 - x, 3);
+const back = x => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2); };
+const lerp = (a, b, p) => a + (b - a) * p;
+const pulse = (t, at, d = .7) => { const p = raw(t, at, at + d); return p > 0 && p < 1 ? Math.sin(Math.PI * p) : 0; };
+const v = n => `var(${n})`;
+const frac = x => x - Math.floor(x);
+const rnd = i => frac(Math.sin(i * 91.7 + 3.3) * 43758.5453);
+function el(tag, attrs = {}, parent = svg, style = {}) {
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  Object.assign(e.style, style);
+  parent.appendChild(e);
+  return e;
+}
+function txt(parent, x, y, s, size, style = {}, anchor = "start", bold = false) {
+  const e = el("text", { x, y, "font-size": size, "text-anchor": anchor }, parent, Object.assign({ fontWeight: bold ? 700 : 400 }, style));
+  e.textContent = s; return e;
+}
+const halo = { stroke: v("--card"), strokeWidth: 4, paintOrder: "stroke", strokeLinejoin: "round" };
+function chipG(parent, label, color, w0) {
+  const g = el("g", {}, parent);
+  const w = w0 || label.length * 7.2 + 26;
+  const r = el("rect", { x: -w / 2, y: -13, width: w, height: 26, rx: 13 }, g, { fill: v(color) });
+  const tt = txt(g, 0, 5, label, 14, { fill: "#fff" }, "middle", true);
+  return Object.assign(g, { r, tt });
+}
+
+/* ---------- story ---------- */
+const STAGES = [
+  { t: 0,    name: "Untrusted inputs", cap: "An AI agent completes a task step by step with tools. Any content it reads, even the request itself, may hide an attacker's instructions, so nothing is trusted." },
+  { t: 5.2,  name: "Map the run",      cap: "A lightweight checker keeps a connected map of the run: what came before what, which tool answered which request, and where earlier information reappears." },
+  { t: 8.4,  name: "Set thresholds",   cap: "Its thresholds are set in advance on normal, harmless runs, so legitimate work is rarely interrupted." },
+  { t: 11.2, name: "Check each action", cap: "Before each action runs, the checker scores it from the path that led to it. The score only accumulates: once a warning appears, it stays." },
+  { t: 18.6, name: "Stop the harm",    cap: "The harmful step is judged by the path behind it, not by what the agent was told to do, and it is stopped just before it happens." },
+];
+
+/* ---------- 3D camera ---------- */
+const CX = 378, CY = 296, SC = 1.0, F = 1100, PHI = .5, cph = Math.cos(PHI), sph = Math.sin(PHI);
+let cth = 1, sth = 0;
+function P(X, Y, Z) {
+  const xr = X * cth + Z * sth, zr = -X * sth + Z * cth;
+  const zz = zr * cph + Y * sph, k = F / (F - zz);
+  return [CX + xr * k * SC, CY + (zr * sph - Y * cph) * k * SC, k * SC, zz];
+}
+const poly = pts => "M " + pts.map(q => q[0].toFixed(1) + " " + q[1].toFixed(1)).join(" L ") + " Z";
+
+/* ---------- run data ---------- */
+const STEPS = [
+  { x: -312, label: "your request", icon: "user" },
+  { x: -208, label: "read inbox",    icon: "mail", tool: true, at: 1.4 },
+  { x: -104, label: "open bill.pdf", icon: "doc",  tool: true, at: 2.9 },
+  { x: 0,    label: "check account", icon: "bank", tool: true, at: 4.2 },
+  { x: 104,  label: "pay bill",      icon: "card", tool: true, prop: 11.4, decide: 13.0, kind: "allow",  score: .12, from: [[2, 4], [3, 4]] },
+  { x: 208,  label: "share file",    icon: "share", tool: true, prop: 14.3, decide: 15.9, kind: "review", score: .48, from: [[1, 5]] },
+  { x: 312,  label: "send message",  icon: "send", tool: true, prop: 18.8, decide: 21.0, kind: "block",  score: .86, from: [[3, 6], [1, 6]] },
+];
+const REUSE_EARLY = [[1, 2]];
+const TH = { review: .35, block: .7 };
+const KC = { allow: "--green", review: "--amber", block: "--red" };
+const KS = { allow: "--green-soft", review: "--amber-soft", block: "--red-soft" };
+const KL = { allow: "allow", review: "review", block: "blocked" };
+const AG = [[.5, 0], [.8, 1], [2.3, 2], [3.6, 3], [13.6, 4], [17.4, 5]];
+
+/* ---------- layers + defs ---------- */
+const defs = el("defs");
+const root = el("g");
+const L = {};
+["sky", "floor", "order", "obj", "arcs", "fx", "hud", "panels"].forEach(k => L[k] = el("g", {}, root));
+function lgrad(id, stops) {
+  const g = el("linearGradient", { id, x1: 0, y1: 0, x2: 0, y2: 1 }, defs);
+  stops.forEach(([o, c, op]) => el("stop", { offset: o }, g, { stopColor: v(c), stopOpacity: op }));
+}
+lgrad("skyG", [[0, "--sky", 1], [1, "--card", 1]]);
+lgrad("beam", [[0, "--blue", 0], [.5, "--blue", .35], [1, "--blue", 0]]);
+{ const g = el("radialGradient", { id: "floorG", cx: "50%", cy: "50%", r: "60%" }, defs);
+  el("stop", { offset: 0 }, g, { stopColor: v("--floor-c") }); el("stop", { offset: 1 }, g, { stopColor: v("--floor") }); }
+function rgrad(id, c) {
+  const g = el("radialGradient", { id, cx: "35%", cy: "30%", r: "80%" }, defs);
+  el("stop", { offset: "0" }, g, { stopColor: "#fff", stopOpacity: .9 });
+  el("stop", { offset: "0.35" }, g, { stopColor: v(c) });
+  el("stop", { offset: "1" }, g, { stopColor: v(c) });
+}
+["blue", "green", "amber", "red", "orange", "cyan"].forEach(c => rgrad("g-" + c, "--" + c));
+const sh = el("filter", { id: "sh", x: "-20%", y: "-20%", width: "140%", height: "150%" }, defs);
+el("feDropShadow", { dx: 0, dy: 6, stdDeviation: 6, "flood-color": "#0a0f24", "flood-opacity": .18 }, sh);
+el("rect", { x: 0, y: 0, width: 800, height: 480 }, L.sky, { fill: "url(#skyG)" });
+const floorP = el("path", {}, L.floor, { fill: "url(#floorG)", stroke: v("--line"), strokeWidth: 1.5 });
+
+/* ---------- icons (white line icons, local) ---------- */
+function icon(g, kind, color = "#fff") {
+  const s = { fill: "none", stroke: color, strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round" };
+  if (kind === "user") { el("circle", { cx: 0, cy: -3, r: 3.6 }, g, s); el("path", { d: "M -6.5 6 A 6.5 5.5 0 0 1 6.5 6" }, g, s); }
+  if (kind === "mail") { el("rect", { x: -8, y: -6, width: 16, height: 12, rx: 2 }, g, s); el("path", { d: "M -8 -5 L 0 1 L 8 -5" }, g, s); }
+  if (kind === "doc") { el("path", { d: "M -6 -8 L 3 -8 L 6 -5 L 6 8 L -6 8 Z M -3 -2 L 3 -2 M -3 2 L 3 2" }, g, s); }
+  if (kind === "bank") { el("path", { d: "M -8 -2 L 0 -8 L 8 -2 Z M -6 -1 L -6 6 M -2 -1 L -2 6 M 2 -1 L 2 6 M 6 -1 L 6 6 M -8 7 L 8 7" }, g, s); }
+  if (kind === "card") { el("rect", { x: -8, y: -6, width: 16, height: 12, rx: 2 }, g, s); el("path", { d: "M -8 -2 L 8 -2 M -5 3 L -1 3" }, g, s); }
+  if (kind === "share") { [[-6, 0], [5, -6], [5, 6]].forEach(([x, y]) => el("circle", { cx: x, cy: y, r: 2.4 }, g, s)); el("path", { d: "M -4 -1 L 3 -5 M -4 1 L 3 5" }, g, s); }
+  if (kind === "send") { el("path", { d: "M -8 0 L 8 -7 L 3 8 L 0 2 Z M 0 2 L 8 -7" }, g, s); }
+}
+
+/* ---------- step blocks ---------- */
+function block(g, front, top, side, stroke) {
+  const W = 30, H = 22, D = 12;
+  const parts = {};
+  parts.side = el("path", { d: `M ${W} ${-H} L ${W + 10} ${-H - D} L ${W + 10} ${-D} L ${W} 0 Z` }, g, { fill: v(side) });
+  parts.top = el("path", { d: `M ${-W} ${-H} L ${-W + 10} ${-H - D} L ${W + 10} ${-H - D} L ${W} ${-H} Z` }, g, { fill: v(top), stroke: v(stroke), strokeWidth: 1.5, strokeLinejoin: "round" });
+  parts.front = el("rect", { x: -W, y: -H, width: 2 * W, height: H, rx: 3 }, g, { fill: v(front), stroke: v(stroke), strokeWidth: 1.5 });
+  return parts;
+}
+STEPS.forEach((s, i) => {
+  s.g = el("g", {}, L.obj);
+  s.halo = el("ellipse", { cx: 5, cy: -2, rx: 50, ry: 16 }, s.g, { fill: v("--blue"), opacity: 0 });
+  s.shadow = el("ellipse", { cx: 5, cy: 2, rx: 40, ry: 9 }, s.g, { fill: v("--fg"), opacity: .12 });
+  s.body = el("g", {}, s.g);
+  s.parts = block(s.body, "--blk-front", "--blk", "--blk-side", "--edge");
+  s.badge = el("g", { transform: "translate(0 -11)" }, s.body);
+  s.badgeC = el("circle", { r: 10 }, s.badge, { fill: i === 0 ? v("--ink") : v("--ink") });
+  icon(s.badge, s.icon);
+  s.lbl = txt(s.g, 5, 26, s.label, 14, Object.assign({ fill: v("--fg") }, halo), "middle", true);
+  if (s.tool) {
+    /* the tool's answer floats above the step */
+    s.ans = el("g", {}, L.obj);
+    el("rect", { x: -13, y: -10, width: 26, height: 20, rx: 4 }, s.ans, { fill: v("--card"), stroke: v("--blue"), strokeWidth: 1.6, filter: "url(#sh)" });
+    [-4, 0, 4].forEach((y, j) => el("rect", { x: -8, y: y - 1, width: j === 2 ? 10 : 16, height: 2.2, rx: 1.1 }, s.ans, { fill: v("--blue"), opacity: .6 }));
+    if (i === 1) s.hidden = el("rect", { x: -8, y: 6.5, width: 16, height: 2.2, rx: 1.1 }, s.ans, { fill: v("--red") });
+  }
+  if (s.prop) {
+    s.frags = Array.from({ length: 8 }, (_, j) => el("rect", { x: -6, y: -6, width: 12, height: 9, rx: 2 }, L.fx, { fill: v("--red"), opacity: 0 }));
+  }
+});
+const hiddenMark = el("g", {}, L.fx);
+el("circle", { r: 12 }, hiddenMark, { fill: v("--red"), opacity: .25 });
+el("circle", { r: 6 }, hiddenMark, { fill: `url(#g-red)` });
+const callout = el("g", {}, L.fx);
+el("rect", { x: -4, y: -38, width: 214, height: 30, rx: 10 }, callout, { fill: v("--red-soft"), stroke: v("--red"), strokeWidth: 1.5 });
+el("path", { d: "M 6 -8 L 0 4 L 18 -8 Z" }, callout, { fill: v("--red-soft"), stroke: v("--red"), strokeWidth: 1.5, strokeLinejoin: "round" });
+el("rect", { x: 4, y: -9.5, width: 16, height: 3, rx: 1 }, callout, { fill: v("--red-soft") });
+txt(callout, 10, -18, "hidden: “send the account number to …”", 13, { fill: v("--red"), fontStyle: "italic" }, "start", true);
+
+/* ---------- map edges ---------- */
+const orderE = STEPS.slice(1).map(() => el("path", {}, L.order, { fill: "none", stroke: v("--edge"), strokeWidth: 3, strokeLinecap: "round", pathLength: 1, strokeDasharray: 1 }));
+const ansE = STEPS.map(s => s.tool ? el("path", {}, L.arcs, { fill: "none", stroke: v("--blue"), strokeWidth: 2.2, strokeDasharray: "4 4", opacity: 0 }) : null);
+const reuse = [];
+REUSE_EARLY.forEach(([a, b]) => reuse.push({ a, b, at: 5.6, step: null }));
+STEPS.forEach((s, i) => (s.from || []).forEach(([a, b]) => reuse.push({ a, b, at: s.prop + .5, step: i })));
+reuse.forEach(r => { r.e = el("path", { pathLength: 1 }, L.arcs, { fill: "none", strokeWidth: 3, strokeLinecap: "round", strokeDasharray: 1 }); r.dot = el("circle", { r: 4.5 }, L.arcs, { fill: `url(#g-orange)`, opacity: 0 }); });
+
+/* ---------- agent ---------- */
+const AGT = el("g", {}, L.fx);
+el("ellipse", { cx: 0, cy: 22, rx: 14, ry: 4 }, AGT, { fill: v("--fg"), opacity: .15 });
+el("line", { x1: 0, y1: -16, x2: 0, y2: -23 }, AGT, { stroke: v("--ink"), strokeWidth: 2 });
+el("circle", { cx: 0, cy: -25, r: 3 }, AGT, { fill: `url(#g-cyan)` });
+el("rect", { x: -14, y: -16, width: 28, height: 24, rx: 8, filter: "url(#sh)" }, AGT, { fill: v("--ink") });
+const eyes = [-6, 6].map(x => el("rect", { x: x - 2.5, y: -8, width: 5, height: 7, rx: 2.5 }, AGT, { fill: v("--cyan") }));
+el("rect", { x: -9, y: 10, width: 18, height: 8, rx: 3 }, AGT, { fill: v("--ink") });
+
+/* ---------- checker gate ---------- */
+const GATE = el("g", {}, L.obj);
+const gHalo = el("ellipse", { cx: 5, cy: -2, rx: 56, ry: 16 }, GATE, { fill: v("--blue"), opacity: .2 });
+const gPill = [-40, 40].map(x => el("rect", { x: x - 5, y: -86, width: 10, height: 86, rx: 3 }, GATE, { fill: v("--blue") }));
+const gTop = el("rect", { x: -46, y: -94, width: 92, height: 12, rx: 4 }, GATE, { fill: v("--blue") });
+const gBeam = el("rect", { x: -35, y: -60, width: 70, height: 26 }, GATE, { fill: "url(#beam)" });
+const gBars = [-20, 0, 20].map(x => el("rect", { x: x - 3, y: -82, width: 6, height: 0, rx: 2 }, GATE, { fill: v("--red") }));
+const gShield = el("g", { transform: "translate(0 -88)" }, GATE);
+el("path", { d: "M 0 -9 L 8 -6 L 8 0 C 8 5 4 8 0 10 C -4 8 -8 5 -8 0 L -8 -6 Z" }, gShield, { fill: "#fff" });
+
+const gChip = chipG(L.fx, "", "--green", 92);
+
+/* ---------- HUD legend ---------- */
+const LEG = el("g", { transform: "translate(22 22)" }, L.hud);
+[["order", "--edge", false], ["tool answer", "--blue", true], ["info reused", "--orange", false]].forEach(([s, c, dash], i) => {
+  const g = el("g", { transform: `translate(${[0, 80, 186][i]} 0)` }, LEG);
+  el("rect", { x: 0, y: -12, width: [72, 98, 104][i], height: 26, rx: 13 }, g, { fill: v("--card"), stroke: v("--line"), filter: "url(#sh)" });
+  el("line", { x1: 10, y1: 1, x2: 26, y2: 1 }, g, { stroke: v(c), strokeWidth: 3, strokeDasharray: dash ? "4 3" : "none", strokeLinecap: "round" });
+  txt(g, 32, 5.5, s, 13.5, { fill: v("--fg") }, "start", true);
+});
+
+/* ---------- risk meter ---------- */
+const MG = el("g", { transform: "translate(808 20)" }, L.panels);
+el("rect", { x: 0, y: 0, width: 292, height: 272, rx: 16, filter: "url(#sh)" }, MG, { fill: v("--panel"), stroke: v("--line"), strokeWidth: 1.5 });
+txt(MG, 16, 28, "Risk score", 16, { fill: v("--fg") }, "start", true);
+txt(MG, 16, 46, "only goes up", 13, { fill: v("--muted") });
+const TX0 = 40, TW = 34, TY0 = 72, TH_ = 170, TB = TY0 + TH_;
+const yOf = s => TB - TH_ * s;
+el("rect", { x: TX0, y: TY0, width: TW, height: TH_ }, MG, { fill: v("--line") });
+el("ellipse", { cx: TX0 + TW / 2, cy: TB, rx: TW / 2, ry: 6 }, MG, { fill: v("--line") });
+const mFill = el("rect", { x: TX0, width: TW }, MG, { fill: v("--green") });
+const mBot = el("ellipse", { cx: TX0 + TW / 2, cy: TB, rx: TW / 2, ry: 6 }, MG, { fill: v("--green") });
+const mTop = el("ellipse", { cx: TX0 + TW / 2, rx: TW / 2, ry: 6 }, MG, { fill: v("--green") });
+const mTopH = el("ellipse", { cx: TX0 + TW / 2, rx: TW / 2, ry: 6 }, MG, { fill: "#fff", opacity: .35 });
+el("rect", { x: TX0 + 5, y: TY0 + 4, width: 6, height: TH_ - 8, rx: 3 }, MG, { fill: "#fff", opacity: .3 });
+el("ellipse", { cx: TX0 + TW / 2, cy: TY0, rx: TW / 2, ry: 6 }, MG, { fill: "none", stroke: v("--edge"), strokeWidth: 1.2 });
+const ths = [["review", TH.review, "--amber"], ["block", TH.block, "--red"]].map(([n, val, c]) => {
+  const g = el("g", {}, MG);
+  el("line", { x1: TX0 - 6, x2: 132, y1: 0, y2: 0 }, g, { stroke: v(c), strokeWidth: 2, strokeDasharray: "5 4" });
+  txt(g, 136, 4.5, n, 13.5, { fill: v(c) }, "start", true);
+  return { g, val };
+});
+const runsLbl = txt(MG, 16, TB + 24, "dots: harmless runs that set the thresholds", 12.5, { fill: v("--muted") });
+const runs = Array.from({ length: 14 }, (_, i) => el("circle", { cx: 86 + (i % 7) * 6.5, r: 3.2 }, MG, { fill: v("--edge"), opacity: 0 }));
+const runVals = runs.map((_, i) => .03 + .24 * rnd(i + 11));
+const setTag = el("g", {}, MG);
+el("rect", { x: 0, y: -11, width: 136, height: 22, rx: 11 }, setTag, { fill: v("--card"), stroke: v("--line") });
+txt(setTag, 68, 4, "set on harmless runs", 12.5, { fill: v("--fg") }, "middle", true);
+const scoreT = txt(MG, 234, 104, "0.00", 34, { fill: v("--green") }, "middle", true);
+const decChip = chipG(MG, "", "--green", 86);
+
+/* ---------- decision log ---------- */
+const DG = el("g", { transform: "translate(808 306)" }, L.panels);
+el("rect", { x: 0, y: 0, width: 292, height: 164, rx: 16, filter: "url(#sh)" }, DG, { fill: v("--panel"), stroke: v("--line"), strokeWidth: 1.5 });
+txt(DG, 16, 28, "Checker decisions", 16, { fill: v("--fg") }, "start", true);
+const logRows = STEPS.filter(s => s.prop).map((s, i) => {
+  const g = el("g", { transform: `translate(0 ${60 + i * 36})` }, DG);
+  const ic = el("g", { transform: "translate(30 0)" }, g);
+  el("circle", { r: 12 }, ic, { fill: v("--ink") }); icon(ic, s.icon);
+  txt(g, 52, 5, s.label, 15, { fill: v("--fg") });
+  const c = chipG(g, KL[s.kind], KC[s.kind], 86);
+  c.setAttribute("transform", "translate(226 0)");
+  return { g, s };
+});
+
+/* ---------- act 1: the problem ---------- */
+const CAM = { t: 0 };
+const PL = 13.6, SKIP = 5.2;
+const PSTAGES = [
+  { t: 0,    name: "Agents act",   cap: "AI agents act on a user's behalf: reading files, checking accounts, sending messages and moving money." },
+  { t: 2.0,  name: "Redirected",   cap: "Instructions hidden in what they read can quietly redirect them toward an attacker's goal." },
+  { t: 5.0,  name: "Weak guards",  cap: "Existing guards trust the user's request, which fails when the request is the attack, or ask another AI to judge, which the same hidden instruction can fool." },
+  { t: 9.4,  name: "Harm done",    cap: "The harmful step goes through. Neither guard says how often normal work will be wrongly stopped." },
+];
+const SROOT = tt => 1;
+const rootP = el("g");
+const ACT = [{ i: 4, at: 5.4, chk: 6.0 }, { i: 5, at: 6.6, chk: 7.2 }, { i: 6, at: 7.8, chk: 9.0 }];
+
+/* guard panel, where the risk meter and log sit later */
+const GP = el("g", { transform: "translate(808 20)" }, rootP);
+el("rect", { x: 0, y: 0, width: 292, height: 450, rx: 16, filter: "url(#sh)" }, GP, { fill: v("--panel"), stroke: v("--line"), strokeWidth: 1.5 });
+txt(GP, 16, 30, "Existing guards", 16, { fill: v("--fg") }, "start", true);
+const GX = [178, 248];
+const gIc = GX.map((x, j) => {
+  const g = el("g", { transform: `translate(${x} 70)` }, GP);
+  el("circle", { r: 15 }, g, { fill: v(j ? "--ink" : "--ink") });
+  if (j === 0) icon(g, "user");
+  else {
+    el("rect", { x: -8, y: -7, width: 16, height: 13, rx: 4 }, g, { fill: "none", stroke: "#fff", strokeWidth: 2 });
+    [-3.5, 3.5].forEach(dx => el("circle", { cx: dx, cy: -1, r: 1.8 }, g, { fill: v("--cyan") }));
+    el("line", { x1: 0, y1: -7, x2: 0, y2: -11 }, g, { stroke: "#fff", strokeWidth: 2 });
+  }
+  txt(GP, x, 104, j ? "AI judge" : "request", 13, { fill: v("--muted") }, "middle", true);
+  return g;
+});
+txt(GP, 16, 104, "action", 13, { fill: v("--muted") }, "start", true);
+el("line", { x1: 16, x2: 276, y1: 116, y2: 116 }, GP, { stroke: v("--line"), strokeWidth: 1.5 });
+const rowsP = ACT.map((a, r) => {
+  const s = STEPS[a.i], y = 150 + r * 50;
+  const g = el("g", {}, GP);
+  const ic = el("g", { transform: `translate(30 ${y})` }, g);
+  el("circle", { r: 12 }, ic, { fill: v("--ink") }); icon(ic, s.icon);
+  txt(g, 52, y + 5, s.label, 15, { fill: v("--fg") });
+  const ok = GX.map(x => {
+    const c = el("g", {}, GP);
+    el("circle", { r: 11 }, c, { fill: `url(#g-green)` });
+    el("path", { d: "M -4.5 0 L -1.3 3.2 L 5 -3.6" }, c, { fill: "none", stroke: "#fff", strokeWidth: 2.2, strokeLinecap: "round", strokeLinejoin: "round" });
+    return { c, x, y };
+  });
+  return { g, ok, y };
+});
+el("line", { x1: 16, x2: 276, y1: 300, y2: 300 }, GP, { stroke: v("--line"), strokeWidth: 1.5 });
+const noG = el("g", {}, GP);
+txt(noG, 16, 330, "false alarms on normal work", 13.5, { fill: v("--muted") }, "start", true);
+txt(noG, 16, 352, "no guarantee", 15, { fill: v("--amber") }, "start", true);
+const stampM = el("g", {}, GP);
+el("rect", { x: -74, y: -22, width: 148, height: 44, rx: 8 }, stampM, { fill: v("--card"), opacity: .94, stroke: v("--red"), strokeWidth: 3 });
+txt(stampM, 0, 9, "MISSED", 26, { fill: v("--red"), letterSpacing: ".08em" }, "middle", true);
+
+/* hidden instruction reaching the AI judge */
+const fool = el("g", {}, rootP);
+el("circle", { r: 11 }, fool, { fill: v("--red"), opacity: .25 });
+el("circle", { r: 6 }, fool, { fill: `url(#g-red)` });
+/* data leaving */
+const unk = chipG(rootP, "unknown address", "--red", 150);
+const leakD = el("g", {}, rootP);
+el("rect", { x: -16, y: -11, width: 32, height: 22, rx: 4 }, leakD, { fill: v("--card"), stroke: v("--red"), strokeWidth: 2 });
+el("path", { d: "M -16 -10 L 0 2 L 16 -10" }, leakD, { fill: "none", stroke: v("--red"), strokeWidth: 2 });
+txt(leakD, 0, 25, "acct #", 12, { fill: v("--red") }, "middle", true);
+
+function renderP(tt) {
+  rootP.style.opacity = tt < PL ? 1 - raw(tt, PL - .5, PL) : 0;
+  const fade = 1 - raw(tt, PL - .7, PL - .1);
+  L.panels.style.opacity = 1 - raw(tt, 4.6, 4.9) * fade;
+  GP.style.opacity = raw(tt, 4.9, 5.3);
+
+  /* the agent keeps acting; every action is approved */
+  ACT.forEach((a, r) => {
+    const s = STEPS[a.i];
+    const [x, y, k] = P(s.x, 0, 0);
+    const ap = raw(tt, a.at, a.at + .4) * fade;
+    s.g.setAttribute("transform", `translate(${x.toFixed(1)} ${y.toFixed(1)}) scale(${(k * (ap ? back(ap) : 0)).toFixed(3)})`);
+    s.g.style.opacity = clamp(ap * 2);
+    s.body.setAttribute("transform", "translate(0 0)"); s.body.style.opacity = 1;
+    const okd = tt >= a.chk, harm = a.i === 6 && tt >= 10.2;
+    const st = harm ? "block" : okd ? "allow" : null;
+    const f = st ? [KS[st], KS[st], KC[st]] : ["--blk-front", "--blk", "--edge"];
+    s.parts.front.style.fill = v(f[0]); s.parts.top.style.fill = v(f[1]);
+    s.parts.front.style.stroke = v(f[2]); s.parts.top.style.stroke = v(f[2]);
+    s.parts.front.style.strokeDasharray = st ? "none" : "4 3";
+    s.badgeC.style.fill = st ? v(KC[st]) : v("--ink");
+    s.halo.style.opacity = .35 * pulse(tt, a.at + .2, a.chk - a.at);
+    s.halo.style.fill = v("--blue");
+    if (s.ans) {
+      const show = a.i < 6 ? raw(tt, a.chk + .2, a.chk + .5) * fade : 0;
+      const [ax, ay, ak] = P(s.x, 92, 0);
+      s.ans.setAttribute("transform", `translate(${ax.toFixed(1)} ${(ay + 3 * Math.sin(tt * 2 + a.i)).toFixed(1)}) scale(${(ak * (show ? back(show) : 0)).toFixed(3)})`);
+      s.ans.style.opacity = show;
+    }
+    const e = orderE[a.i - 1], d = raw(tt, a.chk + .1, a.chk + .5) * fade;
+    e.style.strokeDashoffset = 1 - d; e.style.opacity = d > 0 ? .8 : 0;
+    rowsP[r].ok.forEach((o, j) => {
+      const q = raw(tt, a.chk + j * .15, a.chk + j * .15 + .3);
+      o.c.setAttribute("transform", `translate(${o.x} ${o.y}) scale(${q ? back(q).toFixed(3) : 0})`);
+      o.c.style.opacity = q;
+    });
+    rowsP[r].g.style.opacity = raw(tt, a.at, a.at + .3);
+  });
+
+  /* agent hops */
+  if (tt > 5.3) {
+    const H = [[5.4, 3, 4], [6.6, 4, 5], [7.8, 5, 6], [PL - .8, 6, 3]];
+    let from = 3, to = 3, p = 1;
+    H.forEach(([s0, a, b]) => { if (tt >= s0) { from = a; to = b; p = raw(tt, s0, s0 + (b < a ? .6 : .5)); } });
+    const xA = lerp(STEPS[from].x, STEPS[to].x, io(p)), hop = 40 * Math.sin(Math.PI * p);
+    const [ax, ay, ak] = P(xA - 8, 58 + hop + 3 * Math.sin(tt * 3), 22);
+    AGT.setAttribute("transform", `translate(${ax.toFixed(1)} ${ay.toFixed(1)}) scale(${ak.toFixed(3)})`);
+    const red = tt > 8.2 && tt < 12.5;
+    eyes.forEach(e => e.style.fill = red ? v("--red") : v("--cyan"));
+  }
+
+  /* the same hidden instruction reaches the AI judge */
+  const s1 = STEPS[1];
+  if (s1.ansPos) {
+    const q = raw(tt, 8.2, 8.9), A = [s1.ansPos[0] + 14, s1.ansPos[1] - 20], B = [808 + GX[1], 20 + 70];
+    const m = [(A[0] + B[0]) / 2, Math.min(A[1], B[1]) - 60];
+    const pt = qpt(A, m, B, io(q));
+    fool.setAttribute("transform", `translate(${pt[0].toFixed(1)} ${pt[1].toFixed(1)})`);
+    fool.style.opacity = q > 0 && q < 1 ? 1 : 0;
+    hiddenMark.setAttribute("transform", `translate(${A[0].toFixed(1)} ${A[1].toFixed(1)}) scale(${(1 + .3 * Math.sin(tt * 8)).toFixed(2)})`);
+    hiddenMark.style.opacity = raw(tt, 7.9, 8.2) * (1 - raw(tt, 10.6, 11.0));
+  }
+  if (tt > 4.4) callout.style.opacity = fade;
+  gIc[1].children[0].style.fill = pulse(tt, 8.85, .8) > .05 ? v("--red") : v("--ink");
+
+  /* data leaves */
+  const [sx, sy, sk] = P(STEPS[6].x, 40, 0);
+  const U = [700, 128];
+  const ua = raw(tt, 9.4, 9.7) * fade;
+  unk.setAttribute("transform", `translate(${U[0]} ${U[1]}) scale(${ua ? back(ua).toFixed(3) : 0})`);
+  unk.style.opacity = ua;
+  const lq = raw(tt, 9.6, 10.5);
+  const lp = qpt([sx, sy], [(sx + U[0]) / 2, Math.min(sy, U[1]) - 70], [U[0], U[1] + 26], io(lq));
+  leakD.setAttribute("transform", `translate(${lp[0].toFixed(1)} ${lp[1].toFixed(1)}) scale(${lerp(.8, 1, lq).toFixed(3)})`);
+  leakD.style.opacity = (lq > 0 ? 1 : 0) * fade;
+
+  const s = raw(tt, 10.6, 10.9);
+  stampM.style.opacity = s;
+  stampM.setAttribute("transform", `translate(206 ${(256 + 3 * pulse(tt, 10.88, .25)).toFixed(1)}) rotate(-8) scale(${lerp(1.8, 1, out(s)).toFixed(3)})`);
+  noG.style.opacity = raw(tt, 11.2, 11.6);
+}
+function resetP() { L.panels.style.opacity = 1; }
+
+
+/* ---------- acts + rail ---------- */
+const S0 = typeof SKIP === "number" ? SKIP : 0;
+const ACTS = [
+  { name: "The problem", color: "--red", stages: PSTAGES, off: 0, end: PL - .5 },
+  { name: "How the checker stops it", color: "--blue", stages: STAGES.filter(s => s.t >= S0).map(s => Object.assign({}, s, { t: s.t - S0 })), off: PL, end: PL + END - S0 },
+];
+const TOT = PL + LOOP - S0;
+const ALL = [];
+const actsEl = document.getElementById("acts");
+ACTS.forEach(A => {
+  const box = document.createElement("div");
+  box.className = "act"; box.style.setProperty("--c", `var(${A.color})`); box.style.flexGrow = A.stages.length;
+  const tab = document.createElement("button");
+  tab.className = "tab"; tab.type = "button"; tab.textContent = A.name;
+  tab.addEventListener("click", () => { t = A.off + .01; });
+  box.appendChild(tab);
+  const rl = document.createElement("div");
+  rl.className = "rail"; rl.style.gridTemplateColumns = `repeat(${A.stages.length}, minmax(0, 1fr))`;
+  box.appendChild(rl);
+  A.stages.forEach((s, i) => {
+    const g0 = A.off + s.t, g1 = i < A.stages.length - 1 ? A.off + A.stages[i + 1].t : A.end;
+    const b = document.createElement("button");
+    b.className = "step"; b.type = "button";
+    b.innerHTML = `<span class="bar"><i></i></span><span class="lbl"><b>${i + 1}</b><span class="txt">${s.name}</span></span>`;
+    b.setAttribute("aria-label", `${A.name}, step ${i + 1}: ${s.name}`);
+    b.addEventListener("click", () => { t = g0 + .01; });
+    rl.appendChild(b);
+    ALL.push({ t: g0, end: g1, cap: s.cap, b });
+  });
+  A.box = box; actsEl.appendChild(box);
+});
+const caption = document.getElementById("caption");
+function renderUI(tt) {
+  let si = 0; ALL.forEach((s, i) => { if (tt >= s.t) si = i; });
+  ALL.forEach((s, i) => { s.b.querySelector("i").style.width = (raw(tt, s.t, s.end) * 100) + "%"; s.b.classList.toggle("on", i === si); });
+  if (caption.dataset.i !== String(si)) { caption.dataset.i = si; caption.textContent = ALL[si].cap; }
+  ACTS[0].box.classList.toggle("on", tt < PL);
+  ACTS[1].box.classList.toggle("on", tt >= PL);
+}
+function render(tt) {
+  renderUI(tt);
+  if (typeof CAM === "object") CAM.t = tt;
+  if (tt < PL) { renderS(Math.min(tt, 4.6)); root.style.opacity = SROOT(tt); renderP(tt); }
+  else { rootP.style.opacity = 0; if (typeof resetP === "function") resetP(); renderS(tt - PL + S0); }
+}
+
+
+function arcD(a, b, lift) {
+  const mx = (a[0] + b[0]) / 2, my = Math.min(a[1], b[1]) - lift;
+  return { d: `M ${a[0].toFixed(1)} ${a[1].toFixed(1)} Q ${mx.toFixed(1)} ${my.toFixed(1)} ${b[0].toFixed(1)} ${b[1].toFixed(1)}`, mx, my };
+}
+function qpt(a, m, b, q) { return [(1 - q) * (1 - q) * a[0] + 2 * (1 - q) * q * m[0] + q * q * b[0], (1 - q) * (1 - q) * a[1] + 2 * (1 - q) * q * m[1] + q * q * b[1]]; }
+
+/* ---------- render ---------- */
+function renderS(t) {
+  root.style.opacity = 1 - raw(t, END, LOOP);
+
+  const th = .12 * Math.sin(2 * Math.PI * CAM.t / LOOP);
+  cth = Math.cos(th); sth = Math.sin(th);
+  floorP.setAttribute("d", poly([[-380, -130], [380, -130], [380, 130], [-380, 130]].map(([x, z]) => P(x, 0, z))));
+
+  /* current proposal, if any */
+  let cur = -1;
+  STEPS.forEach((s, i) => { if (s.prop && t >= s.prop - .1 && (i === 6 || t < STEPS[i + 1].prop - .1)) cur = i; });
+  const score = (() => { let sc = 0; STEPS.forEach(s => { if (s.prop) { const p = out(raw(t, s.decide - .4, s.decide)); if (p > 0) sc = Math.max(sc, lerp(sc, s.score, p)); } }); return sc; })();
+  const zoneCol = score >= TH.block ? "--red" : score >= TH.review ? "--amber" : "--green";
+
+  /* steps */
+  const objs = [];
+  STEPS.forEach((s, i) => {
+    const [x, y, k, zz] = P(s.x, 0, 0);
+    let a, lift = 0, op = 1, state = "done";
+    if (!s.prop) a = raw(t, i === 0 ? .2 : s.at - .3, i === 0 ? .6 : s.at + .1);
+    else {
+      a = raw(t, s.prop, s.prop + .4);
+      const settle = s.kind === "block" ? 0 : io(raw(t, s.decide + .2, s.decide + .7));
+      lift = 40 * (1 - settle);
+      op = t < s.decide ? .6 : 1;
+      state = t < s.decide ? "pending" : s.kind;
+      if (s.kind === "block") {
+        const br = raw(t, s.decide + .2, s.decide + .4);
+        op *= 1 - br;
+        s.frags.forEach((f, j) => {
+          const q = raw(t, s.decide + .2, s.decide + 1.3);
+          const ang = j / 8 * Math.PI * 2;
+          const [fx, fy] = P(s.x + 34 * q * Math.cos(ang), 40 + 50 * q - 140 * q * q, 30 * q * Math.sin(ang));
+          f.setAttribute("transform", `translate(${fx.toFixed(1)} ${fy.toFixed(1)}) rotate(${(q * 360 * (j % 2 ? 1 : -1)).toFixed(0)})`);
+          f.style.opacity = q > 0 && q < 1 ? 1 - q : 0;
+        });
+      }
+    }
+    const [lx, ly] = P(s.x, lift, 0);
+    s.g.setAttribute("transform", `translate(${x.toFixed(1)} ${y.toFixed(1)}) scale(${(k * (a ? back(a) : 0)).toFixed(3)})`);
+    s.body.setAttribute("transform", `translate(0 ${(ly - y) / k})`);
+    s.body.style.opacity = op;
+    s.g.style.opacity = clamp(a * 2);
+    const fills = state === "done" || state === "pending" ? ["--blk-front", "--blk", "--edge"] : [KS[state], KS[state], KC[state]];
+    s.parts.front.style.fill = v(fills[0]); s.parts.top.style.fill = v(fills[1]);
+    s.parts.front.style.stroke = v(fills[2]); s.parts.top.style.stroke = v(fills[2]);
+    s.parts.front.style.strokeDasharray = state === "pending" ? "4 3" : "none";
+    s.badgeC.style.fill = state === "done" || state === "pending" ? v("--ink") : v(KC[state]);
+    s.shadow.style.opacity = .12 * (1 - lift / 60);
+    /* scan halo while the checker evaluates this step */
+    s.halo.style.opacity = s.prop ? .35 * pulse(t, s.prop + .5, s.decide - s.prop - .3) : 0;
+    s.zz = zz; objs.push(s);
+    if (s.ans) {
+      const show = s.prop ? (s.kind === "block" ? 0 : raw(t, s.decide + .7, s.decide + 1.0)) : raw(t, s.at + .2, s.at + .5);
+      const [ax, ay, ak] = P(s.x, 92, 0);
+      s.ans.setAttribute("transform", `translate(${ax.toFixed(1)} ${(ay + 3 * Math.sin(t * 2 + i)).toFixed(1)}) scale(${(ak * (show ? back(show) : 0)).toFixed(3)})`);
+      s.ans.style.opacity = show;
+      s.ansPos = [ax, ay + 10 * ak];
+      const top = P(s.x, 34, 0);
+      ansE[i].setAttribute("d", `M ${top[0]} ${top[1]} L ${ax} ${ay + 10 * ak}`);
+      ansE[i].style.opacity = show * raw(t, 5.4, 5.8) * .9;
+      s.top = [top[0], top[1]];
+    } else { const top = P(s.x, 34, 0); s.top = [top[0], top[1]]; }
+  });
+
+  /* order edges */
+  orderE.forEach((e, j) => {
+    const a = P(STEPS[j].x + 34, 2, 0), b = P(STEPS[j + 1].x - 30, 2, 0);
+    e.setAttribute("d", `M ${a[0]} ${a[1]} L ${b[0]} ${b[1]}`);
+    const s = STEPS[j + 1];
+    const d = s.prop ? (s.kind === "block" ? 0 : raw(t, s.decide + .6, s.decide + 1.0)) : raw(t, s.at, s.at + .4);
+    e.style.strokeDashoffset = 1 - d;
+    e.style.opacity = d > 0 ? .8 : 0;
+  });
+
+  /* reuse arcs: where earlier information reappears */
+  reuse.forEach((r, j) => {
+    const A = STEPS[r.a].ansPos || STEPS[r.a].top, B = STEPS[r.b].prop ? P(STEPS[r.b].x, 56, 0) : STEPS[r.b].top;
+    const dist = Math.abs(STEPS[r.b].x - STEPS[r.a].x);
+    const { d, mx, my } = arcD(A, B, 40 + dist * .22);
+    r.e.setAttribute("d", d);
+    const p = raw(t, r.at, r.at + .6);
+    r.e.style.strokeDashoffset = 1 - io(p);
+    const s = r.step !== null ? STEPS[r.step] : null;
+    let col = "--orange", w = 3, op = p > 0 ? .85 : 0;
+    if (s && s.kind === "block" && t > s.prop + 1.0) { col = "--red"; w = 3 + 1.5 * pulse(t, s.prop + 1.0, 1.4); }
+    if (s && s.kind !== "block" && t > s.decide + 1.2) op = .55;
+    r.e.style.stroke = v(col); r.e.style.strokeWidth = w; r.e.style.opacity = op;
+    const ph = frac(t * .7 + j * .3);
+    const q = qpt(A, [mx, my], B, ph);
+    r.dot.setAttribute("cx", q[0]); r.dot.setAttribute("cy", q[1]);
+    r.dot.style.opacity = p >= 1 && (!s || t < s.decide + 1.5) ? .9 : 0;
+    r.dot.style.fill = col === "--red" ? `url(#g-red)` : `url(#g-orange)`;
+  });
+
+  /* hidden instruction */
+  const s1 = STEPS[1];
+  if (s1.ansPos) {
+    callout.setAttribute("transform", `translate(${(s1.ansPos[0] + 10).toFixed(1)} ${(s1.ansPos[1] - 18).toFixed(1)})`);
+    callout.style.opacity = raw(t, 2.0, 2.3) * (1 - raw(t, 4.4, 4.8));
+    hiddenMark.setAttribute("transform", `translate(${(s1.ansPos[0] + 14).toFixed(1)} ${(s1.ansPos[1] - 20).toFixed(1)}) scale(${(1 + .3 * Math.sin(t * 8)).toFixed(2)})`);
+    hiddenMark.style.opacity = raw(t, 19.6, 19.9) * (1 - raw(t, 24.8, 25.2));
+  }
+
+  /* gate */
+  {
+    let gi = cur >= 0 ? cur : 4;
+    const s = STEPS[gi];
+    const [x, y, k, zz] = P(s.x, 0, 0);
+    const a = cur >= 0 ? raw(t, s.prop, s.prop + .4) : 0;
+    const leave = s.kind === "block" ? 0 : raw(t, s.decide + .9, s.decide + 1.3);
+    GATE.setAttribute("transform", `translate(${x.toFixed(1)} ${y.toFixed(1)}) scale(${(k * (a ? back(a) : 0) * (1 - leave)).toFixed(3)})`);
+    GATE.style.opacity = a * (1 - leave);
+    const decided = t >= s.decide;
+    const col = decided ? KC[s.kind] : "--blue";
+    gPill.forEach(p => p.style.fill = v(col)); gTop.style.fill = v(col); gHalo.style.fill = v(col);
+    gHalo.style.opacity = .2 + .3 * pulse(t, s.decide, .8);
+    const scan = !decided && t > s.prop + .4;
+    gBeam.style.opacity = scan ? 1 : 0;
+    gBeam.setAttribute("y", -82 + 60 * frac(t * 1.4));
+    const close = s.kind === "block" ? out(raw(t, s.decide, s.decide + .3)) : 0;
+    gBars.forEach(b => b.setAttribute("height", 82 * close));
+    gChip.tt.textContent = decided ? KL[s.kind] : "checking…";
+    gChip.r.style.fill = v(decided ? KC[s.kind] : "--blue");
+    gChip.setAttribute("transform", `translate(${x.toFixed(1)} ${(y - 122 * k).toFixed(1)}) scale(${(Math.min(1, k) * (a ? 1 : 0)).toFixed(3)})`);
+    gChip.style.opacity = a * (1 - leave) * raw(t, s.prop + .4, s.prop + .6);
+    GATE.zz = zz + 1; if (a > 0) objs.push({ g: GATE, zz: zz + 1 });
+  }
+  objs.sort((a, b) => a.zz - b.zz).forEach(o => { L.obj.appendChild(o.g); if (o.ans) L.obj.appendChild(o.ans); });
+
+  /* agent hops along completed steps */
+  {
+    let from = 0, to = 0, p = 1;
+    for (let j = 0; j < AG.length; j++) {
+      if (t >= AG[j][0]) { from = j > 0 ? AG[j - 1][1] : 0; to = AG[j][1]; p = raw(t, AG[j][0], AG[j][0] + .5); }
+    }
+    const xA = lerp(STEPS[from].x, STEPS[to].x, io(p));
+    const hop = 40 * Math.sin(Math.PI * p);
+    const blocked = t > STEPS[6].decide;
+    const shake = blocked ? 3 * Math.sin(t * 30) * pulse(t, STEPS[6].decide + .1, .8) : 0;
+    const [ax, ay, ak] = P(xA - 8, 58 + hop + 3 * Math.sin(t * 3), 22);
+    AGT.setAttribute("transform", `translate(${(ax + shake).toFixed(1)} ${ay.toFixed(1)}) scale(${(ak * raw(t, .5, .8)).toFixed(3)})`);
+    AGT.style.opacity = raw(t, .5, .8);
+    const blink = frac(t * .4) < .04 ? .15 : 1;
+    eyes.forEach(e => { e.setAttribute("height", 7 * blink); e.style.fill = blocked && t < STEPS[6].decide + 1.4 ? v("--red") : v("--cyan"); });
+  }
+
+  /* HUD */
+  LEG.style.opacity = raw(t, 5.4, 5.9);
+
+  /* meter */
+  MG.style.opacity = .4 + .6 * raw(t, 8.4, 8.7);
+  const yS = yOf(score);
+  mFill.setAttribute("y", yS); mFill.setAttribute("height", TB - yS);
+  mTop.setAttribute("cy", yS); mTopH.setAttribute("cy", yS);
+  [mFill, mBot, mTop].forEach(e => e.style.fill = v(zoneCol));
+  mTop.style.opacity = mBot.style.opacity = mFill.style.opacity = score > .005 ? 1 : 0;
+  mTopH.style.opacity = score > .005 ? .35 : 0;
+  runs.forEach((r, i) => {
+    const q = raw(t, 8.7 + i * .1, 9.0 + i * .1);
+    r.setAttribute("cy", lerp(TY0, yOf(runVals[i]), out(q)));
+    r.style.opacity = q * (1 - .5 * raw(t, 11.0, 11.4));
+  });
+  runsLbl.style.opacity = raw(t, 8.7, 9.0) * (1 - .5 * raw(t, 11.0, 11.4));
+  ths.forEach((th, i) => {
+    const q = io(raw(t, 9.9 + i * .3, 10.6 + i * .3));
+    th.g.setAttribute("transform", `translate(0 ${lerp(TY0 - 10, yOf(th.val), q).toFixed(1)})`);
+    th.g.style.opacity = raw(t, 9.9 + i * .3, 10.1 + i * .3);
+  });
+  setTag.setAttribute("transform", `translate(${86} ${yOf(TH.block) - 30})`);
+  setTag.style.opacity = 0;
+  scoreT.textContent = score.toFixed(2);
+  scoreT.style.fill = v(zoneCol);
+  scoreT.style.opacity = raw(t, 11.2, 11.5);
+  let lastDec = null; STEPS.forEach(s => { if (s.prop && t >= s.decide) lastDec = s; });
+  if (cur >= 0 && t < STEPS[cur].decide) { decChip.tt.textContent = "checking…"; decChip.r.style.fill = v("--blue"); decChip.style.opacity = raw(t, STEPS[cur].prop + .4, STEPS[cur].prop + .6); }
+  else if (lastDec) { decChip.tt.textContent = KL[lastDec.kind]; decChip.r.style.fill = v(KC[lastDec.kind]); decChip.style.opacity = 1; }
+  else decChip.style.opacity = 0;
+  const dp = lastDec ? pulse(t, lastDec.decide, .5) : 0;
+  decChip.setAttribute("transform", `translate(234 140) scale(${(1 + .12 * dp).toFixed(3)})`);
+
+  /* decision log */
+  DG.style.opacity = .4 + .6 * raw(t, 11.2, 11.5);
+  logRows.forEach(r => {
+    const q = raw(t, r.s.decide + .1, r.s.decide + .4);
+    r.g.style.opacity = q;
+  });
+}
+
+/* ---------- playback ---------- */
+const playBtn = document.getElementById("play"), scrub = document.getElementById("scrub");
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+let t = reduce ? PL - S0 + 23 : 0.2, playing = !reduce, last = null, dragging = false;
+scrub.max = TOT;
+playBtn.textContent = playing ? "Pause" : "Play";
+playBtn.addEventListener("click", () => { playing = !playing; playBtn.textContent = playing ? "Pause" : "Play"; });
+document.getElementById("restart").addEventListener("click", () => { t = 0; });
+scrub.addEventListener("input", () => { t = +scrub.value; dragging = true; });
+scrub.addEventListener("change", () => { dragging = false; });
+function frame(now) {
+  if (last !== null && playing && !dragging) t = (t + (now - last) / 1000) % TOT;
+  last = now;
+  render(t);
+  if (!dragging) scrub.value = t;
+  requestAnimationFrame(frame);
+}
+render(t);
+requestAnimationFrame(frame);
+})();
+</script>
+
+<script>
+(function () {
+  if (window.self === window.top) return;
+  var last = 0;
+  function post() {
+    var h = Math.ceil(document.querySelector(".wrap").getBoundingClientRect().height);
+    if (h !== last) { last = h; parent.postMessage({ type: "anim-height", h: h }, "*"); }
+  }
+  new ResizeObserver(post).observe(document.body);
+  window.addEventListener("load", post);
+  /* start from the beginning when scrolled into view; pause when off screen */
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  var play = document.getElementById("play"), restart = document.getElementById("restart");
+  var seen = false, ours = false;
+  var playing = function () { return play.textContent.trim() === "Pause"; };
+  if (playing()) play.click();
+  new IntersectionObserver(function (es) {
+    es.forEach(function (e) {
+      if (e.isIntersecting) {
+        if (!seen) { seen = true; restart.click(); if (!playing()) play.click(); }
+        else if (ours && !playing()) play.click();
+        ours = false;
+      } else if (playing()) { play.click(); ours = true; }
+    });
+  }, { threshold: 0.35 }).observe(document.querySelector(".stage"));
+})();
+</script>
+</body>
+</html>

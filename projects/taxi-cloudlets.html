@@ -1,0 +1,719 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body { margin: 0; background: #1e2124; }
+html.embed .wrap { padding: 4px 0 8px !important; }
+html.embed .wrap > header { display: none; }
+</style>
+<script>if (window.self !== window.top) document.documentElement.classList.add("embed");</script>
+</head>
+<body>
+<title>Taxi Zone Forecasting</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Carlito:ital,wght@0,400;0,700;1,400&display=swap">
+<style>
+/* Layout: a night city in 3D on the left (taxis, links, servers, cloudlets); a forecast card and a three-lane race on the right.
+   Deliberately single-theme: the whole piece is set at night so taxis, links and towers can glow. */
+:root {
+  color-scheme: dark;
+  --bg: #1e2124; --fg: #f2f2f2; --muted: #aeb3ba; --card: #262a2f; --line: #41464d; --panel: #2b2f35;
+  --sky-top: #1a1d21; --sky-bot: #262a2f; --floor: #24282d; --floor-c: #2f353d; --road: #363b43; --dash: #5f6670;
+  --bld-front: #30353c; --bld-side: #24282e; --bld-top: #3e444d; --win: #d9a64e;
+  --taxi: #f0c445; --taxi-d: #b48d29; --lamp: #fff0b3; --glass: #1a1d21;
+  --cyan: #4aa8e0; --mint: #4bb578; --magenta: #c46bd6; --violet: #9a78e0; --amber: #c9973f; --red: #dc5a5a; --steel: #8f96a0;
+  --f-body: Calibri, Carlito, "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+body { background: var(--bg); color: var(--fg); font-family: var(--f-body); }
+.wrap { max-width: 1180px; margin: 0 auto; padding-block: 28px 36px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; flex-direction: column; gap: 18px; }
+.eyebrow { font: 700 13px/1 var(--f-body); letter-spacing: .1em; text-transform: uppercase; color: var(--amber); margin: 0 0 8px; }
+h1 { font: 700 clamp(28px, 4.2vw, 42px)/1.05 var(--f-body); margin: 0; text-wrap: balance; letter-spacing: -.01em; }
+
+.acts { display: flex; gap: 28px; }
+.act { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+.tab { appearance: none; border: 0; background: none; padding: 0; text-align: left; cursor: pointer; color: var(--muted);
+  font: 700 13px/1 var(--f-body); letter-spacing: .1em; text-transform: uppercase; display: flex; align-items: center; gap: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tab::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--line); flex: none; }
+.act.on .tab { color: var(--c); }
+.act.on .tab::before { background: var(--c); box-shadow: 0 0 0 4px color-mix(in srgb, var(--c) 25%, transparent); }
+.tab:focus-visible { outline: 2px solid var(--amber); outline-offset: 4px; border-radius: 4px; }
+.act.on .step .bar i { background: var(--c); }
+.act:not(.on) .step .bar i { background: var(--muted); }
+.rail { display: grid; gap: 8px; }
+.step { appearance: none; border: 0; background: none; padding: 0; text-align: left; cursor: pointer; color: var(--muted);
+  font: 400 14px/1.25 var(--f-body); display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.step .bar { height: 4px; border-radius: 4px; background: var(--line); overflow: hidden; }
+.step .bar i { display: block; height: 100%; width: 0; background: var(--amber); border-radius: 4px; }
+.step .lbl { display: flex; gap: 8px; align-items: baseline; }
+.step b { font: 700 13px var(--f-body); }
+.step.on { color: var(--fg); }
+.step:focus-visible { outline: 2px solid var(--amber); outline-offset: 4px; border-radius: 4px; }
+@media (max-width: 720px) { .step .txt { display: none; } }
+
+.caption { font: 400 clamp(17px, 2.3vw, 21px)/1.35 var(--f-body); min-height: 2.7em; margin: 0; max-width: 72ch; }
+.stage { overflow-x: auto; border-radius: 18px; background: var(--sky-bot); border: 1px solid var(--line); }
+svg { display: block; width: 100%; min-width: 660px; height: auto; font-family: var(--f-body); }
+
+.ctl { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.btn { appearance: none; border: 1px solid var(--line); background: var(--card); color: var(--fg); border-radius: 999px;
+  padding: 8px 16px; font: 700 14px var(--f-body); cursor: pointer; }
+.btn:hover { border-color: var(--muted); }
+.btn:focus-visible, #scrub:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+#scrub { flex: 1 1 200px; accent-color: var(--amber); min-width: 0; }
+</style>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Taxi demand and supply forecasting with GNNs</p>
+    <h1>How semi-decentralized cloudlets make citywide taxi forecasts about 10× faster</h1>
+  </header>
+
+  <div class="acts" id="acts"></div>
+  <p class="caption" id="caption" aria-live="polite"></p>
+
+  <div class="stage"><svg id="svg" viewBox="0 0 1120 480" role="img" aria-label="Animation in two parts, set in a 3D night city. Taxis form a changing network linked by shared roads, closeness and nearby destinations, and a GNN forecasts passengers and free taxis around each taxi. Three computation settings are compared: a centralized server overloads, decentralized taxi-to-taxi messaging piles up, and semi-decentralized cloudlets at cell towers, with borders adjusted to cut few links, finish about ten times faster in a three-lane race."></svg></div>
+
+  <div class="ctl">
+    <button class="btn" id="play" type="button">Pause</button>
+    <button class="btn" id="restart" type="button">Restart</button>
+    <input type="range" id="scrub" min="0" max="24.5" step="0.01" value="0" aria-label="Timeline">
+  </div>
+</div>
+
+<script>
+(() => {
+const NS = "http://www.w3.org/2000/svg";
+const svg = document.getElementById("svg");
+const LOOP = 24.5, END = 23.9;
+
+/* ---------- helpers ---------- */
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const raw = (t, a, b) => clamp((t - a) / (b - a));
+const io = x => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+const out = x => 1 - Math.pow(1 - x, 3);
+const back = x => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2); };
+const lerp = (a, b, p) => a + (b - a) * p;
+const pulse = (t, at, d = .7) => { const p = raw(t, at, at + d); return p > 0 && p < 1 ? Math.sin(Math.PI * p) : 0; };
+const vis = (t, a, b, f = .35) => raw(t, a, a + f) * (1 - raw(t, b - f, b));
+const v = n => `var(${n})`;
+const frac = x => x - Math.floor(x);
+const rnd = i => frac(Math.sin(i * 91.7 + 3.3) * 43758.5453);
+function el(tag, attrs = {}, parent = svg, style = {}) {
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  Object.assign(e.style, style);
+  parent.appendChild(e);
+  return e;
+}
+function txt(parent, x, y, s, size, style = {}, anchor = "start", bold = false) {
+  const e = el("text", { x, y, "font-size": size, "text-anchor": anchor }, parent, Object.assign({ fontWeight: bold ? 700 : 400 }, style));
+  e.textContent = s; return e;
+}
+const halo = { stroke: v("--sky-bot"), strokeWidth: 4, paintOrder: "stroke", strokeLinejoin: "round" };
+function chipG(parent, label, color, dark = true) {
+  const g = el("g", {}, parent);
+  const w = label.length * 7 + 26;
+  el("rect", { x: -w / 2, y: -13, width: w, height: 26, rx: 13 }, g, { fill: v(color), filter: "url(#glow)" });
+  txt(g, 0, 5, label, 14, { fill: dark ? "#0b0f1e" : "#fff" }, "middle", true);
+  return g;
+}
+
+/* ---------- story ---------- */
+const STAGES = [
+  { t: 0,    name: "Living network",     cap: "Every taxi is a node in a living network, linked by a shared road, by being close, or by heading to nearby destinations. Taxis move, enter and leave, so the network keeps changing." },
+  { t: 4.0,  name: "Forecast",           cap: "A graph neural network (GNN) reads the network and recent history to forecast, for every taxi, how many passengers and free taxis will be nearby. The question is where to run it." },
+  { t: 7.0,  name: "Centralized",        cap: "One central server: every taxi uploads, and a single machine builds the citywide graph and runs the GNN. It overloads." },
+  { t: 10.4, name: "Decentralized",      cap: "Fully decentralized: taxis exchange messages with neighbors in range and compute locally. Messages hop from taxi to taxi and pile up. Both extremes are too slow." },
+  { t: 13.6, name: "Semi-decentralized", cap: "Semi-decentralized cloudlets: the city is split into zones. Taxis report to a cloudlet at a nearby cell tower, which builds the local graph and runs the GNN. Borders shift so few links cross them." },
+  { t: 19.0, name: "About 10× faster",   cap: "Only taxis near zone borders need cloudlets to cooperate, so forecasts arrive about ten times faster than with either extreme." },
+];
+const T_CEN = [7.0, 10.7], T_P2P = [10.4, 13.8], T_ZON = 13.6, RACE = 19.4;
+
+/* ---------- 3D camera ---------- */
+const CX = 396, CY = 254, SC = .87, F = 1100, PHI = .62, cph = Math.cos(PHI), sph = Math.sin(PHI);
+let cth = 1, sth = 0;
+function P(X, Y, Z) {
+  const xr = X * cth + Z * sth, zr = -X * sth + Z * cth;
+  const zz = zr * cph + Y * sph, k = F / (F - zz);
+  return [CX + xr * k * SC, CY + (zr * sph - Y * cph) * k * SC, k * SC, zz, xr];
+}
+const poly = pts => "M " + pts.map(q => q[0].toFixed(1) + " " + q[1].toFixed(1)).join(" L ") + " Z";
+
+/* ---------- city data ---------- */
+const XR = [-240, -80, 80, 240], ZR = [-120, 0, 120];
+const XB = [-320, -240, -80, 80, 240, 320], ZB = [-200, -120, 0, 120, 200];
+const TOWERS = [[-175, -95], [175, -95], [-175, 95], [175, 95]];
+const BLD = [];
+for (let a = 0; a < 5; a++) for (let b = 0; b < 4; b++) {
+  const key = a * 7 + b, plaza = (a === 1 || a === 3) && (b === 1 || b === 2);
+  if (plaza || rnd(key) < .2) continue;
+  const x0 = XB[a] + 18, x1 = XB[a + 1] - 18, z0 = ZB[b] + 18, z1 = ZB[b + 1] - 18;
+  const parts = x1 - x0 > 100 ? 2 : 1;
+  for (let q = 0; q < parts; q++) {
+    const w = (x1 - x0 - (parts - 1) * 12) / parts;
+    BLD.push({ x0: x0 + q * (w + 12), x1: x0 + q * (w + 12) + w, z0, z1, h: 18 + 52 * rnd(key * 3 + q + 1), seed: key * 3 + q });
+  }
+}
+const TAXI = [];
+for (let i = 0; i < 18; i++) {
+  const h = i % 7 < 3;
+  const line = h ? ZR[i % 3] : XR[i % 4];
+  TAXI.push({ h, line, s0: rnd(i + 40) * 640, sp: (18 + 22 * rnd(i + 70)) * (rnd(i + 90) < .5 ? -1 : 1) });
+}
+const DEST = [[0, 9], [3, 14], [6, 11]];
+const HL = 4;
+const PINGS = [[-300, -66], [-150, 138], [26, -138], [150, 44], [296, -150], [104, 176], [-58, 66], [-210, -150]];
+function taxiAt(i, t) {
+  const tx = TAXI[i];
+  if (tx.h) { const x = ((tx.s0 + tx.sp * t) % 640 + 640) % 640 - 320; return { x, z: tx.line, f: clamp((320 - Math.abs(x)) / 40), road: "h" + tx.line, dx: Math.sign(tx.sp), dz: 0 }; }
+  const z = ((tx.s0 * .66 + tx.sp * t) % 400 + 400) % 400 - 200; return { x: tx.line, z, f: clamp((200 - Math.abs(z)) / 34), road: "v" + tx.line, dx: 0, dz: Math.sign(tx.sp) };
+}
+function network(pos) {
+  const E = [];
+  for (let i = 0; i < pos.length; i++) for (let j = i + 1; j < pos.length; j++) {
+    const a = pos[i], b = pos[j];
+    if (a.f < .2 || b.f < .2) continue;
+    const d = Math.hypot(a.x - b.x, a.z - b.z);
+    if (a.road === b.road && d < 170) E.push({ i, j, type: "road" });
+    else if (d < 105) E.push({ i, j, type: "near" });
+  }
+  DEST.forEach(([i, j]) => { if (pos[i].f > .2 && pos[j].f > .2) E.push({ i, j, type: "dest" }); });
+  return E;
+}
+const zoneOf = (p, bx, bz) => (p.x < bx ? 0 : 1) + (p.z < bz ? 0 : 2);
+function crossings(pos, E, bx, bz) { let n = 0; E.forEach(e => { if (zoneOf(pos[e.i], bx, bz) !== zoneOf(pos[e.j], bx, bz)) n++; }); return n; }
+const bestCache = new Map();
+function bestAt(tq) {
+  if (bestCache.has(tq)) return bestCache.get(tq);
+  const pos = TAXI.map((_, i) => taxiAt(i, tq * .9)), E = network(pos);
+  let best = [0, 0, crossings(pos, E, 0, 0)];
+  for (let bx = -150; bx <= 150; bx += 25) for (let bz = -90; bz <= 90; bz += 15) {
+    const n = crossings(pos, E, bx, bz);
+    if (n < best[2] || (n === best[2] && Math.abs(bx) + Math.abs(bz) < Math.abs(best[0]) + Math.abs(best[1]))) best = [bx, bz, n];
+  }
+  bestCache.set(tq, best);
+  return best;
+}
+function boundaryAt(t) {
+  if (t < 16.0) return [0, 0];
+  if (t < 17.4) { const b = bestAt(16); const p = io(raw(t, 16.0, 17.4)); return [b[0] * p, b[1] * p]; }
+  const q = Math.floor(t), a = bestAt(Math.max(16, q)), b = bestAt(q + 1), f = io(frac(t));
+  return [lerp(a[0], b[0], f), lerp(a[1], b[1], f)];
+}
+
+/* ---------- layers + defs ---------- */
+const defs = el("defs");
+const root = el("g");
+const L = {};
+["sky", "floor", "roads", "zones", "lights", "bld", "edges", "over", "obj", "fx", "hud", "panels"].forEach(k => L[k] = el("g", {}, root));
+function lgrad(id, stops, x2 = 0, y2 = 1) {
+  const g = el("linearGradient", { id, x1: 0, y1: 0, x2, y2 }, defs);
+  stops.forEach(([o, c, op]) => el("stop", { offset: o }, g, { stopColor: v(c), stopOpacity: op }));
+}
+lgrad("skyG", [[0, "--sky-top", 1], [1, "--sky-bot", 1]]);
+{ const g = el("radialGradient", { id: "floorG", cx: "50%", cy: "50%", r: "62%" }, defs);
+  el("stop", { offset: 0 }, g, { stopColor: v("--floor-c") }); el("stop", { offset: 1 }, g, { stopColor: v("--floor") }); }
+function rgrad(id, c, edgeOp = 1) {
+  const g = el("radialGradient", { id, cx: "35%", cy: "30%", r: "80%" }, defs);
+  el("stop", { offset: "0" }, g, { stopColor: "#ffffff", stopOpacity: .95 });
+  el("stop", { offset: "0.35" }, g, { stopColor: v(c) });
+  el("stop", { offset: "1" }, g, { stopColor: v(c), stopOpacity: edgeOp });
+}
+["cyan", "mint", "magenta", "violet", "amber", "red", "taxi"].forEach(c => rgrad("g-" + c, "--" + c));
+{ const g = el("radialGradient", { id: "pool", cx: "50%", cy: "50%", r: "50%" }, defs);
+  el("stop", { offset: 0 }, g, { stopColor: v("--lamp"), stopOpacity: .55 }); el("stop", { offset: 1 }, g, { stopColor: v("--lamp"), stopOpacity: 0 }); }
+{ const g = el("radialGradient", { id: "heat", cx: "50%", cy: "50%", r: "50%" }, defs);
+  el("stop", { offset: 0 }, g, { stopColor: v("--red"), stopOpacity: .8 }); el("stop", { offset: 1 }, g, { stopColor: v("--red"), stopOpacity: 0 }); }
+const glow = el("filter", { id: "glow", x: "-50%", y: "-50%", width: "200%", height: "200%" }, defs);
+el("feGaussianBlur", { stdDeviation: 2.6, result: "b" }, glow);
+const gm = el("feMerge", {}, glow); el("feMergeNode", { in: "b" }, gm); el("feMergeNode", { in: "SourceGraphic" }, gm);
+const sh = el("filter", { id: "sh", x: "-20%", y: "-20%", width: "140%", height: "150%" }, defs);
+el("feDropShadow", { dx: 0, dy: 6, stdDeviation: 7, "flood-color": "#000", "flood-opacity": .45 }, sh);
+el("rect", { x: 0, y: 0, width: 800, height: 480 }, L.sky, { fill: "url(#skyG)" });
+for (let i = 0; i < 40; i++) el("circle", { cx: rnd(i + 300) * 790, cy: rnd(i + 400) * 120, r: .6 + rnd(i + 500) * 1.1 }, L.sky, { fill: "#fff", opacity: .25 + .5 * rnd(i + 600) });
+L.edges.setAttribute("filter", "url(#glow)");
+L.over.setAttribute("filter", "url(#glow)");
+
+/* ---------- floor, roads, buildings ---------- */
+const floorP = el("path", {}, L.floor, { fill: "url(#floorG)", stroke: v("--line"), strokeWidth: 1.5 });
+const roads = [];
+XR.forEach(x => roads.push({ a: [x, -210], b: [x, 210] }));
+ZR.forEach(z => roads.push({ a: [-330, z], b: [330, z] }));
+roads.forEach(r => {
+  r.e = el("path", {}, L.roads, { fill: "none", stroke: v("--road"), strokeWidth: 14, strokeLinecap: "round" });
+  r.c = el("path", {}, L.roads, { fill: "none", stroke: v("--dash"), strokeWidth: 1.4, strokeDasharray: "6 8" });
+});
+BLD.forEach(b => {
+  b.g = el("g", {}, L.bld);
+  b.side = el("path", {}, b.g, { fill: v("--bld-side") });
+  b.front = el("path", {}, b.g, { fill: v("--bld-front") });
+  b.top = el("path", {}, b.g, { fill: v("--bld-top"), stroke: v("--bld-side"), strokeWidth: 1 });
+  b.wins = [0, 1, 2].map(() => el("path", {}, b.g, { fill: "none", stroke: v("--win"), strokeWidth: 2.6, strokeDasharray: "3 5" }));
+});
+
+/* ---------- zones ---------- */
+const ZC = ["--cyan", "--mint", "--violet", "--amber"];
+const zoneTiles = ZC.map(c => el("path", {}, L.zones, { fill: v(c), opacity: 0 }));
+const borders = [0, 1].map(() => el("path", {}, L.over, { fill: "none", stroke: "#dfe6ff", strokeWidth: 2.4, strokeDasharray: "9 7", opacity: 0 }));
+
+/* ---------- edges + overlays ---------- */
+const EC = { road: "--cyan", near: "--mint", dest: "--magenta" };
+const pool = Array.from({ length: 70 }, () => el("path", {}, L.edges, { fill: "none", strokeLinecap: "round" }));
+const ranges = Array.from({ length: 18 }, () => el("ellipse", {}, L.lights, { fill: v("--violet"), fillOpacity: .08, stroke: v("--violet"), strokeOpacity: .5, strokeWidth: 1.3, opacity: 0 }));
+const floodPool = Array.from({ length: 90 }, () => el("line", {}, L.over, { stroke: v("--violet"), strokeWidth: 1.3, opacity: 0 }));
+const floodDots = Array.from({ length: 70 }, () => el("circle", { r: 2.8 }, L.over, { fill: v("--violet"), opacity: 0 }));
+const upPool = Array.from({ length: 18 }, () => el("line", {}, L.over, { strokeWidth: 1.6, opacity: 0 }));
+const upDots = Array.from({ length: 18 }, () => el("circle", { r: 3.2 }, L.over, { opacity: 0 }));
+const tLinks = [[0, 1], [0, 2], [1, 3], [2, 3]].map(([a, b]) => ({ a, b, e: el("path", {}, L.over, { fill: "none", stroke: v("--red"), strokeWidth: 2.4, strokeDasharray: "6 6", opacity: 0 }), d: el("circle", { r: 4.2 }, L.over, { fill: "#fff", opacity: 0 }) }));
+const pings = PINGS.map(() => ({ a: el("ellipse", {}, L.lights, { fill: "none", stroke: v("--amber"), strokeWidth: 2, opacity: 0 }), b: el("ellipse", {}, L.lights, { fill: v("--amber"), opacity: 0 }) }));
+
+/* ---------- taxis ---------- */
+const TX = TAXI.map(() => {
+  const cone = el("path", {}, L.lights, { fill: "url(#pool)", opacity: 0 });
+  const g = el("g", {}, L.obj);
+  const ring = el("ellipse", { cx: 0, cy: -1, rx: 17, ry: 7 }, g, { fill: "none", strokeWidth: 2.5, opacity: 0, filter: "url(#glow)" });
+  el("ellipse", { cx: 0, cy: 1, rx: 15, ry: 5 }, g, { fill: v("--taxi"), opacity: .25, filter: "url(#glow)" });
+  el("rect", { x: -12, y: -9, width: 24, height: 8, rx: 3 }, g, { fill: v("--taxi-d") });
+  el("rect", { x: -12, y: -13, width: 24, height: 8, rx: 3 }, g, { fill: v("--taxi") });
+  el("rect", { x: -6.5, y: -19, width: 13, height: 7, rx: 2.5 }, g, { fill: v("--taxi") });
+  el("rect", { x: -5, y: -17.5, width: 10, height: 3.5, rx: 1.2 }, g, { fill: v("--glass") });
+  el("rect", { x: -3, y: -22.5, width: 6, height: 3.5, rx: 1 }, g, { fill: v("--lamp"), filter: "url(#glow)" });
+  const pips = el("g", {}, g);
+  el("circle", { cx: -5, cy: -31, r: 3.8 }, pips, { fill: `url(#g-amber)`, filter: "url(#glow)" });
+  el("circle", { cx: 5, cy: -31, r: 3.8 }, pips, { fill: `url(#g-cyan)`, filter: "url(#glow)" });
+  return { g, ring, pips, cone };
+});
+const hlBeam = el("path", {}, L.fx, { fill: v("--amber"), opacity: 0 });
+
+/* ---------- central server ---------- */
+const SRV = { g: el("g", {}, L.obj) };
+SRV.heat = el("ellipse", { cx: 0, cy: -40, rx: 70, ry: 60 }, SRV.g, { fill: "url(#heat)", opacity: 0 });
+el("path", { d: "M -22 -78 L -10 -86 L 32 -86 L 20 -78 Z" }, SRV.g, { fill: "#2f3a6e" });
+el("path", { d: "M 20 -78 L 32 -86 L 32 -8 L 20 0 Z" }, SRV.g, { fill: "#141a38" });
+el("rect", { x: -22, y: -78, width: 42, height: 78, rx: 2, filter: "url(#sh)" }, SRV.g, { fill: "#212a55" });
+SRV.leds = [0, 1, 2, 3, 4].map(i => { el("rect", { x: -16, y: -70 + i * 14, width: 30, height: 8, rx: 2 }, SRV.g, { fill: "#fff", opacity: .08 }); return el("circle", { cx: 8, cy: -66 + i * 14, r: 2.2 }, SRV.g, { fill: v("--mint"), filter: "url(#glow)" }); });
+SRV.alarm = el("circle", { cx: 5, cy: -92, r: 5 }, SRV.g, { fill: v("--red"), filter: "url(#glow)", opacity: 0 });
+SRV.smoke = [0, 1, 2, 3, 4].map(() => el("circle", { r: 8 }, SRV.g, { fill: "#8a93b8", opacity: 0 }));
+txt(SRV.g, 0, 22, "Central server", 15, Object.assign({ fill: v("--fg") }, halo), "middle", true);
+txt(SRV.g, 0, 38, "builds graph · runs GNN", 12.5, Object.assign({ fill: v("--muted") }, halo), "middle");
+const overChip = chipG(L.fx, "overloaded", "--red", false);
+const floodChip = chipG(L.fx, "messages hop and pile up", "--violet");
+function gnnTag(parent) {
+  const g = el("g", {}, parent);
+  el("rect", { x: -22, y: -10, width: 44, height: 20, rx: 10 }, g, { fill: "#0b0f1e", stroke: v("--amber"), strokeWidth: 1.5 });
+  txt(g, 0, 4.5, "GNN", 12, { fill: v("--amber") }, "middle", true);
+  return g;
+}
+const srvTag = gnnTag(L.fx);
+
+/* ---------- cloudlets at cell towers ---------- */
+const TW = TOWERS.map((pos, i) => {
+  const g = el("g", {}, L.obj);
+  const glowE = el("ellipse", { cx: 0, cy: 0, rx: 34, ry: 12 }, g, { fill: v(ZC[i]), opacity: .3, filter: "url(#glow)" });
+  const mast = el("g", { fill: "none", stroke: v(ZC[i]), "stroke-width": 2.4, "stroke-linecap": "round" }, g);
+  el("path", { d: "M -9 -10 L 0 -64 L 9 -10 M -6 -28 L 6 -28 M -4 -44 L 4 -44 M -7 -28 L 5 -44 M 7 -28 L -5 -44" }, mast);
+  el("circle", { cx: 0, cy: -64, r: 3.6 }, g, { fill: v(ZC[i]), filter: "url(#glow)" });
+  el("path", { d: "M -16 -12 L -8 -18 L 24 -18 L 16 -12 Z" }, g, { fill: v(ZC[i]), opacity: .9 });
+  el("path", { d: "M 16 -12 L 24 -18 L 24 -4 L 16 2 Z" }, g, { fill: v(ZC[i]), opacity: .55 });
+  el("rect", { x: -16, y: -12, width: 32, height: 14, rx: 2 }, g, { fill: v(ZC[i]) });
+  el("circle", { cx: -9, cy: -5, r: 1.8 }, g, { fill: "#0b0f1e" });
+  el("rect", { x: -4, y: -7, width: 14, height: 3, rx: 1 }, g, { fill: "#0b0f1e", opacity: .6 });
+  const waves = [0, 1].map(() => el("ellipse", { cx: 0, cy: -64 }, g, { fill: "none", stroke: v(ZC[i]), strokeWidth: 2, opacity: 0 }));
+  const tag = gnnTag(L.fx);
+  return { g, glowE, waves, tag, pos };
+});
+const towerLbl = txt(L.fx, 0, 0, "cloudlet at a cell tower", 13.5, Object.assign({ fill: v("--fg") }, halo), "middle", true);
+
+/* ---------- HUD ---------- */
+const LEG = el("g", { transform: "translate(22 22)" }, L.hud);
+const legItems = [["same road", "--cyan", false], ["close by", "--mint", false], ["nearby destination", "--magenta", true]].map(([s, c, dash], i) => {
+  const g = el("g", { transform: `translate(${[0, 102, 192][i]} 0)` }, LEG);
+  el("rect", { x: 0, y: -12, width: [94, 82, 150][i], height: 26, rx: 13 }, g, { fill: v("--card"), stroke: v("--line") });
+  el("line", { x1: 10, y1: 1, x2: 28, y2: 1 }, g, { stroke: v(c), strokeWidth: 3, strokeDasharray: dash ? "4 3" : "none", strokeLinecap: "round" });
+  txt(g, 34, 5.5, s, 13.5, { fill: v("--fg") }, "start", true);
+  return g;
+});
+const CNT = el("g", { transform: "translate(22 22)" }, L.hud);
+el("rect", { x: 0, y: -13, width: 200, height: 28, rx: 14 }, CNT, { fill: v("--card"), stroke: v("--line") });
+el("line", { x1: 12, y1: 1, x2: 30, y2: 1 }, CNT, { stroke: v("--red"), strokeWidth: 3, strokeLinecap: "round" });
+const cntT = txt(CNT, 38, 6, "", 14, { fill: v("--fg") }, "start", true);
+
+/* ---------- panel: forecast ---------- */
+const FG = el("g", { transform: "translate(808 20)" }, L.panels);
+el("rect", { x: 0, y: 0, width: 292, height: 176, rx: 16, filter: "url(#sh)" }, FG, { fill: v("--panel"), stroke: v("--line"), strokeWidth: 1.5 });
+txt(FG, 16, 28, "Forecast around one taxi", 16, { fill: v("--fg") }, "start", true);
+txt(FG, 16, 46, "next 10 minutes", 13, { fill: v("--muted") });
+const frows = [["Passengers nearby", 4, "--amber"], ["Free taxis nearby", 1, "--cyan"]].map(([s, val, c], i) => {
+  const y = 80 + i * 44, g = el("g", {}, FG);
+  el("circle", { cx: 30, cy: y, r: 13 }, g, { fill: `url(#g-${c.slice(2)})`, filter: "url(#glow)" });
+  if (i === 0) { el("circle", { cx: 30, cy: y - 3.5, r: 3.6 }, g, { fill: "#0b0f1e" }); el("path", { d: `M 23.5 ${y + 7} A 6.5 5.5 0 0 1 36.5 ${y + 7}` }, g, { fill: "#0b0f1e" }); }
+  else { el("rect", { x: 23, y: y - 2, width: 14, height: 6, rx: 2 }, g, { fill: "#0b0f1e" }); el("rect", { x: 26, y: y - 6, width: 8, height: 5, rx: 1.5 }, g, { fill: "#0b0f1e" }); }
+  txt(g, 52, y + 5, s, 15, { fill: v("--fg") });
+  el("rect", { x: 186, y: y - 4, width: 64, height: 9, rx: 4.5 }, g, { fill: v("--line") });
+  const bar = el("rect", { x: 186, y: y - 4, width: 0, height: 9, rx: 4.5 }, g, { fill: v(c), filter: "url(#glow)" });
+  const n = txt(g, 274, y + 7, String(val), 22, { fill: v(c) }, "middle", true);
+  return { g, bar, n, val };
+});
+const fnote = txt(FG, 16, 162, "computed the same way for every taxi", 13, { fill: v("--muted") });
+
+/* ---------- panel: race ---------- */
+const RG = el("g", { transform: "translate(808 210)" }, L.panels);
+el("rect", { x: 0, y: 0, width: 292, height: 260, rx: 16, filter: "url(#sh)" }, RG, { fill: v("--panel"), stroke: v("--line"), strokeWidth: 1.5 });
+txt(RG, 16, 28, "Race to update every forecast", 16, { fill: v("--fg") }, "start", true);
+const FIN = 262;
+for (let r = 0; r < 6; r++) for (let c = 0; c < 2; c++) el("rect", { x: FIN + c * 5, y: 56 + r * 30, width: 5, height: 5 }, RG, { fill: (r + c) % 2 ? "#fff" : "#0b0f1e", opacity: .7 });
+el("rect", { x: FIN, y: 56, width: 10, height: 180 }, RG, { fill: "none", stroke: v("--muted"), strokeWidth: 1 });
+const lanes = [["Centralized", "--steel"], ["Decentralized", "--violet"], ["Semi-decentralized", "--mint"]].map(([s, c], i) => {
+  const y = 92 + i * 60, g = el("g", {}, RG);
+  txt(g, 16, y - 26, s, 14, { fill: v("--fg") }, "start", true);
+  el("rect", { x: 16, y: y - 5, width: FIN - 20, height: 10, rx: 5 }, g, { fill: v("--line") });
+  const fill = el("rect", { x: 16, y: y - 5, width: 0, height: 10, rx: 5 }, g, { fill: v(c), filter: "url(#glow)" });
+  const car = el("g", {}, g);
+  el("rect", { x: -12, y: -9, width: 24, height: 8, rx: 3 }, car, { fill: v("--taxi-d") });
+  el("rect", { x: -12, y: -13, width: 24, height: 8, rx: 3 }, car, { fill: v("--taxi") });
+  el("rect", { x: -6.5, y: -19, width: 13, height: 7, rx: 2.5 }, car, { fill: v("--taxi") });
+  el("rect", { x: -5, y: -17.5, width: 10, height: 3.5, rx: 1.2 }, car, { fill: v("--glass") });
+  const status = txt(g, FIN - 8, y - 26, "", 12.5, { fill: v("--muted") }, "end");
+  return { g, fill, car, status, y, c };
+});
+const fast = chipG(RG, "≈10× faster", "--mint");
+
+/* ---------- acts + rail ---------- */
+const SPLIT = T_ZON;
+const ACTS = [
+  { name: "The problem", color: "--red", stages: STAGES.filter(s => s.t < SPLIT), end: SPLIT },
+  { name: "How cloudlets solve it", color: "--mint", stages: STAGES.filter(s => s.t >= SPLIT), end: END },
+];
+const ALL = [];
+const actsEl = document.getElementById("acts");
+ACTS.forEach(A => {
+  const box = document.createElement("div");
+  box.className = "act"; box.style.setProperty("--c", v(A.color)); box.style.flexGrow = A.stages.length;
+  const tab = document.createElement("button");
+  tab.className = "tab"; tab.type = "button"; tab.textContent = A.name;
+  tab.addEventListener("click", () => { t = A.stages[0].t + .01; });
+  box.appendChild(tab);
+  const rail = document.createElement("div");
+  rail.className = "rail"; rail.style.gridTemplateColumns = `repeat(${A.stages.length}, minmax(0, 1fr))`;
+  box.appendChild(rail);
+  A.stages.forEach((s, i) => {
+    const g1 = i < A.stages.length - 1 ? A.stages[i + 1].t : A.end;
+    const b = document.createElement("button");
+    b.className = "step"; b.type = "button";
+    b.innerHTML = `<span class="bar"><i></i></span><span class="lbl"><b>${i + 1}</b><span class="txt">${s.name}</span></span>`;
+    b.setAttribute("aria-label", `${A.name}, step ${i + 1}: ${s.name}`);
+    b.addEventListener("click", () => { t = s.t + .01; });
+    rail.appendChild(b);
+    ALL.push({ t: s.t, end: g1, cap: s.cap, b });
+  });
+  A.box = box; actsEl.appendChild(box);
+});
+const caption = document.getElementById("caption");
+
+/* ---------- render ---------- */
+function render(t) {
+  root.style.opacity = 1 - raw(t, END, LOOP);
+  let si = 0; ALL.forEach((s, i) => { if (t >= s.t) si = i; });
+  ALL.forEach((s, i) => { s.b.querySelector("i").style.width = (raw(t, s.t, s.end) * 100) + "%"; s.b.classList.toggle("on", i === si); });
+  if (caption.dataset.i !== String(si)) { caption.dataset.i = si; caption.textContent = ALL[si].cap; }
+  ACTS[0].box.classList.toggle("on", t < SPLIT);
+  ACTS[1].box.classList.toggle("on", t >= SPLIT);
+
+  const th = .14 * Math.sin(2 * Math.PI * t / LOOP);
+  cth = Math.cos(th); sth = Math.sin(th);
+  const sim = t * .9;
+
+  /* floor and roads */
+  floorP.setAttribute("d", poly([[-345, -225], [345, -225], [345, 225], [-345, 225]].map(([x, z]) => P(x, 0, z))));
+  roads.forEach(r => { const a = P(r.a[0], 0, r.a[1]), b = P(r.b[0], 0, r.b[1]); const d = `M ${a[0]} ${a[1]} L ${b[0]} ${b[1]}`; r.e.setAttribute("d", d); r.c.setAttribute("d", d); });
+
+  /* buildings with lit windows */
+  BLD.forEach(b => {
+    const c = P;
+    b.top.setAttribute("d", poly([c(b.x0, b.h, b.z0), c(b.x1, b.h, b.z0), c(b.x1, b.h, b.z1), c(b.x0, b.h, b.z1)]));
+    b.front.setAttribute("d", poly([c(b.x0, 0, b.z1), c(b.x1, 0, b.z1), c(b.x1, b.h, b.z1), c(b.x0, b.h, b.z1)]));
+    const mid = c((b.x0 + b.x1) / 2, 0, (b.z0 + b.z1) / 2);
+    const sx = mid[4] > 0 ? b.x0 : b.x1;
+    b.side.setAttribute("d", poly([c(sx, 0, b.z0), c(sx, 0, b.z1), c(sx, b.h, b.z1), c(sx, b.h, b.z0)]));
+    b.wins.forEach((w, j) => {
+      const hy = b.h * (.25 + j * .25);
+      if (hy > b.h - 6) { w.style.opacity = 0; return; }
+      const w0 = c(b.x0 + 6, hy, b.z1), w1 = c(b.x1 - 6, hy, b.z1);
+      w.setAttribute("d", `M ${w0[0]} ${w0[1]} L ${w1[0]} ${w1[1]}`);
+      w.style.opacity = .35 + .5 * (rnd(b.seed * 5 + j + Math.floor(t * .7 + rnd(b.seed + j) * 3)) > .35 ? 1 : .15);
+    });
+    b.zz = mid[3];
+  });
+  BLD.slice().sort((a, b) => a.zz - b.zz).forEach(b => L.bld.appendChild(b.g));
+
+  /* taxis + network */
+  const pos = TAXI.map((_, i) => taxiAt(i, sim));
+  const E = network(pos);
+  const scr = pos.map(p => P(p.x, 0, p.z));
+  const eyes = pos.map(p => P(p.x, 10, p.z));
+  const inCen = vis(t, T_CEN[0], T_CEN[1]), inP2P = vis(t, T_P2P[0], T_P2P[1]), inZon = raw(t, T_ZON, T_ZON + .5);
+  const [bx, bz] = boundaryAt(t);
+  const showType = { road: raw(t, .6, 1.2), near: raw(t, 1.4, 2.0), dest: raw(t, 2.2, 2.8) };
+  let pi = 0, cross = 0;
+  E.forEach(e => {
+    if (pi >= pool.length) return;
+    const a = eyes[e.i], b = eyes[e.j];
+    const ln = pool[pi++];
+    let d;
+    if (e.type === "dest") { const mx = (a[0] + b[0]) / 2, my = Math.min(a[1], b[1]) - 26; d = `M ${a[0]} ${a[1]} Q ${mx} ${my} ${b[0]} ${b[1]}`; }
+    else d = `M ${a[0]} ${a[1]} L ${b[0]} ${b[1]}`;
+    ln.setAttribute("d", d);
+    const crossing = zoneOf(pos[e.i], bx, bz) !== zoneOf(pos[e.j], bx, bz);
+    if (crossing) cross++;
+    const fade = Math.min(pos[e.i].f, pos[e.j].f);
+    let op = showType[e.type] * fade * (1 - .75 * Math.max(inCen, inP2P));
+    let col = EC[e.type], w = e.type === "near" ? 1.8 : 2.2;
+    if (inZon > 0) { if (crossing && t > 15.0) { col = "--red"; w = 3; op = Math.max(op, fade * raw(t, 15.0, 15.4)); } else op *= lerp(1, .25, inZon); }
+    ln.style.stroke = v(col); ln.style.strokeWidth = w;
+    ln.style.strokeDasharray = e.type === "dest" ? "5 4" : "none";
+    ln.style.opacity = op;
+  });
+  for (; pi < pool.length; pi++) pool[pi].style.opacity = 0;
+
+  const objs = [];
+  TX.forEach((tx, i) => {
+    const [x, y, k, zz] = scr[i], p = pos[i];
+    tx.g.setAttribute("transform", `translate(${x.toFixed(1)} ${y.toFixed(1)}) scale(${(k * 1.15).toFixed(3)})`);
+    const show = p.f * raw(t, .1 + i * .03, .4 + i * .03);
+    tx.g.style.opacity = show;
+    const px = -p.dz, pz = p.dx;
+    const c0 = P(p.x + p.dx * 10 + px * 5, 0, p.z + p.dz * 10 + pz * 5), c1 = P(p.x + p.dx * 10 - px * 5, 0, p.z + p.dz * 10 - pz * 5);
+    const c2 = P(p.x + p.dx * 58 - px * 18, 0, p.z + p.dz * 58 - pz * 18), c3 = P(p.x + p.dx * 58 + px * 18, 0, p.z + p.dz * 58 + pz * 18);
+    tx.cone.setAttribute("d", poly([c0, c1, c2, c3]));
+    tx.cone.style.opacity = show * .9;
+    tx.pips.style.opacity = vis(t, 4.6 + i * .04, 7.2);
+    let ringOp = 0, ringCol = "--amber";
+    if (i === HL) ringOp = vis(t, 4.2, 7.2) * (.6 + .4 * Math.sin(t * 6));
+    if (inZon > 0) { ringOp = Math.max(ringOp, inZon * .9); ringCol = ZC[zoneOf(p, bx, bz)]; }
+    tx.ring.style.opacity = ringOp; tx.ring.style.stroke = v(ringCol);
+    tx.zz = zz; objs.push(tx);
+  });
+  { const p = scr[HL], hb = vis(t, 4.2, 7.2);
+    hlBeam.setAttribute("d", `M ${p[0] - 9} ${p[1] - 26} L ${p[0] + 9} ${p[1] - 26} L ${p[0] + 3} ${p[1] - 130} L ${p[0] - 3} ${p[1] - 130} Z`);
+    hlBeam.style.opacity = .3 * hb; }
+  /* passenger pings: where demand is about to appear */
+  pings.forEach((pg, i) => {
+    const [px, py, pk] = P(PINGS[i][0], 0, PINGS[i][1]);
+    const on = vis(t, 4.4 + i * .12, 7.4);
+    const ph = frac(t * .9 + i * .23);
+    pg.a.setAttribute("cx", px); pg.a.setAttribute("cy", py);
+    pg.a.setAttribute("rx", (6 + 22 * ph) * pk); pg.a.setAttribute("ry", (6 + 22 * ph) * pk * sph);
+    pg.a.style.opacity = on * (1 - ph);
+    pg.b.setAttribute("cx", px); pg.b.setAttribute("cy", py); pg.b.setAttribute("rx", 4 * pk); pg.b.setAttribute("ry", 4 * pk * sph);
+    pg.b.style.opacity = on;
+  });
+
+  /* centralized */
+  {
+    const [x0, y, k, zz] = P(0, 0, 0);
+    const a = raw(t, T_CEN[0], T_CEN[0] + .4) * (1 - raw(t, T_CEN[1] - .3, T_CEN[1]));
+    const heat = raw(t, 8.0, 9.6);
+    const x = x0 + Math.sin(t * 47) * 2.2 * heat;
+    SRV.g.setAttribute("transform", `translate(${x.toFixed(1)} ${y.toFixed(1)}) scale(${(k * (a ? .85 + .15 * back(a) : 0)).toFixed(3)})`);
+    SRV.g.style.opacity = a;
+    SRV.heat.style.opacity = heat * (.7 + .3 * Math.sin(t * 9));
+    SRV.alarm.style.opacity = heat > .3 ? (Math.sin(t * 14) > 0 ? 1 : .15) : 0;
+    SRV.leds.forEach((l, j) => { l.style.fill = heat > .5 ? v("--red") : v("--mint"); l.style.opacity = .4 + .6 * frac(t * 3 + j * .37); });
+    SRV.smoke.forEach((s2, j) => {
+      const ph = frac(t * .55 + j * .2);
+      s2.setAttribute("cx", 6 + 10 * Math.sin(ph * 5 + j)); s2.setAttribute("cy", -90 - 70 * ph); s2.setAttribute("r", 6 + 12 * ph);
+      s2.style.opacity = heat * .35 * (1 - ph);
+    });
+    SRV.zz = zz + 30; if (a > 0) objs.push(SRV);
+    const top = [x, y - 70 * k];
+    upPool.forEach((ln, i) => {
+      const p = eyes[i];
+      const tw = inZon > 0 && t > 14.5;
+      const z = zoneOf(pos[i], bx, bz);
+      const target = tw ? (() => { const tp = P(TOWERS[z][0], 0, TOWERS[z][1]); return [tp[0], tp[1] - 60 * tp[2]]; })() : top;
+      const op = tw ? raw(t, 14.5, 15.0) * pos[i].f : inCen * pos[i].f * raw(t, 7.3, 7.8);
+      ln.setAttribute("x1", p[0]); ln.setAttribute("y1", p[1]); ln.setAttribute("x2", target[0]); ln.setAttribute("y2", target[1]);
+      ln.style.opacity = op * (tw ? .5 : .45);
+      ln.style.stroke = tw ? v(ZC[z]) : v("--steel");
+      const d = upDots[i], back2 = tw && t > 18.2;
+      const q = frac(t * (tw ? .7 : 1.1) + i * .13);
+      const A = back2 ? target : p, B = back2 ? p : target;
+      d.setAttribute("cx", lerp(A[0], B[0], q)); d.setAttribute("cy", lerp(A[1], B[1], q));
+      d.style.fill = tw ? "#ffffff" : v("--steel");
+      d.style.opacity = tw ? (t > 18.2 ? op : 0) : (t > 7.6 ? op : 0);
+    });
+    overChip.style.opacity = raw(t, 9.0, 9.3) * (1 - raw(t, T_CEN[1] - .3, T_CEN[1]));
+    overChip.setAttribute("transform", `translate(${x.toFixed(1)} ${(y - 128 * k).toFixed(1)}) scale(${(1 + .06 * Math.sin(t * 10)).toFixed(3)})`);
+    srvTag.setAttribute("transform", `translate(${(x + 2).toFixed(1)} ${(y - 102 * k).toFixed(1)})`);
+    srvTag.style.opacity = a * (1 - raw(t, 9.0, 9.2));
+  }
+
+  /* decentralized */
+  {
+    let fi = 0;
+    for (let i = 0; i < pos.length && fi < floodPool.length; i++) for (let j = i + 1; j < pos.length && fi < floodPool.length; j++) {
+      if (pos[i].f < .3 || pos[j].f < .3) continue;
+      if (Math.hypot(pos[i].x - pos[j].x, pos[i].z - pos[j].z) > 190) continue;
+      const ln = floodPool[fi], a = eyes[i], b = eyes[j];
+      ln.setAttribute("x1", a[0]); ln.setAttribute("y1", a[1]); ln.setAttribute("x2", b[0]); ln.setAttribute("y2", b[1]);
+      ln.style.opacity = .5 * inP2P * raw(t, 10.6, 11.4);
+      if (fi < floodDots.length) {
+        const ph = frac(t * (.8 + rnd(fi) * .9) + rnd(fi + 5));
+        const dd = floodDots[fi];
+        dd.setAttribute("cx", lerp(a[0], b[0], ph)); dd.setAttribute("cy", lerp(a[1], b[1], ph));
+        dd.style.opacity = inP2P * raw(t, 10.9, 11.6) * (fi < floodDots.length * raw(t, 10.9, 12.6) ? 1 : 0);
+      }
+      fi++;
+    }
+    for (; fi < floodPool.length; fi++) { floodPool[fi].style.opacity = 0; if (fi < floodDots.length) floodDots[fi].style.opacity = 0; }
+    ranges.forEach((r, i) => {
+      const c = scr[i], rr = (88 + 8 * Math.sin(t * 3 + i)) * c[2];
+      r.setAttribute("cx", c[0]); r.setAttribute("cy", c[1]); r.setAttribute("rx", rr); r.setAttribute("ry", rr * sph);
+      r.style.opacity = inP2P * raw(t, 10.5, 11.0) * pos[i].f;
+    });
+    const c = P(0, 0, -40);
+    floodChip.setAttribute("transform", `translate(${c[0].toFixed(1)} ${(c[1] - 128).toFixed(1)})`);
+    floodChip.style.opacity = raw(t, 12.0, 12.3) * (1 - raw(t, T_P2P[1] - .3, T_P2P[1]));
+  }
+
+  /* semi-decentralized */
+  {
+    const rects = [[-345, -225, bx, bz], [bx, -225, 345, bz], [-345, bz, bx, 225], [bx, bz, 345, 225]];
+    zoneTiles.forEach((z, i) => {
+      const [x0, z0, x1, z1] = rects[i];
+      z.setAttribute("d", poly([[x0, z0], [x1, z0], [x1, z1], [x0, z1]].map(([x, zz]) => P(x, 1, zz))));
+      z.style.opacity = .13 * inZon;
+    });
+    const b1 = [P(bx, 2, -225), P(bx, 2, 225)], b2 = [P(-345, 2, bz), P(345, 2, bz)];
+    borders[0].setAttribute("d", `M ${b1[0][0]} ${b1[0][1]} L ${b1[1][0]} ${b1[1][1]}`);
+    borders[1].setAttribute("d", `M ${b2[0][0]} ${b2[0][1]} L ${b2[1][0]} ${b2[1][1]}`);
+    borders.forEach(b => { b.style.opacity = .7 * inZon; b.style.strokeWidth = 2.4 + 2.5 * pulse(t, 16.0, 1.4); b.style.strokeDashoffset = -t * 14; });
+    TW.forEach((tw, i) => {
+      const [x, y, k, zz] = P(tw.pos[0], 0, tw.pos[1]);
+      const a = raw(t, 14.0 + i * .12, 14.5 + i * .12);
+      tw.g.setAttribute("transform", `translate(${x.toFixed(1)} ${y.toFixed(1)}) scale(${(k * (a ? back(a) : 0)).toFixed(3)})`);
+      tw.g.style.opacity = a;
+      tw.glowE.setAttribute("rx", 34 + 6 * Math.sin(t * 3 + i));
+      tw.waves.forEach((wv, j) => { const ph = frac(t * .8 + j * .5 + i * .17); wv.setAttribute("rx", 6 + 30 * ph); wv.setAttribute("ry", 2 + 10 * ph); wv.style.opacity = (1 - ph) * .9 * raw(t, 14.6, 15.0); });
+      tw.zz = zz; if (a > 0) objs.push(tw);
+      tw.top = [x, y - 64 * k];
+      tw.tag.setAttribute("transform", `translate(${x.toFixed(1)} ${(y - 88 * k).toFixed(1)})`);
+      tw.tag.style.opacity = raw(t, 14.6 + i * .1, 14.9 + i * .1);
+    });
+    towerLbl.setAttribute("x", TW[2].top[0]); towerLbl.setAttribute("y", P(TOWERS[2][0], 0, TOWERS[2][1])[1] + 26);
+    towerLbl.style.opacity = raw(t, 14.6, 15.0) * (1 - raw(t, 18.6, 19.0));
+    tLinks.forEach((lk, j) => {
+      const A = TW[lk.a].top, B = TW[lk.b].top;
+      const mx = (A[0] + B[0]) / 2, my = Math.min(A[1], B[1]) - 30;
+      lk.e.setAttribute("d", `M ${A[0]} ${A[1]} Q ${mx} ${my} ${B[0]} ${B[1]}`);
+      lk.e.style.opacity = .75 * raw(t, 17.4, 17.9);
+      lk.e.style.strokeDashoffset = -t * 20;
+      const q = frac(t * .6 + j * .25);
+      lk.d.setAttribute("cx", (1 - q) * (1 - q) * A[0] + 2 * (1 - q) * q * mx + q * q * B[0]);
+      lk.d.setAttribute("cy", (1 - q) * (1 - q) * A[1] + 2 * (1 - q) * q * my + q * q * B[1]);
+      lk.d.style.opacity = raw(t, 17.6, 18.0);
+    });
+  }
+  objs.sort((a, b) => a.zz - b.zz).forEach(o => L.obj.appendChild(o.g));
+
+  /* HUD */
+  LEG.style.opacity = raw(t, .6, 1.0) * (1 - raw(t, T_ZON + .6, T_ZON + 1.0));
+  legItems.forEach((g, i) => g.style.opacity = [showType.road, showType.near, showType.dest][i]);
+  cntT.textContent = `links crossing zones: ${cross}`;
+  CNT.style.opacity = raw(t, 15.0, 15.4);
+
+  /* forecast panel */
+  FG.style.opacity = .4 + .6 * raw(t, 4.4, 4.8);
+  frows.forEach((r, i) => {
+    const q = out(raw(t, 4.8 + i * .4, 5.6 + i * .4));
+    r.bar.setAttribute("width", 64 * (r.val / 5) * q);
+    r.n.style.opacity = q;
+  });
+  fnote.style.opacity = raw(t, 5.8, 6.2);
+
+  /* race panel: each setting crawls in its own step, then all three race at the end */
+  RG.style.opacity = .4 + .6 * raw(t, 7.0, 7.3);
+  const W = FIN - 20;
+  const prog = [0, 0, 0];
+  if (t < RACE) {
+    prog[0] = t > 7.4 ? Math.min(.32, (t - 7.4) * .1) : 0;
+    prog[1] = t > 10.8 ? Math.min(.27, (t - 10.8) * .083) : 0;
+  } else {
+    prog[0] = Math.min(1, (t - RACE) * .1);
+    prog[1] = Math.min(1, (t - RACE) / 12);
+    prog[2] = out(raw(t, RACE, RACE + 1.0));
+  }
+  lanes.forEach((ln, i) => {
+    const shown = [7.0, 10.4, 13.6][i];
+    ln.g.style.opacity = raw(t, shown, shown + .3) * (t < RACE - .2 || t > RACE ? 1 : 1 - raw(t, RACE - .2, RACE));
+    ln.fill.setAttribute("width", W * prog[i]);
+    const bob = Math.abs(Math.sin(t * 18 + i)) * (prog[i] > 0 && prog[i] < 1 ? 1.4 : 0);
+    ln.car.setAttribute("transform", `translate(${16 + W * prog[i]} ${ln.y + 2 - bob}) scale(.85)`);
+    let st = "";
+    if (t >= shown) st = prog[i] >= 1 ? "done ✓" : (prog[i] > 0 ? "updating…" : "ready");
+    const slow = i < 2 && t >= 12.8 && t < RACE;
+    if (slow) st = "too slow";
+    ln.status.textContent = st;
+    ln.status.style.fill = prog[i] >= 1 ? v("--mint") : slow ? v("--red") : v("--muted");
+    ln.status.style.fontWeight = slow ? 700 : 400;
+  });
+  const fq = raw(t, RACE + 1.1, RACE + 1.5);
+  fast.style.opacity = fq;
+  fast.setAttribute("transform", `translate(176 ${lanes[2].y + 30}) scale(${fq ? back(fq).toFixed(3) : 0})`);
+}
+
+/* ---------- playback ---------- */
+const playBtn = document.getElementById("play"), scrub = document.getElementById("scrub");
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+let t = reduce ? 21.5 : .2, playing = !reduce, last = null, dragging = false;
+playBtn.textContent = playing ? "Pause" : "Play";
+playBtn.addEventListener("click", () => { playing = !playing; playBtn.textContent = playing ? "Pause" : "Play"; });
+document.getElementById("restart").addEventListener("click", () => { t = 0; });
+scrub.addEventListener("input", () => { t = +scrub.value; dragging = true; });
+scrub.addEventListener("change", () => { dragging = false; });
+function frame(now) {
+  if (last !== null && playing && !dragging) t = (t + (now - last) / 1000) % LOOP;
+  last = now;
+  render(t);
+  if (!dragging) scrub.value = t;
+  requestAnimationFrame(frame);
+}
+render(t);
+requestAnimationFrame(frame);
+})();
+</script>
+
+<script>
+(function () {
+  if (window.self === window.top) return;
+  var last = 0;
+  function post() {
+    var h = Math.ceil(document.querySelector(".wrap").getBoundingClientRect().height);
+    if (h !== last) { last = h; parent.postMessage({ type: "anim-height", h: h }, "*"); }
+  }
+  new ResizeObserver(post).observe(document.body);
+  window.addEventListener("load", post);
+  /* start from the beginning when scrolled into view; pause when off screen */
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  var play = document.getElementById("play"), restart = document.getElementById("restart");
+  var seen = false, ours = false;
+  var playing = function () { return play.textContent.trim() === "Pause"; };
+  if (playing()) play.click();
+  new IntersectionObserver(function (es) {
+    es.forEach(function (e) {
+      if (e.isIntersecting) {
+        if (!seen) { seen = true; restart.click(); if (!playing()) play.click(); }
+        else if (ours && !playing()) play.click();
+        ours = false;
+      } else if (playing()) { play.click(); ours = true; }
+    });
+  }, { threshold: 0.35 }).observe(document.querySelector(".stage"));
+})();
+</script>
+</body>
+</html>

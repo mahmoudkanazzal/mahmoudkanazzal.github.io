@@ -1,0 +1,731 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body { margin: 0; background: #1e2124; }
+html.embed .wrap { padding: 4px 0 8px !important; }
+html.embed .wrap > header { display: none; }
+</style>
+<script>if (window.self !== window.top) document.documentElement.classList.add("embed");</script>
+</head>
+<body>
+<title>FedChip Shared Designer</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Carlito:ital,wght@0,400;0,700;1,400&display=swap">
+<style>
+/* Layout: a 3D floor with three walled company compounds around a central shared model; quality chart and the design-use panel on the right. */
+:root {
+  color-scheme: dark;
+  --bg: #1e2124; --fg: #f2f2f2; --muted: #aeb3ba; --card: #262a2f; --line: #41464d; --edge: #6e757e; --floor: #24282d; --floor-c: #2f353d; --sky: #1c1f23; --panel: #2b2f35;
+  --ink: #4a515c; --on-ink: #f2f2f2; --blue: #4a86d6; --green: #4bb578; --purple: #9a78e0; --orange: #d97a3a; --gold: #c9973f; --red: #dc5a5a;
+  --blue-soft: #25344a; --green-soft: #223a2d; --purple-soft: #302a42; --orange-soft: #3b2c22;
+  --hi: #ffffff;
+  --f-body: Calibri, Carlito, "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+
+body { background: var(--bg); color: var(--fg); font-family: var(--f-body); }
+.wrap { max-width: 1180px; margin: 0 auto; padding-block: 28px 36px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; flex-direction: column; gap: 18px; }
+.eyebrow { font: 700 13px/1 var(--f-body); letter-spacing: .1em; text-transform: uppercase; color: var(--blue); margin: 0 0 8px; }
+h1 { font: 700 clamp(28px, 4.2vw, 42px)/1.05 var(--f-body); margin: 0; text-wrap: balance; letter-spacing: -.01em; }
+
+.acts { display: flex; gap: 28px; }
+.act { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+.tab { appearance: none; border: 0; background: none; padding: 0; text-align: left; cursor: pointer; color: var(--muted);
+  font: 700 13px/1 var(--f-mono); letter-spacing: .1em; text-transform: uppercase; display: flex; align-items: center; gap: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tab::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--line); flex: none; }
+.act.on .tab { color: var(--c); }
+.act.on .tab::before { background: var(--c); box-shadow: 0 0 0 4px color-mix(in srgb, var(--c) 25%, transparent); }
+.tab:focus-visible { outline: 2px solid var(--blue, var(--fg)); outline-offset: 4px; border-radius: 4px; }
+.act.on .step .bar i { background: var(--c); }
+.rail { display: grid; gap: 8px; }
+.step { appearance: none; border: 0; background: none; padding: 0; text-align: left; cursor: pointer; color: var(--muted);
+  font: 400 14px/1.25 var(--f-body); display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.step .bar { height: 4px; border-radius: 4px; background: var(--line); overflow: hidden; }
+.step .bar i { display: block; height: 100%; width: 0; background: var(--fg); border-radius: 4px; }
+.step .lbl { display: flex; gap: 8px; align-items: baseline; }
+.step b { font: 700 13px var(--f-body); }
+.step.on { color: var(--fg); }
+.step:focus-visible { outline: 2px solid var(--blue); outline-offset: 4px; border-radius: 4px; }
+@media (max-width: 640px) { .step .txt { display: none; } }
+
+.caption { font: 400 clamp(17px, 2.3vw, 21px)/1.35 var(--f-body); min-height: 2.7em; margin: 0; max-width: 72ch; }
+.stage { overflow-x: auto; border-radius: 18px; background: var(--card); border: 1px solid var(--line); }
+svg { display: block; width: 100%; min-width: 660px; height: auto; font-family: var(--f-body); }
+.code { font-family: Consolas, "Cascadia Mono", Menlo, "Courier New", monospace; }
+
+.ctl { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.btn { appearance: none; border: 1px solid var(--line); background: var(--card); color: var(--fg); border-radius: 999px;
+  padding: 8px 16px; font: 700 14px var(--f-body); cursor: pointer; }
+.btn:hover { border-color: var(--muted); }
+.btn:focus-visible, #scrub:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+#scrub { flex: 1 1 200px; accent-color: var(--blue); min-width: 0; }
+.b { font-weight: 700; }
+</style>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">FedChip · LLMs for chip design</p>
+    <h1>How FedChip trains a shared chip-design LLM without sharing designs</h1>
+  </header>
+
+  <div class="acts" id="acts"></div>
+  <p class="caption" id="caption" aria-live="polite"></p>
+
+  <div class="stage"><svg id="svg" viewBox="0 0 1120 480" role="img" aria-label="Animation in two parts. The problem: a general-purpose LLM writes a chip design that fails power, performance and area checks; better models need real designs, but each company keeps its designs locked away, so a shared pool stays empty and each company trains a weak model on its own limited data. The solution: each company fine-tunes a local copy of a chip-design LLM on its own Verilog, only model updates travel to a central server, and the merged shared LLM gets better each round than any company's model alone. An engineer then describes a chip, the LLM writes Verilog, and an EDA scorecard checks power, performance and area."></svg></div>
+
+  <div class="ctl">
+    <button class="btn" id="play" type="button">Pause</button>
+    <button class="btn" id="restart" type="button">Restart</button>
+    <input type="range" id="scrub" min="0" max="20.6" step="0.01" value="0" aria-label="Timeline">
+  </div>
+</div>
+
+<script>
+(() => {
+const NS = "http://www.w3.org/2000/svg";
+const svg = document.getElementById("svg");
+const LOOP = 20.6, END = 20.0;
+
+/* ---------- helpers ---------- */
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const raw = (t, a, b) => clamp((t - a) / (b - a));
+const io = x => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+const out = x => 1 - Math.pow(1 - x, 3);
+const back = x => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2); };
+const lerp = (a, b, p) => a + (b - a) * p;
+const pulse = (t, at, d = .7) => { const p = raw(t, at, at + d); return p > 0 && p < 1 ? Math.sin(Math.PI * p) : 0; };
+const v = n => `var(${n})`;
+function el(tag, attrs = {}, parent = svg, style = {}) {
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  Object.assign(e.style, style);
+  parent.appendChild(e);
+  return e;
+}
+function txt(parent, x, y, s, size, style = {}, anchor = "start", bold = false) {
+  const e = el("text", { x, y, "font-size": size, "text-anchor": anchor }, parent, Object.assign({ fontWeight: bold ? 700 : 400 }, style));
+  e.textContent = s; return e;
+}
+function typeTo(e, s, p) { e.textContent = s.slice(0, Math.floor(s.length * p)); }
+
+/* ---------- story ---------- */
+const STAGES = [
+  { t: 0,    name: "Private RTL",     cap: "Three chip-design companies each keep their past RTL designs (Verilog) private. Each focuses on something different: power, complex workloads, or speed." },
+  { t: 3.0,  name: "Fine-tune locally", cap: "Each company fine-tunes its own copy of a chip-design LLM on its own Verilog, behind its own walls." },
+  { t: 5.2,  name: "Share updates",   cap: "Only the model updates travel to the server. The RTL never leaves." },
+  { t: 6.0,  name: "Merge, repeat",   cap: "The updates are merged into one improved shared LLM and sent back to everyone. Each round, it writes better hardware." },
+  { t: 13.8, name: "Generate RTL",    cap: "An engineer describes the chip in plain language. The shared LLM writes the Verilog, and an EDA scorecard checks power, performance and area." },
+];
+const R = [{ t0: 3.0, sc: 1 }, { t0: 7.2, sc: .65 }, { t0: 10.0, sc: .65 }];
+const at = (r, u) => R[r].t0 + u * R[r].sc;
+const FINAL_OUT = [12.8, 13.5];
+const SHARED = [.58, .74, .9], ALONE = [.5, .46, .54];
+
+/* ---------- 3D camera ---------- */
+const CX = 410, CY = 236, F = 1000, PHI = .55, cph = Math.cos(PHI), sph = Math.sin(PHI);
+let cth = 1, sth = 0;
+function P(X, Y, Z) {
+  const xr = X * cth + Z * sth, zr = -X * sth + Z * cth;
+  const zz = zr * cph + Y * sph, k = F / (F - zz);
+  return [CX + xr * k, CY + (zr * sph - Y * cph) * k, k, zz];
+}
+
+/* ---------- layers + defs ---------- */
+const defs = el("defs");
+const root = el("g");
+const L = {};
+["sky", "floor", "obj", "fx", "panels"].forEach(k => L[k] = el("g", {}, root));
+function rgrad(id, c) {
+  const g = el("radialGradient", { id, cx: "35%", cy: "30%", r: "80%" }, defs);
+  el("stop", { offset: "0" }, g, { stopColor: v("--hi"), stopOpacity: .9 });
+  el("stop", { offset: "0.35" }, g, { stopColor: v(c) });
+  el("stop", { offset: "1" }, g, { stopColor: v(c) });
+}
+["blue", "green", "purple", "orange", "gold"].forEach(c => rgrad("g-" + c, "--" + c));
+const flt = el("filter", { id: "sh", x: "-20%", y: "-20%", width: "140%", height: "150%" }, defs);
+el("feDropShadow", { dx: 0, dy: 6, stdDeviation: 6, "flood-color": "#0a0f24", "flood-opacity": .18 }, flt);
+function lgrad(id, stops, vert = true) {
+  const g = el("linearGradient", vert ? { id, x1: 0, y1: 0, x2: 0, y2: 1 } : { id, x1: 0, y1: 0, x2: 1, y2: 0 }, defs);
+  stops.forEach(([o, c, op]) => el("stop", { offset: o }, g, { stopColor: v(c), stopOpacity: op }));
+}
+lgrad("skyG", [[0, "--sky", 1], [1, "--card", 1]]);
+lgrad("beamG", [[0, "--blue", 0], [.7, "--blue", .22], [1, "--blue", .45]]);
+["green", "purple", "orange"].forEach(c => lgrad("dome-" + c, [[0, "--" + c, .3], [.55, "--" + c, .1], [1, "--" + c, .04]]));
+{ const g = el("radialGradient", { id: "floorG", cx: "50%", cy: "50%", r: "55%" }, defs);
+  el("stop", { offset: 0 }, g, { stopColor: v("--floor-c") }); el("stop", { offset: 1 }, g, { stopColor: v("--floor") }); }
+el("rect", { x: 0, y: 0, width: 800, height: 480 }, L.sky, { fill: "url(#skyG)" });
+const poly = pts => "M " + pts.map(q => q[0].toFixed(1) + " " + q[1].toFixed(1)).join(" L ") + " Z";
+
+/* ---------- 3D primitives (local, drawn in a scaled group) ---------- */
+function box(g, x, y, w, d, th, top, side, stroke) {
+  el("path", { d: `M ${x - w} ${y} L ${x} ${y + d} L ${x} ${y + d + th} L ${x - w} ${y + th} Z` }, g, { fill: v(side) });
+  el("path", { d: `M ${x} ${y + d} L ${x + w} ${y} L ${x + w} ${y + th} L ${x} ${y + d + th} Z` }, g, { fill: v(side) });
+  el("path", { d: `M ${x} ${y + d} L ${x + w} ${y} L ${x + w} ${y + th} L ${x} ${y + d + th} Z` }, g, { fill: "#000", opacity: .25 });
+  return el("path", { d: `M ${x - w} ${y} L ${x} ${y - d} L ${x + w} ${y} L ${x} ${y + d} Z` }, g, { fill: v(top), stroke: v(stroke), strokeWidth: 1.5, strokeLinejoin: "round" });
+}
+function band(rx, ry, h, front) {
+  const s1 = front ? 0 : 1, s2 = front ? 1 : 0;
+  return `M ${-rx} 0 A ${rx} ${ry} 0 0 ${s1} ${rx} 0 L ${rx} ${-h} A ${rx} ${ry} 0 0 ${s2} ${-rx} ${-h} Z`;
+}
+function chip(g, x, y, w, color) {
+  const d = w / 2;
+  for (let i = 1; i <= 4; i++) {
+    const p = i / 5;
+    el("line", { x1: x - w + w * p, y1: y + d * p + 7, x2: x - w + w * p, y2: y + d * p + 12 }, g, { stroke: v("--edge"), strokeWidth: 1.6 });
+    el("line", { x1: x + w * p, y1: y + d - d * p + 7, x2: x + w * p, y2: y + d - d * p + 12 }, g, { stroke: v("--edge"), strokeWidth: 1.6 });
+  }
+  const top = box(g, x, y, w, d, 7, color, color, color);
+  el("path", { d: `M ${x - w * .45} ${y} L ${x} ${y - d * .45} L ${x + w * .45} ${y} L ${x} ${y + d * .45} Z` }, g, { fill: "#fff", opacity: .3 });
+  return top;
+}
+
+function llm(g, w, h, fs) {
+  el("rect", { x: -w / 2, y: -h / 2 + 6, width: w, height: h, rx: 9 }, g, { fill: v("--ink") });
+  el("rect", { x: -w / 2, y: -h / 2 + 6, width: w, height: h, rx: 9 }, g, { fill: "#000", opacity: .3 });
+  el("rect", { x: -w / 2, y: -h / 2, width: w, height: h, rx: 9, filter: "url(#sh)" }, g, { fill: v("--ink") });
+  el("rect", { x: -w / 2 + 7, y: -h / 2 + 3, width: w - 14, height: 4, rx: 2 }, g, { fill: "#fff", opacity: .18 });
+  txt(g, 0, fs * .36, "LLM", fs, { fill: v("--on-ink") }, "middle", true);
+}
+/* ---------- floor ---------- */
+const floorDisc = el("path", {}, L.floor, { fill: "url(#floorG)" });
+const grid = [];
+[.36, .68].forEach(f => grid.push({ ring: f, e: el("path", {}, L.floor, { fill: "none", stroke: v("--edge"), strokeWidth: 1, opacity: .3 }) }));
+for (let i = 0; i < 12; i++) grid.push({ ray: i * 30, e: el("path", {}, L.floor, { fill: "none", stroke: v("--edge"), strokeWidth: 1, opacity: .18 }) });
+const beams = [0, 1, 2].map(() => el("path", {}, L.floor, { fill: "none", stroke: v("--blue"), strokeWidth: 9, strokeLinecap: "round", opacity: 0 }));
+const floorRim = el("path", {}, L.floor, { fill: "none", stroke: v("--line"), strokeWidth: 1.5 });
+const spokes = [0, 1, 2].map(() => el("path", {}, L.floor, { fill: "none", stroke: v("--edge"), strokeWidth: 2, strokeDasharray: "2 9", strokeLinecap: "round" }));
+
+/* ---------- companies ---------- */
+const CO = [
+  { name: "Company A", focus: "power",          color: "--green",  soft: "--green-soft",  pos: [-245, 0, -60] },
+  { name: "Company B", focus: "complex workloads", color: "--purple", soft: "--purple-soft", pos: [245, 0, -60] },
+  { name: "Company C", focus: "speed",          color: "--orange", soft: "--orange-soft", pos: [0, 0, 215] },
+];
+CO.forEach((c, i) => {
+  c.g = el("g", {}, L.obj);
+  el("ellipse", { cx: 0, cy: 0, rx: 92, ry: 34 }, c.g, { fill: v(c.soft) });
+  el("path", { d: band(80, 29, 26, false) }, c.g, { fill: v(c.color), opacity: .22, stroke: v(c.color), strokeWidth: 1.5 });
+  c.wallBackRim = el("ellipse", { cx: 0, cy: -26, rx: 80, ry: 29 }, c.g, { fill: "none", stroke: v(c.color), strokeWidth: 2 });
+  /* private design stack */
+  c.plates = [0, 1, 2].map(j => {
+    const pg = el("g", {}, c.g);
+    const x = -52 + j * 7, y = -52 + j * 8, w = 30, h = 36;
+    el("path", { d: `M ${x} ${y} L ${x + w - 9} ${y} L ${x + w} ${y + 9} L ${x + w} ${y + h} L ${x} ${y + h} Z` }, pg, { fill: v("--card"), stroke: v(c.color), strokeWidth: 1.6, strokeLinejoin: "round" });
+    el("path", { d: `M ${x + w - 9} ${y} L ${x + w - 9} ${y + 9} L ${x + w} ${y + 9} Z` }, pg, { fill: v(c.soft), stroke: v(c.color), strokeWidth: 1.2, strokeLinejoin: "round" });
+    [[6, 13, 12], [6, 19, 16], [9, 25, 11]].forEach(([dx, dy, lw]) => el("rect", { x: x + dx, y: y + dy, width: lw, height: 2.4, rx: 1.2 }, pg, { fill: v(c.color), opacity: .55 }));
+    if (j === 2) txt(pg, x + 5, y + h - 3, ".v", 11, { fill: v(c.color) }, "start", true);
+    return pg;
+  });
+  /* local model copy */
+  c.model = el("g", {}, c.g);
+  c.ring = el("circle", { cx: 0, cy: 0, r: 25, pathLength: 1, transform: "rotate(-90)" }, c.model, { fill: "none", stroke: v("--blue"), strokeWidth: 3.5, strokeDasharray: 1, strokeLinecap: "round" });
+  llm(c.model, 50, 26, 13);
+  c.feed = [0, 1, 2].map(() => el("circle", { r: 3 }, c.g, { fill: v(c.color) }));
+  /* front wall + lock */
+  el("path", { d: band(80, 29, 26, true) }, c.g, { fill: v(c.color), opacity: .14, stroke: v(c.color), strokeWidth: 1.5 });
+  el("path", { d: `M -80 -26 A 80 29 0 0 0 80 -26` }, c.g, { fill: "none", stroke: v(c.color), strokeWidth: 2.5 });
+  const cn = c.color.slice(2);
+  c.dome = el("g", {}, c.g);
+  el("path", { d: "M -80 -26 C -80 -128, 80 -128, 80 -26 A 80 29 0 0 1 -80 -26 Z" }, c.dome, { fill: `url(#dome-${cn})`, stroke: v(c.color), strokeWidth: 1.4, strokeOpacity: .55 });
+  el("path", { d: "M -58 -60 C -50 -92, -20 -104, 8 -104" }, c.dome, { fill: "none", stroke: "#fff", strokeWidth: 3.5, strokeLinecap: "round", opacity: .55 });
+  el("path", { d: "M -66 -44 C -66 -50, -64 -54, -62 -58" }, c.dome, { fill: "none", stroke: "#fff", strokeWidth: 3.5, strokeLinecap: "round", opacity: .4 });
+  c.lock = el("g", { transform: "translate(0 10)" }, c.g);
+  c.lockGlow = el("circle", { r: 15 }, c.lock, { fill: v("--gold"), opacity: 0 });
+  el("path", { d: "M -4.5 -2 L -4.5 -6 A 4.5 4.5 0 0 1 4.5 -6 L 4.5 -2" }, c.lock, { fill: "none", stroke: v(c.color), strokeWidth: 2.2 });
+  el("rect", { x: -7, y: -2, width: 14, height: 11, rx: 2.5 }, c.lock, { fill: v(c.color) });
+  c.lbl = txt(c.g, 0, 56, c.name, 15, { fill: v("--fg"), stroke: v("--card"), strokeWidth: 4, paintOrder: "stroke" }, "middle", true);
+  c.sub = txt(c.g, 0, 73, "focus: " + c.focus, 13.5, { fill: v(c.color), stroke: v("--card"), strokeWidth: 4, paintOrder: "stroke" }, "middle", true);
+});
+
+/* ---------- hub (shared model) ---------- */
+const HUB = { g: el("g", {}, L.obj) };
+HUB.halo = el("ellipse", { cx: 0, cy: 0, rx: 60, ry: 22 }, HUB.g, { fill: "none", stroke: v("--gold"), strokeWidth: 4, opacity: 0 });
+el("rect", { x: -48, y: -16, width: 96, height: 16 }, HUB.g, { fill: v("--blue") });
+el("ellipse", { cx: 0, cy: 0, rx: 48, ry: 18 }, HUB.g, { fill: v("--blue") });
+el("rect", { x: -48, y: -16, width: 96, height: 16 }, HUB.g, { fill: "#000", opacity: .25 });
+el("ellipse", { cx: 0, cy: 0, rx: 48, ry: 18 }, HUB.g, { fill: "#000", opacity: .25 });
+el("ellipse", { cx: 0, cy: -16, rx: 48, ry: 18 }, HUB.g, { fill: v("--blue-soft"), stroke: v("--blue"), strokeWidth: 2 });
+HUB.beam = el("rect", { x: -34, y: -190, width: 68, height: 176 }, HUB.g, { fill: "url(#beamG)" });
+HUB.orbit = el("g", {}, HUB.g);
+el("ellipse", { cx: 0, cy: -48, rx: 78, ry: 26 }, HUB.orbit, { fill: "none", stroke: v("--blue"), strokeWidth: 1.5, strokeDasharray: "3 6", opacity: .6 });
+HUB.odots = ["--green", "--purple", "--orange"].map(c => el("circle", { r: 5 }, HUB.orbit, { fill: `url(#g-${c.slice(2)})`, stroke: v("--card"), strokeWidth: 1.5 }));
+HUB.chip = el("g", {}, HUB.g);
+llm(HUB.chip, 92, 44, 21);
+{ const cb = el("g", { transform: "translate(44 -20)" }, HUB.chip);
+  el("circle", { r: 14 }, cb, { fill: `url(#g-blue)`, stroke: v("--card"), strokeWidth: 2 });
+  el("rect", { x: -6, y: -6, width: 12, height: 12, rx: 2 }, cb, { fill: "none", stroke: "#fff", strokeWidth: 1.8 });
+  [-3, 0, 3].forEach(d => { [["M", d, -6, d, -9], ["M", d, 6, d, 9], ["M", -6, d, -9, d], ["M", 6, d, 9, d]].forEach(([_, x1, y1, x2, y2]) => el("line", { x1, y1, x2, y2 }, cb, { stroke: "#fff", strokeWidth: 1.4 })); }); }
+HUB.merge = ["--green", "--purple", "--orange"].map(c => el("ellipse", { cx: 0, cy: -16, rx: 48, ry: 18 }, HUB.g, { fill: "none", stroke: v(c), strokeWidth: 3, opacity: 0 }));
+HUB.badge = el("g", {}, HUB.g);
+el("rect", { x: -38, y: -12, width: 76, height: 24, rx: 12 }, HUB.badge, { fill: v("--blue") });
+HUB.badgeT = txt(HUB.badge, 0, 4.5, "", 13, { fill: "#fff" }, "middle", true);
+HUB.lbl = txt(L.fx, 0, 0, "Shared chip-design LLM", 15, { fill: v("--fg"), stroke: v("--card"), strokeWidth: 4, paintOrder: "stroke" }, "middle", true);
+
+/* ---------- traveling orbs (screen space arcs) ---------- */
+function orb(color, r, label) {
+  const g = el("g", {}, L.fx);
+  el("circle", { r: r + 7 }, g, { fill: v(color), opacity: .22 });
+  el("circle", { r }, g, { fill: `url(#g-${color.slice(2)})`, stroke: v("--card"), strokeWidth: 1.5 });
+  if (label) txt(g, 0, r * .45, label, r * 1.2, { fill: "#fff" }, "middle", true);
+  g.style.opacity = 0;
+  return g;
+}
+const trails = CO.map((c, i) => ({ o: [0, 1, 2, 3].map(j => el("circle", { r: 5 - j }, L.fx, { fill: v("--blue"), opacity: 0 })), u: [0, 1, 2, 3].map(j => el("circle", { r: 6 - j }, L.fx, { fill: v(c.color), opacity: 0 })) }));
+const outOrbs = CO.map(() => orb("--blue", 8));
+const upOrbs = CO.map(c => orb(c.color, 10, "Δ"));
+
+/* ---------- quality chart ---------- */
+const QG = el("g", { transform: "translate(808 20)" }, L.panels);
+el("rect", { x: 0, y: 0, width: 292, height: 182, rx: 16, filter: "url(#sh)" }, QG, { fill: v("--panel"), stroke: v("--line"), strokeWidth: 1.5 });
+txt(QG, 16, 28, "Verilog generation quality", 16, { fill: v("--fg") }, "start", true);
+const QB = 144, QU = 80, QW = 30, QDX = 9, QDY = 6;
+el("path", { d: `M 16 ${QB + 5} L 262 ${QB + 5} L 276 ${QB - 7} L 30 ${QB - 7} Z` }, QG, { fill: v("--line"), opacity: .8 });
+const best = el("line", { x1: 22, x2: 276, y1: QB - QU * Math.max(...ALONE), y2: QB - QU * Math.max(...ALONE) }, QG, { stroke: v("--muted"), strokeWidth: 1.5, strokeDasharray: "4 4", opacity: 0 });
+const bars = [
+  { lbl: "A alone", color: "--green", soft: true }, { lbl: "B alone", color: "--purple", soft: true },
+  { lbl: "C alone", color: "--orange", soft: true }, { lbl: "Shared", color: "--blue" },
+].map((b, i) => {
+  const cx = 48 + i * 64, g = el("g", {}, QG);
+  b.side = el("path", {}, g, { fill: v(b.color) });
+  b.sideD = el("path", {}, g, { fill: "#000", opacity: .28 });
+  b.front = el("rect", { x: cx - QW / 2, width: QW }, g, { fill: v(b.color) });
+  b.top = el("path", {}, g, { fill: v(b.color) });
+  b.topH = el("path", {}, g, { fill: "#fff", opacity: .38 });
+  g.style.opacity = 0;
+  if (b.soft) g.setAttribute("opacity", ".6");
+  txt(QG, cx + 3, QB + 24, b.lbl, 13, { fill: b.soft ? v("--muted") : v("--blue") }, "middle", !b.soft);
+  return Object.assign(b, { cx, g });
+});
+const beat = el("g", {}, QG);
+el("rect", { x: -78, y: -12, width: 156, height: 24, rx: 12 }, beat, { fill: v("--blue") });
+txt(beat, 0, 4.5, "better than any alone", 13, { fill: "#fff" }, "middle", true);
+
+/* ---------- use panel ---------- */
+const UG = el("g", { transform: "translate(808 212)" }, L.panels);
+el("rect", { x: 0, y: 0, width: 292, height: 262, rx: 16, filter: "url(#sh)" }, UG, { fill: v("--panel"), stroke: v("--line"), strokeWidth: 1.5 });
+txt(UG, 16, 28, "Ask the shared LLM", 16, { fill: v("--fg") }, "start", true);
+const bub = el("g", { transform: "translate(16 42)" }, UG);
+el("rect", { x: 0, y: 0, width: 260, height: 34, rx: 17 }, bub, { fill: v("--card"), stroke: v("--blue"), strokeWidth: 1.5 });
+el("circle", { cx: 17, cy: 17, r: 10 }, bub, { fill: v("--blue") });
+el("circle", { cx: 17, cy: 14, r: 3.4 }, bub, { fill: "#fff" });
+el("path", { d: "M 11 23 A 6 5 0 0 1 23 23" }, bub, { fill: "#fff" });
+const ask = txt(bub, 34, 22, "", 14.5, { fill: v("--fg") });
+const ASK = "Low-power sensor controller";
+/* generated Verilog */
+const CODE = el("g", { transform: "translate(16 86)" }, UG);
+el("rect", { x: 0, y: 0, width: 260, height: 84, rx: 10 }, CODE, { fill: v("--ink") });
+const vlines = ["module sensor_ctrl(clk, d, q);", "  input clk; input [7:0] d;", "  always @(posedge clk) q <= d;", "endmodule"];
+const vEls = vlines.map((s, i) => { const e = el("text", { x: 12, y: 20 + i * 18, "font-size": 11.5, class: "code" }, CODE, { fill: i === 0 || i === 3 ? "#8fb4ff" : "#e8ebf6" }); e.setAttribute("xml:space", "preserve"); return e; });
+const flow = el("g", {}, UG);
+el("path", { d: "M 146 176 L 146 192" }, flow, { stroke: v("--blue"), strokeWidth: 2.5, fill: "none" });
+el("path", { d: "M 141 188 L 146 194 L 151 188" }, flow, { stroke: v("--blue"), strokeWidth: 2.5, fill: "none", strokeLinecap: "round", strokeLinejoin: "round" });
+txt(flow, 156, 189, "EDA synthesis", 12.5, { fill: v("--muted") });
+/* PPA scorecard */
+const SC = el("g", { transform: "translate(16 208)" }, UG);
+const rows = [["Power", .42], ["Performance", .64], ["Area", .5]].map(([n, val], i) => {
+  const x = i * 88, g = el("g", { transform: `translate(${x} 0)` }, SC);
+  el("rect", { x: 0, y: 0, width: 80, height: 44, rx: 10 }, g, { fill: v("--card"), stroke: v("--line"), strokeWidth: 1.2 });
+  txt(g, 8, 17, n, 12.5, { fill: v("--fg") }, "start", true);
+  el("rect", { x: 8, y: 26, width: 50, height: 7, rx: 3.5 }, g, { fill: v("--line") });
+  const f = el("rect", { x: 8, y: 26, width: 0, height: 7, rx: 3.5 }, g, { fill: v("--green") });
+  el("line", { x1: 8 + 50 * .8, x2: 8 + 50 * .8, y1: 22, y2: 37 }, g, { stroke: v("--muted"), strokeWidth: 1.5 });
+  const ok = el("g", { transform: "translate(68 29)" }, g);
+  el("circle", { r: 7.5 }, ok, { fill: `url(#g-green)` });
+  el("path", { d: "M -3.2 0 L -1 2.3 L 3.6 -2.8" }, ok, { fill: "none", stroke: "#fff", strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round" });
+  return { g, f, ok, val };
+});
+
+/* ---------- act 1: the problem ---------- */
+const CAM = { t: 0 };
+const PL = 13.4, SKIP = 3.0;
+const PSTAGES = [
+  { t: 0,    name: "General LLM",    cap: "General-purpose LLMs write chip designs that often break or ignore requirements on power, speed and size." },
+  { t: 3.6,  name: "Locked designs", cap: "Better models need training on real chip designs, and those are the guarded property of competing companies." },
+  { t: 7.4,  name: "Each alone",     cap: "No company hands its designs to a shared pool, so each one trains only on its own limited data." },
+  { t: 10.6, name: "Still weak",     cap: "Every company is left with a weak chip-design model." },
+];
+const SROOT = tt => 1;
+const rootP = el("g");
+const UGT = UG.children[1], UGT0 = UGT.textContent;
+const HBR = HUB.badge.children[0];
+
+/* designs that try to leave for a shared pool */
+const leak = CO.map(c => {
+  const g = el("g", {}, rootP);
+  el("path", { d: "M -11 -14 L 4 -14 L 11 -7 L 11 14 L -11 14 Z" }, g, { fill: v("--card"), stroke: v(c.color), strokeWidth: 1.8, strokeLinejoin: "round" });
+  txt(g, -6, 10, ".v", 10.5, { fill: v(c.color) }, "start", true);
+  const hit = el("g", {}, rootP);
+  el("circle", { r: 12 }, hit, { fill: v("--red") });
+  el("path", { d: "M -4.5 -4.5 L 4.5 4.5 M 4.5 -4.5 L -4.5 4.5" }, hit, { stroke: "#fff", strokeWidth: 2.4, strokeLinecap: "round" });
+  return { g, hit };
+});
+/* failed PPA checks */
+const fails = [0, 1, 2].map(i => {
+  const g = el("g", { transform: `translate(${892 + 88 * i} 449)` }, rootP);
+  el("circle", { r: 7.5 }, g, { fill: v("--red") });
+  el("path", { d: "M -3 -3 L 3 3 M 3 -3 L -3 3" }, g, { stroke: "#fff", strokeWidth: 2, strokeLinecap: "round" });
+  return g;
+});
+const BADV = [.96, .9, .98];
+/* requirement line on the quality chart */
+const NEED = .86, needY = 20 + QB - QU * NEED;
+const need = el("g", {}, rootP);
+el("line", { x1: 828, x2: 1086, y1: needY, y2: needY }, need, { stroke: v("--red"), strokeWidth: 2, strokeDasharray: "6 5" });
+txt(need, 830, needY - 7, "what chip design needs", 12, { fill: v("--red") }, "start", true);
+const topY = 20 + QB - QU * Math.max(...ALONE);
+const gap = el("g", {}, rootP);
+el("path", { d: `M 1078 ${needY + 3} L 1078 ${topY - 3} M 1073 ${needY + 8} L 1078 ${needY + 3} L 1083 ${needY + 8} M 1073 ${topY - 8} L 1078 ${topY - 3} L 1083 ${topY - 8}` }, gap,
+  { fill: "none", stroke: v("--red"), strokeWidth: 2.2, strokeLinecap: "round", strokeLinejoin: "round" });
+txt(gap, 1070, (needY + topY) / 2 + 4.5, "gap", 13, { fill: v("--red") }, "end", true);
+
+function resetP() {
+  UGT.textContent = UGT0;
+  HUB.lbl.textContent = "Shared chip-design LLM";
+  HBR.style.fill = v("--blue");
+  rows.forEach(rw => rw.f.style.fill = v("--green"));
+}
+
+function renderP(tt) {
+  rootP.style.opacity = tt < PL ? 1 - raw(tt, PL - .5, PL) : 0;
+  const fade = 1 - raw(tt, PL - .7, PL - .1);
+
+  /* general-purpose LLM on the use panel */
+  HUB.lbl.textContent = "General-purpose LLM";
+  UGT.textContent = "Ask a general-purpose LLM";
+  UG.style.opacity = lerp(.35, 1, raw(tt, .5, .8) * fade);
+  typeTo(ask, ASK, raw(tt, .7, 1.5) * (fade > .99 ? 1 : 0));
+  CODE.style.opacity = raw(tt, 1.5, 1.7) * fade;
+  const vp = raw(tt, 1.6, 2.4), tot = vlines.reduce((a, s) => a + s.length, 0);
+  let n = Math.floor(tot * vp);
+  vEls.forEach((e, i) => { const k = Math.max(0, Math.min(vlines[i].length, n)); e.textContent = vlines[i].slice(0, k); n -= vlines[i].length; });
+  flow.style.opacity = raw(tt, 2.4, 2.6) * fade;
+  SC.style.opacity = raw(tt, 2.6, 2.8) * fade;
+  rows.forEach((rw, i) => {
+    const q = out(raw(tt, 2.7 + i * .2, 3.1 + i * .2));
+    rw.f.setAttribute("width", 50 * BADV[i] * q);
+    rw.f.style.fill = v("--red");
+    rw.ok.style.opacity = 0;
+    const x = raw(tt, 3.0 + i * .2, 3.25 + i * .2);
+    fails[i].style.opacity = x * fade;
+    fails[i].setAttribute("transform", `translate(${892 + 88 * i} 449) scale(${x ? back(x).toFixed(3) : 0})`);
+  });
+
+  /* walls come down; the designs cannot leave */
+  CO.forEach((c, i) => {
+    const da = raw(tt, 3.8 + i * .15, 4.3 + i * .15);
+    c.dome.setAttribute("transform", `translate(0 ${(-30 * (1 - out(da))).toFixed(1)})`);
+    c.dome.style.opacity = da;
+    const la = raw(tt, 4.4, 4.8);
+    c.lock.setAttribute("transform", `translate(0 10) scale(${(la ? back(la) : 0).toFixed(3)})`);
+    const [x, y, k] = P(...c.pos), [hx, hy, hk] = P(0, 0, 0);
+    const s0 = [x - 40 * k, y - 44 * k], hub = [hx, hy - 60 * hk];
+    const q = raw(tt, 5.0 + i * .25, 6.2 + i * .25);
+    const p = q < .5 ? .36 * io(q * 2) : .36 * (1 - io((q - .5) * 2));
+    const pt = arc(s0, hub, p, 50);
+    leak[i].g.setAttribute("transform", `translate(${pt[0].toFixed(1)} ${pt[1].toFixed(1)}) scale(${k.toFixed(3)})`);
+    leak[i].g.style.opacity = q > 0 && q < 1 ? 1 : 0;
+    const h = pulse(tt, 5.0 + i * .25 + .45, .6);
+    const hp = arc(s0, hub, .36, 50);
+    leak[i].hit.setAttribute("transform", `translate(${hp[0].toFixed(1)} ${(hp[1] - 18).toFixed(1)}) scale(${(h * k).toFixed(3)})`);
+    leak[i].hit.style.opacity = h;
+    c.lockGlow.style.opacity = .6 * h;
+
+    /* each company trains alone */
+    const mIn = raw(tt, 7.6 + i * .15, 7.9 + i * .15) * fade;
+    const bob = 2.5 * Math.sin(tt * 2.4 + i);
+    c.model.setAttribute("transform", `translate(30 ${(-46 + bob).toFixed(1)}) scale(${(mIn ? back(mIn) : 0).toFixed(3)})`);
+    c.ring.style.opacity = tt > 7.9 ? fade : 0;
+    c.ring.style.strokeDashoffset = 1 - .32 * raw(tt, 8.1, 9.3);
+    c.feed.forEach((f, j) => {
+      const s1 = 8.1 + j * .3, fq = raw(tt, s1, s1 + .5);
+      const fp = arc([-30, -30 + j * 4], [30, -46], fq, 20);
+      f.setAttribute("cx", fp[0]); f.setAttribute("cy", fp[1]);
+      f.style.opacity = fq > 0 && fq < 1 ? 1 : 0;
+    });
+  });
+  HUB.badge.style.opacity = raw(tt, 5.6, 5.9) * fade;
+  HUB.badge.setAttribute("transform", "translate(0 -100)");
+  HUB.badgeT.textContent = "pool: empty";
+  HBR.style.fill = v("--red");
+
+  /* quality chart: alone, all short */
+  bars.forEach((b, i) => {
+    if (i < 3) { const p = out(raw(tt, 8.6 + i * .2, 9.4 + i * .2)) * fade; bar3(b, QU * ALONE[i] * p); b.g.style.opacity = p > 0 ? 1 : 0; }
+    else { bar3(b, 0); b.g.style.opacity = 0; }
+  });
+  beat.style.opacity = 0; best.style.opacity = 0;
+  need.style.opacity = raw(tt, 9.6, 10.0);
+  const g2 = raw(tt, 10.8, 11.2);
+  gap.style.opacity = g2;
+  gap.setAttribute("transform", `translate(${(6 * (1 - out(g2))).toFixed(1)} 0)`);
+}
+
+
+/* ---------- acts + rail ---------- */
+const S0 = typeof SKIP === "number" ? SKIP : 0;
+const ACTS = [
+  { name: "The problem", color: "--red", stages: PSTAGES, off: 0, end: PL - .5 },
+  { name: "How FedChip solves it", color: "--blue", stages: STAGES.filter(s => s.t >= S0).map(s => Object.assign({}, s, { t: s.t - S0 })), off: PL, end: PL + END - S0 },
+];
+const TOT = PL + LOOP - S0;
+const ALL = [];
+const actsEl = document.getElementById("acts");
+ACTS.forEach(A => {
+  const box = document.createElement("div");
+  box.className = "act"; box.style.setProperty("--c", `var(${A.color})`); box.style.flexGrow = A.stages.length;
+  const tab = document.createElement("button");
+  tab.className = "tab"; tab.type = "button"; tab.textContent = A.name;
+  tab.addEventListener("click", () => { t = A.off + .01; });
+  box.appendChild(tab);
+  const rl = document.createElement("div");
+  rl.className = "rail"; rl.style.gridTemplateColumns = `repeat(${A.stages.length}, minmax(0, 1fr))`;
+  box.appendChild(rl);
+  A.stages.forEach((s, i) => {
+    const g0 = A.off + s.t, g1 = i < A.stages.length - 1 ? A.off + A.stages[i + 1].t : A.end;
+    const b = document.createElement("button");
+    b.className = "step"; b.type = "button";
+    b.innerHTML = `<span class="bar"><i></i></span><span class="lbl"><b>${i + 1}</b><span class="txt">${s.name}</span></span>`;
+    b.setAttribute("aria-label", `${A.name}, step ${i + 1}: ${s.name}`);
+    b.addEventListener("click", () => { t = g0 + .01; });
+    rl.appendChild(b);
+    ALL.push({ t: g0, end: g1, cap: s.cap, b });
+  });
+  A.box = box; actsEl.appendChild(box);
+});
+const caption = document.getElementById("caption");
+function renderUI(tt) {
+  let si = 0; ALL.forEach((s, i) => { if (tt >= s.t) si = i; });
+  ALL.forEach((s, i) => { s.b.querySelector("i").style.width = (raw(tt, s.t, s.end) * 100) + "%"; s.b.classList.toggle("on", i === si); });
+  if (caption.dataset.i !== String(si)) { caption.dataset.i = si; caption.textContent = ALL[si].cap; }
+  ACTS[0].box.classList.toggle("on", tt < PL);
+  ACTS[1].box.classList.toggle("on", tt >= PL);
+}
+function render(tt) {
+  renderUI(tt);
+  if (typeof CAM === "object") CAM.t = tt;
+  if (tt < PL) { renderS(Math.min(tt, 2.0)); root.style.opacity = SROOT(tt); renderP(tt); }
+  else { rootP.style.opacity = 0; if (typeof resetP === "function") resetP(); renderS(tt - PL + S0); }
+}
+
+
+function bar3(b, h) {
+  const x0 = b.cx - QW / 2, x1 = b.cx + QW / 2, yt = QB - h;
+  b.front.setAttribute("y", yt); b.front.setAttribute("height", h);
+  const sd = `M ${x1} ${yt} L ${x1 + QDX} ${yt - QDY} L ${x1 + QDX} ${QB - QDY} L ${x1} ${QB} Z`;
+  b.side.setAttribute("d", sd); b.sideD.setAttribute("d", sd);
+  const td = `M ${x0} ${yt} L ${x0 + QDX} ${yt - QDY} L ${x1 + QDX} ${yt - QDY} L ${x1} ${yt} Z`;
+  b.top.setAttribute("d", td); b.topH.setAttribute("d", td);
+}
+function arc(a, b, p, lift) {
+  const e = io(p);
+  return [lerp(a[0], b[0], e), lerp(a[1], b[1], e) - lift * Math.sin(Math.PI * p)];
+}
+
+/* ---------- render ---------- */
+function renderS(t) {
+  root.style.opacity = 1 - raw(t, END, LOOP);
+
+  const th = .16 * Math.sin(2 * Math.PI * CAM.t / LOOP);
+  cth = Math.cos(th); sth = Math.sin(th);
+
+  /* floor */
+  const disc = [];
+  for (let d = 0; d <= 360; d += 6) { const a = d * Math.PI / 180; disc.push(P(375 * Math.cos(a), 0, 265 * Math.sin(a))); }
+  floorDisc.setAttribute("d", poly(disc)); floorRim.setAttribute("d", poly(disc));
+  grid.forEach(gl => {
+    if (gl.ring) { const pts = []; for (let d = 0; d <= 360; d += 8) { const a = d * Math.PI / 180; pts.push(P(375 * gl.ring * Math.cos(a), 0, 265 * gl.ring * Math.sin(a))); } gl.e.setAttribute("d", poly(pts)); }
+    else { const a = gl.ray * Math.PI / 180; const p0 = P(375 * .36 * Math.cos(a), 0, 265 * .36 * Math.sin(a)), p1 = P(375 * Math.cos(a), 0, 265 * Math.sin(a)); gl.e.setAttribute("d", `M ${p0[0]} ${p0[1]} L ${p1[0]} ${p1[1]}`); }
+  });
+  const hp = P(0, 0, 0);
+  CO.forEach((c, i) => {
+    const q = P(...c.pos);
+    spokes[i].setAttribute("d", `M ${hp[0]} ${hp[1]} L ${q[0]} ${q[1]}`);
+    spokes[i].style.strokeDashoffset = -t * 18;
+    spokes[i].style.opacity = raw(t, 2.2, 2.8) * .8;
+    beams[i].setAttribute("d", `M ${hp[0]} ${hp[1]} L ${q[0]} ${q[1]}`);
+    const act = Math.max(...R.map((_, r) => Math.max(pulse(t, at(r, 0), .8 * R[r].sc + .1), pulse(t, at(r, 2.2), .8 * R[r].sc + .1))), pulse(t, FINAL_OUT[0], .8));
+    beams[i].style.opacity = .06 + .2 * act;
+  });
+
+  /* objects + depth */
+  const objs = [];
+  let roundIdx = -1; R.forEach((_, r) => { if (t >= at(r, 0)) roundIdx = r; });
+  CO.forEach((c, i) => {
+    const [x, y, k, zz] = P(...c.pos);
+    const app = raw(t, .2 + i * .3, .7 + i * .3);
+    c.g.setAttribute("transform", `translate(${x.toFixed(1)} ${y.toFixed(1)}) scale(${(k * (app ? back(app) : 0)).toFixed(3)})`);
+    c.g.style.opacity = clamp(app * 2);
+    c.plates.forEach((pg, j) => {
+      const pa = raw(t, .9 + i * .2 + j * .15, 1.2 + i * .2 + j * .15);
+      const glow = Math.max(0, ...R.map((_, r) => pulse(t, at(r, .9 + j * .3), .5)));
+      pg.setAttribute("transform", `translate(0 ${(-12 * (1 - out(pa)) - 3 * glow).toFixed(1)})`);
+      pg.style.opacity = pa;
+    });
+    /* local model: visible once the first copy arrives */
+    const mIn = raw(t, at(0, .7), at(0, .9));
+    const bob = 2.5 * Math.sin(t * 2.4 + i);
+    c.model.setAttribute("transform", `translate(30 ${(-46 + bob).toFixed(1)}) scale(${(mIn ? back(mIn) : 0).toFixed(3)})`);
+    let prog = 0;
+    R.forEach((_, r) => { if (t >= at(r, .9)) prog = raw(t, at(r, .9), at(r, 2.1)); });
+    if (t >= at(2, 2.1)) prog = 1;
+    c.ring.style.strokeDashoffset = 1 - prog;
+    c.ring.style.opacity = t >= at(0, .9) ? 1 : 0;
+    /* training feed: designs teach the local model, inside the walls */
+    c.feed.forEach((f, j) => {
+      let on = 0, p = 0;
+      R.forEach((_, r) => { const s0 = at(r, 1.0 + j * .3), q = raw(t, s0, s0 + .5 * R[r].sc + .1); if (q > 0 && q < 1) { on = 1; p = q; } });
+      const a = [-30, -30 + j * 4], b = [30, -46];
+      const pt = arc(a, b, p, 20);
+      f.setAttribute("cx", pt[0]); f.setAttribute("cy", pt[1]);
+      f.style.opacity = on;
+    });
+    const lockA = raw(t, 2.0, 2.4);
+    c.lock.setAttribute("transform", `translate(0 10) scale(${(lockA ? back(lockA) : 0).toFixed(3)})`);
+    c.lockGlow.style.opacity = .55 * Math.max(...R.map((_, r) => pulse(t, at(r, 2.2), .9 * R[r].sc + .2)));
+    const da = raw(t, 1.7 + i * .15, 2.2 + i * .15);
+    c.dome.setAttribute("transform", `translate(0 ${(-30 * (1 - out(da))).toFixed(1)})`);
+    c.dome.style.opacity = da;
+    c.zz = zz; objs.push(c);
+  });
+  {
+    const [x, y, k, zz] = P(0, 0, 0);
+    const app = raw(t, .4, 1.0);
+    HUB.g.setAttribute("transform", `translate(${x.toFixed(1)} ${y.toFixed(1)}) scale(${(k * 1.08 * (app ? back(app) : 0)).toFixed(3)})`);
+    HUB.g.style.opacity = clamp(app * 2);
+    const glow = Math.max(...R.map((_, r) => pulse(t, at(r, 3.0), .8 * R[r].sc + .2)), pulse(t, 15.0, .8));
+    HUB.chip.setAttribute("transform", `translate(0 ${(-48 - 6 * glow + 2 * Math.sin(t * 2)).toFixed(1)}) scale(${(1 + .08 * glow).toFixed(3)})`);
+    HUB.halo.style.opacity = glow;
+    HUB.beam.style.opacity = .55 + .45 * glow;
+    HUB.orbit.style.opacity = raw(t, at(0, 3.0), at(0, 3.4));
+    HUB.odots.forEach((d, j) => { const a = t * 1.4 + j * 2.094; d.setAttribute("cx", 78 * Math.cos(a)); d.setAttribute("cy", -48 + 26 * Math.sin(a)); });
+    HUB.merge.forEach((m, j) => {
+      let p = 0;
+      R.forEach((_, r) => { const s0 = at(r, 3.0 + j * .12); const q = raw(t, s0, s0 + .7); if (q > 0 && q < 1) p = q; });
+      m.setAttribute("rx", 48 + 50 * p); m.setAttribute("ry", 18 + 18 * p);
+      m.style.opacity = p > 0 ? 1 - p : 0;
+    });
+    HUB.badge.setAttribute("transform", "translate(0 -100)");
+    HUB.badge.style.opacity = roundIdx >= 0 && t < 13.6 ? 1 : 0;
+    HUB.badgeT.textContent = roundIdx >= 0 ? `round ${roundIdx + 1}` : "";
+    HUB.lbl.setAttribute("x", x.toFixed(1)); HUB.lbl.setAttribute("y", (y + 40 * k * 1.08).toFixed(1));
+    HUB.lbl.style.opacity = clamp(app * 2);
+    HUB.zz = zz; objs.push(HUB);
+  }
+  objs.sort((a, b) => a.zz - b.zz).forEach(o => L.obj.appendChild(o.g));
+
+  /* orbs: model copies out, lessons in */
+  const hubTop = (() => { const [x, y, k] = P(0, 0, 0); return [x, y - 60 * k]; })();
+  CO.forEach((c, i) => {
+    const [x, y, k] = P(...c.pos);
+    const mp = [x + 30 * k, y - 46 * k];
+    let o = null, u = null;
+    R.forEach((_, r) => {
+      const qo = raw(t, at(r, 0), at(r, .8)); if (qo > 0 && qo < 1) o = { p: qo, r };
+      const qu = raw(t, at(r, 2.2), at(r, 3.0)); if (qu > 0 && qu < 1) u = qu;
+    });
+    const qf = raw(t, FINAL_OUT[0], FINAL_OUT[1]); if (qf > 0 && qf < 1) o = { p: qf, r: 3 };
+    if (o) {
+      const pt = arc(hubTop, mp, o.p, 70);
+      outOrbs[i].setAttribute("transform", `translate(${pt[0].toFixed(1)} ${pt[1].toFixed(1)}) scale(${(1 + .18 * o.r).toFixed(2)})`);
+      outOrbs[i].style.opacity = 1;
+      trails[i].o.forEach((e, j) => { const q = arc(hubTop, mp, Math.max(0, o.p - (j + 1) * .045), 70); e.setAttribute("cx", q[0]); e.setAttribute("cy", q[1]); e.style.opacity = .35 - j * .07; });
+    } else { outOrbs[i].style.opacity = 0; trails[i].o.forEach(e => e.style.opacity = 0); }
+    if (u !== null) {
+      const pt = arc(mp, hubTop, u, 70);
+      upOrbs[i].setAttribute("transform", `translate(${pt[0].toFixed(1)} ${pt[1].toFixed(1)})`);
+      upOrbs[i].style.opacity = 1;
+      trails[i].u.forEach((e, j) => { const q = arc(mp, hubTop, Math.max(0, u - (j + 1) * .045), 70); e.setAttribute("cx", q[0]); e.setAttribute("cy", q[1]); e.style.opacity = .4 - j * .08; });
+    } else { upOrbs[i].style.opacity = 0; trails[i].u.forEach(e => e.style.opacity = 0); }
+  });
+
+  /* quality chart */
+  bars.forEach((b, i) => {
+    let h;
+    if (i < 3) { const p = out(raw(t, at(0, 1.2), at(0, 2.1))); h = QU * ALONE[i] * p; b.g.style.opacity = p > 0 ? 1 : 0; }
+    else {
+      let val = 0;
+      R.forEach((_, r) => { const p = out(raw(t, at(r, 3.6), at(r, 3.6) + .5)); if (p > 0) val = lerp(r ? SHARED[r - 1] : 0, SHARED[r], p); });
+      h = QU * val; b.g.style.opacity = val > 0 ? 1 : 0;
+    }
+    bar3(b, h);
+  });
+  const bt = raw(t, at(2, 4.1), at(2, 4.1) + .35);
+  beat.style.opacity = bt;
+  beat.setAttribute("transform", `translate(${bars[3].cx - 40} ${QB - QU * SHARED[2] - 24}) scale(${bt ? back(bt).toFixed(3) : 0})`);
+  best.style.opacity = .8 * bt;
+
+  /* use panel */
+  const ua = raw(t, 13.8, 14.1);
+  UG.style.opacity = .35 + .65 * ua;
+  typeTo(ask, ASK, raw(t, 14.0, 14.9));
+  CODE.style.opacity = raw(t, 15.0, 15.2);
+  const vp = raw(t, 15.1, 16.2), tot = vlines.reduce((a, s) => a + s.length, 0);
+  let n = Math.floor(tot * vp);
+  vEls.forEach((e, i) => { const k = Math.max(0, Math.min(vlines[i].length, n)); e.textContent = vlines[i].slice(0, k); n -= vlines[i].length; });
+  flow.style.opacity = raw(t, 16.3, 16.5);
+  SC.style.opacity = raw(t, 16.5, 16.7);
+  rows.forEach((rw, i) => {
+    const q = out(raw(t, 16.6 + i * .3, 17.0 + i * .3));
+    rw.f.setAttribute("width", 50 * rw.val * q);
+    const ok = raw(t, 16.95 + i * .3, 17.2 + i * .3);
+    rw.ok.style.opacity = ok;
+    rw.ok.setAttribute("transform", `translate(68 29) scale(${ok ? back(ok).toFixed(3) : 0})`);
+  });
+}
+
+/* ---------- playback ---------- */
+const playBtn = document.getElementById("play"), scrub = document.getElementById("scrub");
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+let t = reduce ? PL - S0 + 18.5 : 0.2, playing = !reduce, last = null, dragging = false;
+scrub.max = TOT;
+playBtn.textContent = playing ? "Pause" : "Play";
+playBtn.addEventListener("click", () => { playing = !playing; playBtn.textContent = playing ? "Pause" : "Play"; });
+document.getElementById("restart").addEventListener("click", () => { t = 0; });
+scrub.addEventListener("input", () => { t = +scrub.value; dragging = true; });
+scrub.addEventListener("change", () => { dragging = false; });
+function frame(now) {
+  if (last !== null && playing && !dragging) t = (t + (now - last) / 1000) % TOT;
+  last = now;
+  render(t);
+  if (!dragging) scrub.value = t;
+  requestAnimationFrame(frame);
+}
+render(t);
+requestAnimationFrame(frame);
+})();
+</script>
+
+<script>
+(function () {
+  if (window.self === window.top) return;
+  var last = 0;
+  function post() {
+    var h = Math.ceil(document.querySelector(".wrap").getBoundingClientRect().height);
+    if (h !== last) { last = h; parent.postMessage({ type: "anim-height", h: h }, "*"); }
+  }
+  new ResizeObserver(post).observe(document.body);
+  window.addEventListener("load", post);
+  /* start from the beginning when scrolled into view; pause when off screen */
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  var play = document.getElementById("play"), restart = document.getElementById("restart");
+  var seen = false, ours = false;
+  var playing = function () { return play.textContent.trim() === "Pause"; };
+  if (playing()) play.click();
+  new IntersectionObserver(function (es) {
+    es.forEach(function (e) {
+      if (e.isIntersecting) {
+        if (!seen) { seen = true; restart.click(); if (!playing()) play.click(); }
+        else if (ours && !playing()) play.click();
+        ours = false;
+      } else if (playing()) { play.click(); ours = true; }
+    });
+  }, { threshold: 0.35 }).observe(document.querySelector(".stage"));
+})();
+</script>
+</body>
+</html>

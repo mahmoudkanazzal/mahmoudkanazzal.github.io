@@ -1,0 +1,707 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body { margin: 0; background: #1e2124; }
+html.embed .wrap { padding: 4px 0 8px !important; }
+html.embed .wrap > header { display: none; }
+</style>
+<script>if (window.self !== window.top) document.documentElement.classList.add("embed");</script>
+</head>
+<body>
+<title>MintA Evasion Attack</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Carlito:ital,wght@0,400;0,700;1,400&display=swap">
+<style>
+/* Layout: the domain graph and its detection scores on the left; on the right, the attack pipeline split into the adversary's scope and the defender's scope, joined by DNS. */
+:root {
+  color-scheme: dark;
+  --bg: #1e2124; --fg: #f2f2f2; --muted: #aeb3ba; --card: #262a2f; --line: #41464d; --edge: #6e757e; --gedge: #4a5058;
+  --ink: #4a515c; --on-ink: #f2f2f2;
+  --adv: #d97a3a; --adv-soft: #3b2c22; --oth: #4a86d6; --oth-soft: #25344a; --adv-deep: #9c5426; --oth-deep: #2f5d9e; --slate-deep: #5d636c; --hi: #ffffff;
+  --red: #dc5a5a; --green: #4bb578; --green-soft: #223a2d; --gold: #c9973f; --slate: #8f96a0; --slate-soft: #30343a; --panel: #2b2f35;
+  --f-display: Calibri, Carlito, "Segoe UI", system-ui, -apple-system, sans-serif;
+  --f-body: Calibri, Carlito, "Segoe UI", system-ui, -apple-system, sans-serif;
+  --f-mono: Calibri, Carlito, "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+
+body { background: var(--bg); color: var(--fg); font-family: var(--f-body); }
+.wrap { max-width: 1180px; margin: 0 auto; padding-block: 28px 36px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; flex-direction: column; gap: 18px; }
+.eyebrow { font: 700 13px/1 var(--f-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--adv); margin: 0 0 8px; }
+h1 { font: 700 clamp(28px, 4.2vw, 42px)/1.05 var(--f-display); margin: 0; text-wrap: balance; letter-spacing: -.01em; }
+
+.acts { display: flex; gap: 28px; }
+.act { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+.tab { appearance: none; border: 0; background: none; padding: 0; text-align: left; cursor: pointer; color: var(--muted);
+  font: 700 13px/1 var(--f-mono); letter-spacing: .1em; text-transform: uppercase; display: flex; align-items: center; gap: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tab::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--line); flex: none; }
+.act.on .tab { color: var(--c); }
+.act.on .tab::before { background: var(--c); box-shadow: 0 0 0 4px color-mix(in srgb, var(--c) 25%, transparent); }
+.tab:focus-visible { outline: 2px solid var(--blue, var(--fg)); outline-offset: 4px; border-radius: 4px; }
+.act.on .step .bar i { background: var(--c); }
+.rail { display: grid; gap: 8px; }
+.step { appearance: none; border: 0; background: none; padding: 0; text-align: left; cursor: pointer; color: var(--muted);
+  font: 400 14px/1.25 var(--f-body); display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.step .bar { height: 4px; border-radius: 4px; background: var(--line); overflow: hidden; }
+.step .bar i { display: block; height: 100%; width: 0; background: var(--fg); border-radius: 4px; }
+.step .lbl { display: flex; gap: 8px; align-items: baseline; }
+.step b { font: 700 13px var(--f-mono); }
+.step.on { color: var(--fg); }
+.step:focus-visible { outline: 2px solid var(--adv); outline-offset: 4px; border-radius: 4px; }
+@media (max-width: 640px) { .step .txt { display: none; } }
+
+.caption { font: 400 clamp(17px, 2.3vw, 21px)/1.35 var(--f-display); min-height: 2.7em; margin: 0; max-width: 72ch; }
+.stage { overflow-x: auto; border-radius: 18px; background: var(--card); border: 1px solid var(--line); }
+svg { display: block; width: 100%; min-width: 680px; height: auto; }
+
+.ctl { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.btn { appearance: none; border: 1px solid var(--line); background: var(--card); color: var(--fg); border-radius: 999px;
+  padding: 8px 16px; font: 700 14px var(--f-body); cursor: pointer; }
+.btn:hover { border-color: var(--muted); }
+.btn:focus-visible, #scrub:focus-visible { outline: 2px solid var(--adv); outline-offset: 2px; }
+#scrub { flex: 1 1 200px; accent-color: var(--adv); min-width: 0; }
+
+.t-mono { font-family: var(--f-mono); font-weight: 500; }
+.t-monob { font-family: var(--f-mono); font-weight: 700; }
+.t-body { font-family: var(--f-body); }
+.t-bodyb { font-family: var(--f-body); font-weight: 600; }
+.t-disp { font-family: var(--f-display); font-weight: 700; }
+</style>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">MintA · IEEE S&amp;P 2024</p>
+    <h1>How MintA evades graph-based malicious domain detection</h1>
+  </header>
+
+  <div class="acts" id="acts"></div>
+  <p class="caption" id="caption" aria-live="polite"></p>
+
+  <div class="stage"><svg id="svg" viewBox="0 40 1120 484" role="img" aria-label="Animation in two parts. The problem: a graph-based detector flags an adversary's domains; existing attacks evade one domain at a time, linked domains pull each other back, benign neighbors drift toward the flagged range, and success falls as more domains are attacked. The solution: the adversary trains a surrogate model, runs MintA on its estimated subgraph to jointly perturb its domains and IPs, and realizes the perturbations through DNS. The target model then labels all of the adversary's domains benign while other predictions barely change."></svg></div>
+
+  <div class="ctl">
+    <button class="btn" id="play" type="button">Pause</button>
+    <button class="btn" id="restart" type="button">Restart</button>
+    <input type="range" id="scrub" min="0" max="25" step="0.01" value="0" aria-label="Timeline">
+  </div>
+</div>
+
+<script>
+(() => {
+const NS = "http://www.w3.org/2000/svg";
+const svg = document.getElementById("svg");
+const LOOP = 25, END = 24.3;
+
+/* ---------- helpers ---------- */
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const raw = (t, a, b) => clamp((t - a) / (b - a));
+const io = x => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+const out = x => 1 - Math.pow(1 - x, 3);
+const back = x => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2); };
+const lerp = (a, b, p) => a + (b - a) * p;
+const pulse = (t, at, d = 0.7) => { const p = raw(t, at, at + d); return p > 0 && p < 1 ? Math.sin(Math.PI * p) : 0; };
+const v = n => `var(${n})`;
+function el(tag, attrs = {}, parent = svg, style = {}) {
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  Object.assign(e.style, style);
+  parent.appendChild(e);
+  return e;
+}
+function txt(parent, x, y, s, cls, size, style = {}, anchor = "start") {
+  const e = el("text", { x, y, class: cls, "font-size": size, "text-anchor": anchor }, parent, style);
+  e.textContent = s; return e;
+}
+
+/* ---------- content ---------- */
+const STAGES = [
+  { t: 0,    name: "Setting",   cap: "The adversary controls a subgraph of domains, IPs and clients. The target detector flags its domains as malicious." },
+  { t: 4.0,  name: "Surrogate", cap: "The adversary cannot see inside the target model, so it trains a surrogate model on labeled domain data." },
+  { t: 8.0,  name: "MintA",     cap: "On its estimated subgraph, MintA jointly perturbs the adversary's domains and IPs until all of its domains fall below the surrogate's threshold." },
+  { t: 14.0, name: "Deploy",    cap: "The perturbations are carried out through DNS activity. The defender observes the DNS logs and rebuilds the domain graph." },
+  { t: 18.0, name: "Outcome",   cap: "The target model now labels the adversary's domains benign, while its predictions for other domains barely change." },
+];
+
+/* ---------- graph data ---------- */
+const GA = { // adversary nodes
+  a1: [205, 208, "d"], a2: [292, 198, "d"], a3: [228, 282, "d"], a4: [318, 272, "d"],
+  i1: [256, 236, "i"], i2: [272, 306, "i"], c1: [172, 252, "c"], c2: [346, 226, "c"],
+};
+const GAE = [["a1","i1"],["a2","i1"],["a3","i1"],["a4","i1"],["a3","i2"],["a4","i2"],["c1","a1"],["c1","a3"],["c2","a2"],["c2","a4"]];
+const BL = [
+  [62,110,"d"],[122,96,"i"],[186,106,"d"],[250,94,"c"],[322,100,"d"],[392,96,"i"],[456,110,"d"],[498,150,"c"],
+  [76,170,"i"],[140,160,"d"],[216,150,"i"],[302,146,"d"],[366,156,"c"],[432,170,"d"],
+  [52,240,"c"],[108,228,"d"],[392,220,"d"],[452,236,"i"],[500,262,"d"],
+  [70,312,"d"],[130,300,"i"],[184,332,"d"],[334,336,"i"],[392,300,"d"],[452,312,"c"],[500,334,"i"],
+];
+const CROSS = [["c1",15],["a1",10],["a2",11],["c2",16],["i2",22],["a3",21]];
+const PERT = [["a2","i2"],["a1","i2"],["c2","a3"]];
+const ADV_D = ["a1", "a2", "a3", "a4"];
+const OTH_D = [9, 16, 23]; // indices into BL (domains near the adversary)
+const S_INIT  = [0.92, 0.86, 0.95, 0.81, 0.14, 0.22, 0.10];
+const S_SURR  = [0.22, 0.30, 0.18, 0.26, 0.16, 0.24, 0.11];
+const S_FINAL = [0.31, 0.38, 0.27, 0.35, 0.16, 0.25, 0.12];
+
+/* ---------- layers ---------- */
+const defs = el("defs");
+const root = el("g");
+const L = {};
+["panelBg", "gFloor", "gShadow", "gEdges", "gPert", "gNodes", "gLbl", "scores", "pipe", "token"].forEach(k => L[k] = el("g", {}, root));
+function marker(id, color) {
+  const m = el("marker", { id, viewBox: "0 0 10 10", refX: 8, refY: 5, markerWidth: 7, markerHeight: 7, orient: "auto-start-reverse" }, defs);
+  el("path", { d: "M0 0 L10 5 L0 10 z" }, m, { fill: v(color) });
+}
+marker("arr", "--edge"); marker("arra", "--adv");
+function rgrad(id, c, deep) {
+  const g = el("radialGradient", { id, cx: "34%", cy: "30%", r: "78%" }, defs);
+  el("stop", { offset: "0" }, g, { stopColor: v("--hi"), stopOpacity: .95 });
+  el("stop", { offset: "0.32" }, g, { stopColor: v(c) });
+  el("stop", { offset: "1" }, g, { stopColor: v(deep) });
+}
+rgrad("gAdv", "--adv", "--adv-deep"); rgrad("gOth", "--oth", "--oth-deep"); rgrad("gSlate", "--slate", "--slate-deep"); rgrad("gGold", "--gold", "--adv-deep");
+const flt = el("filter", { id: "sh", x: "-15%", y: "-15%", width: "130%", height: "140%" }, defs);
+el("feDropShadow", { dx: 0, dy: 7, stdDeviation: 8, "flood-color": "#0a0f24", "flood-opacity": .17 }, flt);
+const gclip = el("clipPath", { id: "gclip" }, defs);
+el("rect", { x: 20, y: 86, width: 508, height: 258 }, gclip);
+["gFloor", "gShadow", "gEdges", "gPert", "gNodes", "gLbl"].forEach(k => L[k].setAttribute("clip-path", "url(#gclip)"));
+
+/* ---------- graph panel ---------- */
+el("rect", { x: 20, y: 52, width: 508, height: 318, rx: 16, filter: "url(#sh)" }, L.panelBg, { fill: v("--panel"), stroke: v("--line") });
+const goal = el("text", { x: 36, y: 76, class: "t-bodyb", "font-size": 13 }, L.panelBg, { fill: v("--muted") });
+[["Goal: ", "--muted"], ["evade detection", "--adv"], [" of the adversary's domains with ", "--muted"], ["minimal effect", "--oth"], [" on the rest", "--muted"]]
+  .forEach(([s, c]) => { const ts = el("tspan", {}, goal, { fill: v(c) }); ts.textContent = s; });
+/* legend */
+const LEG = el("g", { transform: "translate(36 356)" }, L.panelBg);
+function shape(parent, kind, x, y, r, color) {
+  const deep = v(color + "-deep"), base = v(color);
+  const grad = color === "--adv" ? "gAdv" : color === "--oth" ? "gOth" : "gSlate";
+  const g = el("g", { transform: `translate(${x} ${y})` }, parent);
+  if (kind === "d") {
+    el("circle", { r }, g, { fill: `url(#${grad})` });
+  } else if (kind === "i") {
+    const a = r * 1.02;
+    el("path", { d: `M ${-a} ${-a / 2} L 0 0 L 0 ${a} L ${-a} ${a / 2} Z` }, g, { fill: base });
+    el("path", { d: `M 0 0 L ${a} ${-a / 2} L ${a} ${a / 2} L 0 ${a} Z` }, g, { fill: deep });
+    el("path", { d: `M 0 ${-a} L ${a} ${-a / 2} L 0 0 L ${-a} ${-a / 2} Z` }, g, { fill: base });
+    el("path", { d: `M 0 ${-a} L ${a} ${-a / 2} L 0 0 L ${-a} ${-a / 2} Z` }, g, { fill: v("--hi"), opacity: .38 });
+  } else {
+    el("path", { d: `M 0 ${-r * 1.25} L ${-r} ${r * .75} L ${r * .18} ${r * .95} Z` }, g, { fill: base });
+    el("path", { d: `M 0 ${-r * 1.25} L ${r * .18} ${r * .95} L ${r} ${r * .7} Z` }, g, { fill: deep });
+  }
+  return g;
+}
+shape(LEG, "d", 0, -4, 6, "--adv"); txt(LEG, 12, 0, "adversary's domains, IPs, clients", "t-body", 12.5, { fill: v("--muted") });
+shape(LEG, "d", 226, -4, 6, "--oth"); txt(LEG, 238, 0, "everyone else", "t-body", 12.5, { fill: v("--muted") });
+
+/* estimated-subgraph hull */
+const hull = el("ellipse", { cx: 262, cy: 246, rx: 128, ry: 92 }, L.gEdges, { fill: v("--adv-soft"), stroke: v("--adv"), strokeWidth: 2, strokeDasharray: "6 6" });
+const hullLbl = txt(L.gEdges, 262, 146, "estimated adversary subgraph", "t-monob", 10.5, { fill: v("--adv") }, "middle");
+
+/* nodes */
+const nodes = [];
+BL.forEach(([x, y, k], i) => nodes.push({ id: "b" + i, x, y, k, adv: false }));
+Object.entries(GA).forEach(([id, [x, y, k]]) => nodes.push({ id, x, y, k, adv: true }));
+const nid = Object.fromEntries(nodes.map(n => [n.id, n]));
+/* blue edges: 2 nearest blue neighbours */
+const edges = []; const seen = new Set();
+const addE = (a, b, kind) => { const key = [a, b].sort().join("|"); if (seen.has(key)) return; seen.add(key); edges.push({ a: nid[a], b: nid[b], kind }); };
+BL.forEach((p, i) => {
+  const d = BL.map((q, j) => [j, Math.hypot(p[0] - q[0], p[1] - q[1])]).filter(([j]) => j !== i).sort((a, b) => a[1] - b[1]);
+  addE("b" + i, "b" + d[0][0], "o"); addE("b" + i, "b" + d[1][0], "o");
+});
+GAE.forEach(([a, b]) => addE(a, b, "a"));
+CROSS.forEach(([a, j]) => addE(a, "b" + j, "x"));
+edges.forEach((e, k) => {
+  e.k = k;
+  e.line = el("line", { x1: e.a.x, y1: e.a.y, x2: e.b.x, y2: e.b.y, pathLength: 1 }, L.gEdges,
+    { stroke: v(e.kind === "a" ? "--adv" : "--gedge"), strokeWidth: e.kind === "a" ? 2.5 : 2, strokeDasharray: 1 });
+});
+const pert = PERT.map(([a, b]) => {
+  const A = nid[a], B = nid[b];
+  const line = el("line", { x1: A.x, y1: A.y, x2: B.x, y2: B.y, pathLength: 1 }, L.gPert, { stroke: v("--adv"), strokeWidth: 3, strokeDasharray: 1, strokeLinecap: "round" });
+  const glow = el("line", { x1: A.x, y1: A.y, x2: B.x, y2: B.y }, L.gPert, { stroke: v("--gold"), strokeWidth: 8, strokeLinecap: "round", opacity: 0 });
+  return { line, glow };
+});
+nodes.forEach((n, i) => {
+  n.g = el("g", { transform: `translate(${n.x} ${n.y})` }, L.gNodes);
+  n.ring = el("circle", { r: 15 }, n.g, { fill: "none", strokeWidth: 3, opacity: 0 });
+  n.shape = shape(n.g, n.k, 0, 0, n.adv ? 8 : 6.5, n.adv ? "--adv" : "--oth");
+  n.order = n.adv ? 20 + i * .02 : Math.hypot(n.x - 262, n.y - 246) / 260;
+  const rr = Math.sin((i + 1) * 12.9898 + 4.1) * 43758.5453, rn = rr - Math.floor(rr);
+  n.z = n.adv ? (rn - .5) * 60 + 40 : (rn - .5) * 260;
+  n.sh = el("ellipse", { rx: 7, ry: 2.4 }, L.gShadow, { fill: v("--fg"), opacity: .13 });
+});
+/* perspective floor */
+const FLOOR = 336, FZ = 150;
+const floorFill = el("path", {}, L.gFloor, { fill: v("--line"), opacity: .45 });
+const floorLines = [];
+for (let i = 0; i <= 7; i++) { const x = 40 + i * 64; floorLines.push({ a: [x, FLOOR, -FZ], b: [x, FLOOR, FZ], e: el("line", {}, L.gFloor, { stroke: v("--gedge"), strokeWidth: 1.2 }) }); }
+for (let i = 0; i <= 6; i++) { const z = -FZ + i * 50; floorLines.push({ a: [40, FLOOR, z], b: [488, FLOOR, z], e: el("line", {}, L.gFloor, { stroke: v("--gedge"), strokeWidth: 1.2 }) }); }
+/* score-tracked domains */
+const tracked = ADV_D.map((id, i) => ({ n: nid[id], lbl: "A" + (i + 1), adv: true }))
+  .concat(OTH_D.map((j, i) => ({ n: nid["b" + j], lbl: "B" + (i + 1), adv: false })));
+tracked.forEach(tr => {
+  const dx = tr.n.x < 262 ? -14 : 14;
+  tr.tag = txt(L.gLbl, tr.n.x + dx, tr.n.y - 12, tr.lbl, "t-monob", 10.5, { fill: v(tr.adv ? "--adv" : "--oth") }, tr.n.x < 262 ? "end" : "start");
+});
+
+/* ---------- score panel ---------- */
+const SP = el("g", { transform: "translate(20 384)" }, L.scores);
+el("rect", { x: 0, y: 0, width: 508, height: 132, rx: 16, filter: "url(#sh)" }, SP, { fill: v("--panel"), stroke: v("--line") });
+txt(SP, 16, 24, "Maliciousness score", "t-bodyb", 13, { fill: v("--fg") });
+const srcChip = el("g", { transform: "translate(492 19)" }, SP);
+const srcR = el("rect", { x: -150, y: -12, width: 150, height: 24, rx: 12 }, srcChip, { fill: v("--green") });
+const srcT = txt(srcChip, -75, 4, "target model", "t-monob", 10.5, { fill: v("--card") }, "middle");
+const BX0 = 72, BW = 34, BG = 60, BASE = 108, BH = 70;
+const thrY = BASE - BH * 0.5;
+el("line", { x1: 40, y1: thrY, x2: 490, y2: thrY }, SP, { stroke: v("--red"), strokeWidth: 1.5, strokeDasharray: "5 4" });
+txt(SP, 36, thrY + 4, "0.5", "t-mono", 10, { fill: v("--red") }, "end");
+el("line", { x1: 40, y1: BASE, x2: 490, y2: BASE }, SP, { stroke: v("--line"), strokeWidth: 1.5 });
+tracked.forEach((tr, i) => {
+  const x = BX0 + i * BG + (tr.adv ? 0 : 22);
+  tr.bx = x;
+  const col = v(tr.adv ? "--adv" : "--oth"), deepC = v(tr.adv ? "--adv-deep" : "--oth-deep");
+  tr.bg = el("g", {}, SP);
+  tr.side = el("path", {}, tr.bg, { fill: deepC });
+  tr.top = el("path", {}, tr.bg, { fill: col });
+  tr.topO = el("path", {}, tr.bg, { fill: v("--hi"), opacity: .4 });
+  tr.bar = el("rect", { x, y: BASE, width: BW, height: 0 }, tr.bg, { fill: col });
+  tr.ghost = el("line", { x1: x - 3, x2: x + BW + 3, y1: BASE, y2: BASE }, SP, { stroke: v("--fg"), strokeWidth: 2, strokeDasharray: "3 3", opacity: 0 });
+  txt(SP, x + BW / 2, BASE + 16, tr.lbl, "t-monob", 10.5, { fill: v(tr.adv ? "--adv" : "--oth") }, "middle");
+});
+
+/* ---------- pipeline ---------- */
+const AX = 680, TX = 972;
+const ABOX = { x: 560, y: 140, w: 240, h: 322 }, TBOX = { x: 852, y: 140, w: 240, h: 322 };
+el("rect", { x: ABOX.x, y: ABOX.y, width: ABOX.w, height: ABOX.h, rx: 16, filter: "url(#sh)" }, L.pipe, { fill: v("--adv-soft"), stroke: v("--adv"), strokeWidth: 2 });
+el("rect", { x: TBOX.x, y: TBOX.y, width: TBOX.w, height: TBOX.h, rx: 16, filter: "url(#sh)" }, L.pipe, { fill: v("--green-soft"), stroke: v("--green"), strokeWidth: 2 });
+txt(L.pipe, ABOX.x + 4, ABOX.y + ABOX.h + 20, "Adversary's scope", "t-bodyb", 12.5, { fill: v("--adv") });
+txt(L.pipe, TBOX.x + TBOX.w - 4, TBOX.y + TBOX.h + 20, "Defender's scope", "t-bodyb", 12.5, { fill: v("--green") }, "end");
+const W = (d, c = "--edge", m = "arr", dash = false) => el("path", { d, "marker-end": `url(#${m})` }, L.pipe,
+  { fill: "none", stroke: v(c), strokeWidth: 2.2, strokeDasharray: dash ? "6 6" : "none", strokeLinejoin: "round" });
+const Y = { r1: 196, r2: 262, r3: 340, r4: 420 };
+/* training data */
+const TD = el("g", { transform: "translate(826 92)" }, L.pipe);
+el("rect", { x: -78, y: -20, width: 156, height: 40, rx: 20, filter: "url(#sh)" }, TD, { fill: v("--card"), stroke: v("--slate"), strokeWidth: 2 });
+[[-56, -6, "--red"], [-46, 6, "--oth"], [-62, 8, "--oth"], [-50, -9, "--red"]].forEach(([x, y, c]) => el("circle", { cx: x, cy: y, r: 3.6 }, TD, { fill: v(c) }));
+txt(TD, 10, 5, "Labeled domains", "t-bodyb", 12.5, { fill: v("--fg") }, "middle");
+W(`M 826 112 L 826 128 L ${AX} 128 L ${AX} ${Y.r1 - 22}`);
+W(`M 826 112 L 826 128 L ${TX} 128 L ${TX} ${Y.r1 - 22}`);
+/* stations */
+const ST = {};
+function station(id, x, y, w, label, fill, stroke, textColor, cls = "t-bodyb") {
+  const g = el("g", { transform: `translate(${x} ${y})` }, L.pipe);
+  const halo = el("rect", { x: -w / 2 - 7, y: -26, width: w + 14, height: 52, rx: 14 }, g, { fill: v("--gold"), opacity: 0 });
+  el("rect", { x: -w / 2, y: -13, width: w, height: 38, rx: 10 }, g, { fill: v(stroke) });
+  el("rect", { x: -w / 2, y: -13, width: w, height: 38, rx: 10 }, g, { fill: "#000", opacity: .22 });
+  const cap = el("g", {}, g);
+  el("rect", { x: -w / 2, y: -19, width: w, height: 38, rx: 10 }, cap, { fill: v(fill), stroke: v(stroke), strokeWidth: 2 });
+  el("rect", { x: -w / 2 + 6, y: -16, width: w - 12, height: 6, rx: 3 }, cap, { fill: v("--hi"), opacity: .16 });
+  txt(cap, 0, 5, label, cls, cls === "t-disp" ? 16 : 12.5, { fill: v(textColor) }, "middle");
+  ST[id] = { g, halo, cap, x, y };
+}
+station("strain", AX, Y.r1, 160, "Surrogate training", "--slate-soft", "--slate", "--fg");
+station("smodel", AX, Y.r2, 150, "Surrogate model", "--card", "--slate", "--fg");
+station("minta",  AX, Y.r3, 110, "MintA", "--red", "--red", "--card", "t-disp");
+station("pert",   AX, Y.r4, 196, "Domain & IP perturbations", "--card", "--adv", "--fg");
+station("tmodel", TX, Y.r1, 140, "Target model", "--card", "--green", "--fg");
+station("infer",  TX, Y.r2, 150, "Detector inference", "--card", "--green", "--fg");
+station("dmg",    TX, Y.r3, 170, "Domain graph rebuilt", "--card", "--green", "--fg");
+station("logs",   TX, Y.r4, 130, "DNS logs", "--card", "--green", "--fg");
+W(`M ${AX} ${Y.r1 + 19} L ${AX} ${Y.r2 - 21}`);
+W(`M ${AX} ${Y.r2 + 19} L ${AX} ${Y.r3 - 21}`);
+W(`M ${AX} ${Y.r3 + 19} L ${AX} ${Y.r4 - 21}`);
+W(`M ${TX} ${Y.r1 + 19} L ${TX} ${Y.r2 - 21}`);
+W(`M ${TX} ${Y.r4 - 19} L ${TX} ${Y.r3 + 21}`);
+W(`M ${TX} ${Y.r3 - 19} L ${TX} ${Y.r2 + 21}`);
+/* estimated subgraph into MintA */
+const estW = W(`M 392 246 L 540 246 L 540 ${Y.r3} L ${AX - 58} ${Y.r3}`, "--adv", "arra", true);
+const estT = txt(L.pipe, 548, 236, "", "t-mono", 10, { fill: v("--adv") });
+/* DNS bridge */
+const DNSY = 494;
+W(`M ${AX} ${Y.r4 + 19} L ${AX} ${DNSY} L 788 ${DNSY}`);
+W(`M 864 ${DNSY} L ${TX} ${DNSY} L ${TX} ${Y.r4 + 21}`);
+const DNS = el("g", { transform: `translate(826 ${DNSY})` }, L.pipe);
+const dnsHalo = el("rect", { x: -46, y: -22, width: 92, height: 44, rx: 22 }, DNS, { fill: v("--gold"), opacity: 0 });
+el("rect", { x: -38, y: -16, width: 76, height: 32, rx: 16, filter: "url(#sh)" }, DNS, { fill: v("--oth-soft"), stroke: v("--oth"), strokeWidth: 2 });
+txt(DNS, 0, 5, "DNS", "t-monob", 12.5, { fill: v("--oth") }, "middle");
+/* MintA step counter */
+const stepT = txt(L.pipe, AX + 62, Y.r3 + 4, "", "t-monob", 10.5, { fill: v("--red") });
+/* outcome pill */
+const OUTP = el("g", { transform: `translate(${TX} ${Y.r2 + 40})` }, L.pipe);
+el("rect", { x: -88, y: -11, width: 176, height: 22, rx: 11 }, OUTP, { fill: v("--adv") });
+txt(OUTP, 0, 4, "adversary domains → benign", "t-monob", 10, { fill: v("--card") }, "middle");
+
+/* ---------- tokens ---------- */
+const toks = [0, 1].map(() => {
+  const g = el("g", {}, L.token);
+  el("circle", { r: 13 }, g, { fill: v("--gold"), opacity: .3 });
+  el("circle", { r: 8 }, g, { fill: "url(#gGold)" });
+  return g;
+});
+const legs = [
+  { s: 4.2,  e: 4.9,  slot: 0, pts: [[826, 112], [826, 128], [TX, 128], [TX, Y.r1 - 20]] },
+  { s: 5.0,  e: 5.8,  slot: 1, pts: [[826, 112], [826, 128], [AX, 128], [AX, Y.r1 - 20]] },
+  { s: 6.3,  e: 6.7,  slot: 1, pts: [[AX, Y.r1 + 19], [AX, Y.r2 - 20]] },
+  { s: 8.5,  e: 9.1,  slot: 0, pts: [[392, 246], [540, 246], [540, Y.r3], [AX - 56, Y.r3]] },
+  { s: 8.6,  e: 9.0,  slot: 1, pts: [[AX, Y.r2 + 19], [AX, Y.r3 - 20]] },
+  { s: 12.9, e: 13.3, slot: 0, pts: [[AX, Y.r3 + 19], [AX, Y.r4 - 20]] },
+  { s: 14.2, e: 15.6, slot: 0, pts: [[AX, Y.r4 + 19], [AX, DNSY], [TX, DNSY], [TX, Y.r4 + 20]] },
+  { s: 16.0, e: 16.4, slot: 0, pts: [[TX, Y.r4 - 19], [TX, Y.r3 + 20]] },
+  { s: 16.9, e: 17.3, slot: 0, pts: [[TX, Y.r3 - 19], [TX, Y.r2 + 20]] },
+  { s: 17.0, e: 17.4, slot: 1, pts: [[TX, Y.r1 + 19], [TX, Y.r2 - 20]] },
+];
+legs.forEach(lg => {
+  lg.len = []; let tot = 0;
+  for (let i = 1; i < lg.pts.length; i++) { const d = Math.hypot(lg.pts[i][0] - lg.pts[i - 1][0], lg.pts[i][1] - lg.pts[i - 1][1]); lg.len.push(d); tot += d; }
+  lg.tot = tot;
+});
+function along(lg, p) {
+  let d = p * lg.tot;
+  for (let i = 0; i < lg.len.length; i++) {
+    if (d <= lg.len[i] || i === lg.len.length - 1) { const f = lg.len[i] ? clamp(d / lg.len[i]) : 0; return [lerp(lg.pts[i][0], lg.pts[i + 1][0], f), lerp(lg.pts[i][1], lg.pts[i + 1][1], f)]; }
+    d -= lg.len[i];
+  }
+}
+const ACT = { tmodel: [4.9], strain: [5.8], smodel: [6.7], minta: [9.1], pert: [13.3], logs: [15.6], dmg: [16.4], infer: [17.4] };
+
+/* ---------- act 1: the problem ---------- */
+const CAM = { t: 0 };
+const PL = 13.0, SKIP = 4.0;
+const PSTAGES = [
+  { t: 0,    name: "Flagged",       cap: "Detectors build a graph of domains, IPs and clients from DNS logs. A graph model flags the adversary's domains as malicious." },
+  { t: 3.4,  name: "One at a time", cap: "Existing evasion attacks edit one domain at a time. Each edit frees that domain, but its linked domains pull it back." },
+  { t: 7.4,  name: "Side effects",  cap: "Repeated single-domain edits also push benign neighbors toward the flagged range, and success falls as more domains are attacked." },
+  { t: 10.0, name: "Hard at scale", cap: "Evading one domain is easy. Evading all of an adversary's domains at once, without disturbing the rest, is what MintA does." },
+];
+const SROOT = tt => 1;
+const rootP = el("g");
+
+/* single-domain attacks on the graph */
+const ATK = [{ id: "a1", tgt: "b10", s: 3.8 }, { id: "a2", tgt: "b11", s: 5.1 }, { id: "a3", tgt: "b20", s: 6.4 }].map(a => {
+  a.line = el("line", { pathLength: 1 }, rootP, { stroke: v("--adv"), strokeWidth: 3, strokeLinecap: "round", strokeDasharray: 1 });
+  a.ring = el("circle", {}, rootP, { fill: "none", stroke: v("--gold"), strokeWidth: 3 });
+  return a;
+});
+const SEGS = [
+  [[3.8, 4.6, .92, .34], [5.3, 6.0, .34, .63]],
+  [[5.1, 5.9, .86, .38], [6.6, 7.3, .38, .60]],
+  [[6.4, 7.2, .95, .41]],
+  [],
+  [[7.6, 8.6, .14, .36]],
+  [[7.6, 8.6, .22, .57]],
+  [[7.8, 8.8, .10, .29]],
+];
+
+/* trend panel where the pipeline sits later */
+const TP = el("g", { transform: "translate(600 140)" }, rootP);
+el("rect", { x: 0, y: 0, width: 452, height: 322, rx: 16, filter: "url(#sh)" }, TP, { fill: v("--panel"), stroke: v("--line"), strokeWidth: 1.5 });
+txt(TP, 22, 34, "Single-domain attacks, repeated", "t-bodyb", 15, { fill: v("--fg") });
+txt(TP, 22, 56, "evasion success as more linked domains are attacked", "t-body", 12.5, { fill: v("--muted") });
+const TB = 262, TH = 160, TW = 54, TDX = 12, TDY = 8;
+el("line", { x1: 50, y1: TB, x2: 410, y2: TB }, TP, { stroke: v("--line"), strokeWidth: 1.5 });
+txt(TP, 230, TB + 46, "domains attacked", "t-body", 12.5, { fill: v("--muted") }, "middle");
+const TCOL = [.86, .62, .41, .22].map((h, i) => {
+  const cx = 100 + i * 86, g = el("g", {}, TP);
+  const side = el("path", {}, g, { fill: v("--adv-deep") });
+  const front = el("rect", { x: cx - TW / 2, width: TW }, g, { fill: v("--adv") });
+  const top = el("path", {}, g, { fill: v("--adv") });
+  const topH = el("path", {}, g, { fill: v("--hi"), opacity: .35 });
+  txt(TP, cx, TB + 22, String(i + 1), "t-monob", 13, { fill: v("--muted") }, "middle");
+  return { cx, h, g, side, front, top, topH };
+});
+const trendArrow = el("path", { d: "M 112 92 C 220 120, 300 170, 392 196", "marker-end": "url(#arra)", pathLength: 1 }, TP,
+  { fill: "none", stroke: v("--red"), strokeWidth: 2.5, strokeDasharray: 1, strokeLinecap: "round" });
+
+function setBar(tr, i, s, ghost) {
+  const h = BH * s, x0 = tr.bx, x1 = tr.bx + BW, DX = 10, DY = 7, yt = BASE - h;
+  tr.bar.setAttribute("y", yt); tr.bar.setAttribute("height", h);
+  tr.side.setAttribute("d", `M ${x1} ${yt} L ${x1 + DX} ${yt - DY} L ${x1 + DX} ${BASE - DY} L ${x1} ${BASE} Z`);
+  const topD = `M ${x0} ${yt} L ${x0 + DX} ${yt - DY} L ${x1 + DX} ${yt - DY} L ${x1} ${yt} Z`;
+  tr.top.setAttribute("d", topD); tr.topO.setAttribute("d", topD);
+  tr.bg.style.opacity = 1;
+  tr.ghost.setAttribute("y1", BASE - BH * S_INIT[i]); tr.ghost.setAttribute("y2", BASE - BH * S_INIT[i]);
+  tr.ghost.style.opacity = .6 * ghost;
+  tr.n.ring.style.stroke = s > .5 ? v("--red") : (tr.adv ? v("--green") : v("--oth"));
+}
+
+function renderP(tt) {
+  rootP.style.opacity = tt < PL ? 1 - raw(tt, PL - .5, PL) : 0;
+  const back2 = raw(tt, PL - .6, PL);
+  L.pipe.style.opacity = back2; L.token.style.opacity = back2;
+  if (tt < 3.0) { ATK.forEach(a => { a.line.style.opacity = 0; a.ring.style.opacity = 0; }); TP.style.opacity = 0; return; }
+
+  const reset = io(raw(tt, PL - .8, PL - .1));
+  let evaded = 0;
+  tracked.forEach((tr, i) => {
+    let s = S_INIT[i], moved = 0;
+    SEGS[i].forEach(([a, b, f, g]) => { if (tt > a) { s = lerp(f, g, io(raw(tt, a, b))); moved = 1; } });
+    s = lerp(s, S_INIT[i], reset);
+    if (tr.adv && s < .5) evaded++;
+    setBar(tr, i, s, moved * (1 - reset));
+  });
+  srcT.textContent = tt < 3.6 ? "target model" : `evaded: ${evaded} of 4`;
+  srcR.style.fill = tt < 3.6 ? v("--green") : v("--adv");
+
+  ATK.forEach(a => {
+    const A = nid[a.id], B = nid[a.tgt];
+    a.line.setAttribute("x1", A.px); a.line.setAttribute("y1", A.py); a.line.setAttribute("x2", B.px); a.line.setAttribute("y2", B.py);
+    const d = io(raw(tt, a.s, a.s + .5));
+    a.line.style.strokeDashoffset = 1 - d; a.line.style.opacity = d > 0 ? 1 : 0;
+    const q = raw(tt, a.s - .2, a.s + .8);
+    a.ring.setAttribute("cx", A.px); a.ring.setAttribute("cy", A.py); a.ring.setAttribute("r", 12 + 22 * q);
+    a.ring.style.opacity = q > 0 && q < 1 ? 1 - q : 0;
+  });
+  [[nid.a1, 3.6], [nid.a2, 4.9], [nid.a3, 6.2]].forEach(([n, s]) => {
+    const h = pulse(tt, s, 1.1);
+    if (h > 0) n.g.setAttribute("transform", n.g.getAttribute("transform") + ` scale(${(1 + .35 * h).toFixed(3)})`);
+  });
+
+  const ta = raw(tt, 8.0, 8.4);
+  TP.style.opacity = ta;
+  TP.setAttribute("transform", `translate(${(600 + 30 * (1 - out(ta))).toFixed(1)} 140)`);
+  TCOL.forEach((c, i) => {
+    const p = out(raw(tt, 8.4 + i * .3, 8.9 + i * .3));
+    const h = TH * c.h * p, x0 = c.cx - TW / 2, x1 = c.cx + TW / 2, yt = TB - h;
+    c.front.setAttribute("y", yt); c.front.setAttribute("height", h);
+    c.side.setAttribute("d", `M ${x1} ${yt} L ${x1 + TDX} ${yt - TDY} L ${x1 + TDX} ${TB - TDY} L ${x1} ${TB} Z`);
+    const td = `M ${x0} ${yt} L ${x0 + TDX} ${yt - TDY} L ${x1 + TDX} ${yt - TDY} L ${x1} ${yt} Z`;
+    c.top.setAttribute("d", td); c.topH.setAttribute("d", td);
+    c.g.style.opacity = p > 0 ? 1 : 0;
+  });
+  const ar = io(raw(tt, 9.8, 10.6));
+  trendArrow.style.strokeDashoffset = 1 - ar; trendArrow.style.opacity = ar > 0 ? 1 : 0;
+}
+
+
+/* ---------- acts + rail ---------- */
+const S0 = typeof SKIP === "number" ? SKIP : 0;
+const ACTS = [
+  { name: "The problem", color: "--red", stages: PSTAGES, off: 0, end: PL - .5 },
+  { name: "How MintA evades it", color: "--adv", stages: STAGES.filter(s => s.t >= S0).map(s => Object.assign({}, s, { t: s.t - S0 })), off: PL, end: PL + END - S0 },
+];
+const TOT = PL + LOOP - S0;
+const ALL = [];
+const actsEl = document.getElementById("acts");
+ACTS.forEach(A => {
+  const box = document.createElement("div");
+  box.className = "act"; box.style.setProperty("--c", `var(${A.color})`); box.style.flexGrow = A.stages.length;
+  const tab = document.createElement("button");
+  tab.className = "tab"; tab.type = "button"; tab.textContent = A.name;
+  tab.addEventListener("click", () => { t = A.off + .01; });
+  box.appendChild(tab);
+  const rl = document.createElement("div");
+  rl.className = "rail"; rl.style.gridTemplateColumns = `repeat(${A.stages.length}, minmax(0, 1fr))`;
+  box.appendChild(rl);
+  A.stages.forEach((s, i) => {
+    const g0 = A.off + s.t, g1 = i < A.stages.length - 1 ? A.off + A.stages[i + 1].t : A.end;
+    const b = document.createElement("button");
+    b.className = "step"; b.type = "button";
+    b.innerHTML = `<span class="bar"><i></i></span><span class="lbl"><b>${i + 1}</b><span class="txt">${s.name}</span></span>`;
+    b.setAttribute("aria-label", `${A.name}, step ${i + 1}: ${s.name}`);
+    b.addEventListener("click", () => { t = g0 + .01; });
+    rl.appendChild(b);
+    ALL.push({ t: g0, end: g1, cap: s.cap, b });
+  });
+  A.box = box; actsEl.appendChild(box);
+});
+const caption = document.getElementById("caption");
+function renderUI(tt) {
+  let si = 0; ALL.forEach((s, i) => { if (tt >= s.t) si = i; });
+  ALL.forEach((s, i) => { s.b.querySelector("i").style.width = (raw(tt, s.t, s.end) * 100) + "%"; s.b.classList.toggle("on", i === si); });
+  if (caption.dataset.i !== String(si)) { caption.dataset.i = si; caption.textContent = ALL[si].cap; }
+  ACTS[0].box.classList.toggle("on", tt < PL);
+  ACTS[1].box.classList.toggle("on", tt >= PL);
+}
+function render(tt) {
+  renderUI(tt);
+  if (typeof CAM === "object") CAM.t = tt;
+  if (tt < PL) { renderS(Math.min(tt, 3.0)); root.style.opacity = SROOT(tt); renderP(tt); }
+  else { rootP.style.opacity = 0; renderS(tt - PL + S0); }
+}
+
+
+/* ---------- render ---------- */
+function renderS(t) {
+  root.style.opacity = 1 - raw(t, END, LOOP);
+
+  /* graph build, projected in 3D */
+  const focus = raw(t, 8.0, 8.4) * (1 - raw(t, 13.6, 14.0));
+  const th = 0.5 * Math.sin(CAM.t * 2 * Math.PI / 12.5), ph = 0.24, CX = 262, CY = 238, F = 780;
+  const cth = Math.cos(th), sth = Math.sin(th), cph = Math.cos(ph), sph = Math.sin(ph);
+  const proj = (x, y, z) => {
+    const dx = x - CX, dy = y - CY;
+    const xr = dx * cth + z * sth, zr = -dx * sth + z * cth;
+    const yr = dy * cph + zr * sph, zz = -dy * sph + zr * cph;
+    const k = F / (F - zz);
+    return [CX + xr * k, CY + yr * k, k, zz];
+  };
+  floorLines.forEach(fl => { const a = proj(...fl.a), b = proj(...fl.b);
+    fl.e.setAttribute("x1", a[0]); fl.e.setAttribute("y1", a[1]); fl.e.setAttribute("x2", b[0]); fl.e.setAttribute("y2", b[1]); });
+  { const c = [[40, -FZ], [488, -FZ], [488, FZ], [40, FZ]].map(([x, z]) => proj(x, FLOOR, z));
+    floorFill.setAttribute("d", "M " + c.map(p => p[0].toFixed(1) + " " + p[1].toFixed(1)).join(" L ") + " Z"); }
+  L.gFloor.style.opacity = raw(t, 0, 0.8);
+  nodes.forEach(n => {
+    const a = raw(t, n.order * 0.9, n.order * 0.9 + 0.35);
+    const ap = raw(t, 1.0, 1.4);
+    const pop = n.adv ? (ap ? back(ap) : 0) : (a ? back(a) : 0);
+    const [px, py, k, zz] = proj(n.x, n.y, n.z);
+    n.px = px; n.py = py; n.zz = zz;
+    n.g.setAttribute("transform", `translate(${px.toFixed(1)} ${py.toFixed(1)}) scale(${(pop * k).toFixed(3)})`);
+    const depth = lerp(.45, 1, clamp((zz + 150) / 300));
+    n.g.style.opacity = n.adv ? 1 : lerp(1, 0.3, focus) * depth;
+    const sp = proj(n.x, FLOOR, n.z);
+    n.sh.setAttribute("cx", sp[0]); n.sh.setAttribute("cy", sp[1]);
+    n.sh.setAttribute("rx", 7 * sp[2] * pop); n.sh.setAttribute("ry", 2.4 * sp[2] * pop);
+    n.sh.style.opacity = .13 * (n.adv ? 1 : lerp(1, .4, focus));
+  });
+  nodes.slice().sort((p, q) => p.zz - q.zz).forEach(n => L.gNodes.appendChild(n.g));
+  edges.forEach(e => {
+    const d = e.kind === "a" ? io(raw(t, 1.2, 1.7)) : io(raw(t, 0.4 + e.k * 0.012, 1.0 + e.k * 0.012));
+    e.line.setAttribute("x1", e.a.px); e.line.setAttribute("y1", e.a.py); e.line.setAttribute("x2", e.b.px); e.line.setAttribute("y2", e.b.py);
+    e.line.style.strokeDashoffset = 1 - d;
+    const dep = lerp(.4, 1, clamp(((e.a.zz + e.b.zz) / 2 + 150) / 300));
+    e.line.style.opacity = d > 0 ? (e.kind === "a" ? 1 : lerp(1, .35, focus) * dep) : 0;
+  });
+  tracked.forEach(tr => {
+    const left = tr.n.px < CX;
+    tr.tag.setAttribute("x", tr.n.px + (left ? -14 : 14)); tr.tag.setAttribute("y", tr.n.py - 13);
+    tr.tag.setAttribute("text-anchor", left ? "end" : "start");
+  });
+  const advN = nodes.filter(n => n.adv);
+  const hx = advN.reduce((a, n) => a + n.px, 0) / advN.length, hy = advN.reduce((a, n) => a + n.py, 0) / advN.length;
+  hull.setAttribute("cx", hx); hull.setAttribute("cy", hy);
+  hullLbl.setAttribute("x", hx); hullLbl.setAttribute("y", hy - 100);
+  estW.setAttribute("d", `M ${hx + 128} ${hy} L 540 ${hy} L 540 ${Y.r3} L ${AX - 58} ${Y.r3}`);
+  estT.setAttribute("y", hy - 10);
+  { const lg = legs[3]; lg.pts[0] = [hx + 128, hy]; lg.pts[1] = [540, hy];
+    lg.len = []; lg.tot = 0; for (let i = 1; i < lg.pts.length; i++) { const d = Math.hypot(lg.pts[i][0] - lg.pts[i - 1][0], lg.pts[i][1] - lg.pts[i - 1][1]); lg.len.push(d); lg.tot += d; } }
+  hull.style.opacity = focus;
+  hullLbl.style.opacity = focus;
+  estW.style.opacity = focus;
+  estT.style.opacity = focus;
+  pert.forEach((p, i) => {
+    const s0 = 9.8 + i * 0.8;
+    const d = io(raw(t, s0, s0 + 0.5));
+    const A = nid[PERT[i][0]], B = nid[PERT[i][1]];
+    [p.line, p.glow].forEach(l => { l.setAttribute("x1", A.px); l.setAttribute("y1", A.py); l.setAttribute("x2", B.px); l.setAttribute("y2", B.py); });
+    p.line.style.strokeDashoffset = 1 - d;
+    p.line.style.opacity = d > 0 ? 1 : 0;
+    p.glow.style.opacity = .5 * pulse(t, s0, 0.9) + .35 * pulse(t, 15.4, 1.0);
+  });
+
+  /* scores */
+  let S, src = "target model", srcC = "--green", dim = 0;
+  const grow = out(raw(t, 1.6, 2.6));
+  if (t < 9.2) S = S_INIT.map(x => x * grow);
+  else if (t < 14) {
+    src = "surrogate model"; srcC = "--slate";
+    const p = io(raw(t, 9.6, 12.2));
+    S = S_INIT.map((x, i) => lerp(x, S_SURR[i], i < 4 ? p : p) + (i >= 4 ? 0.01 * Math.sin(t * 7 + i) * (p > 0 && p < 1 ? 1 : 0) : 0));
+  } else if (t < 17.6) { src = "awaiting inference"; srcC = "--slate"; S = S_SURR.slice(); dim = 1; }
+  else { const p = io(raw(t, 17.6, 18.6)); S = S_INIT.map((x, i) => lerp(x, S_FINAL[i], p)); }
+  srcT.textContent = src; srcR.style.fill = v(srcC);
+  srcChip.style.opacity = raw(t, 1.6, 1.9);
+  tracked.forEach((tr, i) => {
+    const h = BH * S[i];
+    tr.bar.setAttribute("y", BASE - h); tr.bar.setAttribute("height", h);
+    const x0 = tr.bx, x1 = tr.bx + BW, DX = 10, DY = 7, yt = BASE - h;
+    tr.side.setAttribute("d", `M ${x1} ${yt} L ${x1 + DX} ${yt - DY} L ${x1 + DX} ${BASE - DY} L ${x1} ${BASE} Z`);
+    const topD = `M ${x0} ${yt} L ${x0 + DX} ${yt - DY} L ${x1 + DX} ${yt - DY} L ${x1} ${yt} Z`;
+    tr.top.setAttribute("d", topD); tr.topO.setAttribute("d", topD);
+    tr.bg.style.opacity = h > 0.5 ? (dim ? .25 : 1) : 0;
+    const showG = t >= 17.6;
+    tr.ghost.setAttribute("y1", BASE - BH * S_INIT[i]); tr.ghost.setAttribute("y2", BASE - BH * S_INIT[i]);
+    tr.ghost.style.opacity = showG ? .6 * raw(t, 17.6, 18) : 0;
+    /* detection ring on the graph */
+    const flagged = S[i] > 0.5;
+    const ringOn = t > 2.4 ? (dim ? .25 : 1) : 0;
+    tr.n.ring.style.stroke = flagged ? v("--red") : (tr.adv ? v("--green") : v("--oth"));
+    tr.n.ring.style.opacity = tr.adv ? ringOn : ringOn * .7;
+    tr.n.ring.setAttribute("r", 14 + 3 * pulse(t, 2.4, .6) + (tr.adv && t > 18 ? 4 * pulse(t, 18.4, .8) : 0));
+    tr.tag.style.opacity = raw(t, 2.4, 2.7);
+  });
+
+  /* pipeline */
+  Object.entries(ST).forEach(([k, s]) => {
+    const h = Math.max(0, ...(ACT[k] || []).map(a => pulse(t, a, .8)));
+    const hold = k === "minta" ? raw(t, 9.1, 9.3) * (1 - raw(t, 12.6, 12.9)) : 0;
+    s.halo.style.opacity = .5 * Math.max(h, hold * (0.5 + 0.3 * Math.sin(t * 6)));
+    s.cap.setAttribute("transform", `translate(0 ${(4.5 * h).toFixed(2)})`);
+  });
+  dnsHalo.style.opacity = .5 * pulse(t, 14.7, .9);
+  const it = t >= 9.2 && t < 14 ? Math.min(50, Math.max(1, Math.round(50 * raw(t, 9.4, 12.4)))) : 0;
+  stepT.textContent = it ? `step ${it}` : "";
+  const op = raw(t, 18.3, 18.7);
+  OUTP.style.opacity = op;
+  OUTP.setAttribute("transform", `translate(${TX} ${Y.r2 + 40}) scale(${op ? back(op).toFixed(3) : 0})`);
+
+  /* tokens */
+  const used = [false, false];
+  legs.forEach(lg => {
+    if (t >= lg.s && t <= lg.e + .12) {
+      const p = along(lg, io(raw(t, lg.s, lg.e)));
+      toks[lg.slot].setAttribute("transform", `translate(${p[0].toFixed(1)} ${p[1].toFixed(1)})`);
+      toks[lg.slot].style.opacity = 1 - raw(t, lg.e, lg.e + .12);
+      used[lg.slot] = true;
+    }
+  });
+  toks.forEach((g, i) => { if (!used[i]) g.style.opacity = 0; });
+}
+
+/* ---------- playback ---------- */
+const playBtn = document.getElementById("play"), scrub = document.getElementById("scrub");
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+let t = reduce ? PL - S0 + 20 : 0.2, playing = !reduce, last = null, dragging = false;
+scrub.max = TOT;
+playBtn.textContent = playing ? "Pause" : "Play";
+playBtn.addEventListener("click", () => { playing = !playing; playBtn.textContent = playing ? "Pause" : "Play"; });
+document.getElementById("restart").addEventListener("click", () => { t = 0; });
+scrub.addEventListener("input", () => { t = +scrub.value; dragging = true; });
+scrub.addEventListener("change", () => { dragging = false; });
+function frame(now) {
+  if (last !== null && playing && !dragging) t = (t + (now - last) / 1000) % TOT;
+  last = now;
+  render(t);
+  if (!dragging) scrub.value = t;
+  requestAnimationFrame(frame);
+}
+render(t);
+requestAnimationFrame(frame);
+})();
+</script>
+
+<script>
+(function () {
+  if (window.self === window.top) return;
+  var last = 0;
+  function post() {
+    var h = Math.ceil(document.querySelector(".wrap").getBoundingClientRect().height);
+    if (h !== last) { last = h; parent.postMessage({ type: "anim-height", h: h }, "*"); }
+  }
+  new ResizeObserver(post).observe(document.body);
+  window.addEventListener("load", post);
+  /* start from the beginning when scrolled into view; pause when off screen */
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  var play = document.getElementById("play"), restart = document.getElementById("restart");
+  var seen = false, ours = false;
+  var playing = function () { return play.textContent.trim() === "Pause"; };
+  if (playing()) play.click();
+  new IntersectionObserver(function (es) {
+    es.forEach(function (e) {
+      if (e.isIntersecting) {
+        if (!seen) { seen = true; restart.click(); if (!playing()) play.click(); }
+        else if (ours && !playing()) play.click();
+        ours = false;
+      } else if (playing()) { play.click(); ours = true; }
+    });
+  }, { threshold: 0.35 }).observe(document.querySelector(".stage"));
+})();
+</script>
+</body>
+</html>
